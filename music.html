@@ -285,7 +285,10 @@
 
     /* Automatischer Dark Mode */
     @media (prefers-color-scheme: dark) {
-      body { color: #e8eaed; }
+      html, body {
+        background-color: #121212 !important;
+        color: #e8eaed;
+      }
       .search-input { background-color: #1e1e1e; color: #e8eaed; border-color: #3c4043; }
       .search-input:focus { border-color: #ff8a80; background-color: #2d2d2d; }
       .card, .skeleton-card, .comment-item, .comment-cta-box { background: #1e1e1e !important; border-color: #3c4043 !important; }
