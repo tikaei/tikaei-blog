@@ -23,6 +23,30 @@
       box-sizing: border-box;
     }
 
+    /* Suchfeld Styling */
+    .search-container {
+      margin-bottom: 25px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-family: 'Roboto', sans-serif;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      background-color: #f8f9fa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #b51200;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(181, 18, 0, 0.15);
+    }
+
     /* Kachel-Grid */
     .grid-layout {
       display: grid;
@@ -214,6 +238,11 @@
 
   <div class="reader-container">
     
+    <!-- Suchfeld -->
+    <div id="search-wrapper" class="search-container">
+      <input type="text" id="search-input" class="search-input" placeholder="Musik-Beiträge durchsuchen..." oninput="filterPosts()">
+    </div>
+
     <div id="grid-view" class="grid-layout">
       <div class="status-text">Lade Beiträge...</div>
     </div>
@@ -247,7 +276,6 @@
   </div>
 
   <script>
-    // FÜR MUSIK
     const BLOG_FEED_URL = 'https://tikaeimusic.blogspot.com';
     const DEFAULT_THUMB = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015';
 
@@ -295,7 +323,7 @@
           return { blogId, postId, title, pubDate, content, imageUrl };
         });
 
-        renderGrid();
+        renderGrid(loadedPosts);
         delete window[callbackName];
       };
 
@@ -304,11 +332,32 @@
       document.body.appendChild(script);
     }
 
-    function renderGrid() {
+    function filterPosts() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      const filtered = loadedPosts.filter(post => {
+        const titleMatch = post.title.toLowerCase().includes(query);
+        const temp = document.createElement('div');
+        temp.innerHTML = post.content;
+        const text = (temp.textContent || temp.innerText || '').toLowerCase();
+        return titleMatch || text.includes(query);
+      });
+
+      renderGrid(filtered);
+    }
+
+    function renderGrid(postsToRender) {
       const gridView = document.getElementById('grid-view');
       gridView.innerHTML = '';
 
-      loadedPosts.forEach((post, index) => {
+      if (postsToRender.length === 0) {
+        gridView.innerHTML = '<div class="status-text">Keine passenden Beiträge gefunden.</div>';
+        return;
+      }
+
+      postsToRender.forEach(post => {
+        const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
+
         let dateStr = '';
         if (post.pubDate) {
           const d = new Date(post.pubDate);
@@ -322,7 +371,7 @@
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.onclick = () => openPost(index);
+        card.onclick = () => openPost(originalIndex);
 
         card.innerHTML = `
           <div class="card-img-wrapper">
@@ -344,6 +393,8 @@
     function openPost(index) {
       const post = loadedPosts[index];
       if (!post) return;
+
+      document.getElementById('search-wrapper').style.display = 'none';
 
       document.getElementById('article-title').textContent = post.title;
       
@@ -368,6 +419,8 @@
     }
 
     function showGrid() {
+      document.getElementById('search-wrapper').style.display = 'block';
+
       document.getElementById('detail-view').style.display = 'none';
       document.getElementById('grid-view').style.display = 'grid';
       window.scrollTo({ top: 0, behavior: 'smooth' });
