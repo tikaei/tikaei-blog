@@ -198,7 +198,7 @@
 
   <div class="tikaei-feed-container">
     
-    <!-- Suchfeld für alle Blogs -->
+    <!-- Globales Suchfeld -->
     <div class="search-container">
       <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." oninput="handleGlobalSearch()">
     </div>
@@ -255,6 +255,12 @@
               const postIdMatch = rawId.match(/post-(\d+)/);
               const postId = postIdMatch ? postIdMatch : '';
 
+              let postUrl = '';
+              if (entry.link) {
+                const alt = entry.link.find(l => l.rel === 'alternate');
+                if (alt) postUrl = alt.href;
+              }
+
               let title = entry.title ? entry.title.$t : 'Beitrag';
               let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
               let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
@@ -274,7 +280,7 @@
               imageUrl = imageUrl ? makeOptimizedImage(imageUrl) : blog.defaultImg;
 
               allPosts.push({
-                postId, title, pubDate, content, imageUrl,
+                postId, postUrl, title, pubDate, content, imageUrl,
                 defaultImg: blog.defaultImg,
                 blogType: blog.type,
                 blogLabel: blog.label,
@@ -325,13 +331,7 @@
 
         if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
 
-        // Die exakte Blogger-URL als sicheren Parameter übergeben
-        let altUrl = '';
-        if (entry.link) {
-          const alt = entry.link.find(l => l.rel === 'alternate');
-          if (alt) altUrl = alt.href;
-        }
-        const finalLink = `${item.targetUrl}?postUrl=${encodeURIComponent(altUrl)}`;
+        const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
 
         return `
           <div class="tikaei-card blog-${item.blogType}">
@@ -417,7 +417,6 @@
         }
 
         track.innerHTML = '';
-        // Bei Suche zeigen wir alle Treffer in Reihen à 2 Kacheln
         for (let i = 0; i < postsToDisplay.length; i += 2) {
           const row = document.createElement('div');
           row.className = 'tikaei-row';
@@ -427,7 +426,6 @@
         }
 
         setTimeout(() => {
-          // Gesamthöhe aller Suchergebnis-Reihen berechnen
           let totalHeight = 0;
           track.querySelectorAll('.tikaei-row').forEach(r => {
             totalHeight += r.offsetHeight + 20;
