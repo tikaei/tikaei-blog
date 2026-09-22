@@ -44,7 +44,7 @@
 [data-theme="dark"] .theme-moto { --accent-light: #113822; }
 
 /* ==========================================
-   2. GLOBAL LAYOUT & MODERN TYPOGRAPHY
+   2. GLOBAL LAYOUT & TYPOGRAPHY
    ========================================== */
 body {
   margin: 0;
@@ -74,13 +74,10 @@ body {
   margin-bottom: 30px;
 }
 
-.site-title {
-  font-family: 'Roboto', sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  margin: 0;
-  color: var(--text-main);
-  text-decoration: none;
+.site-logo {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
 .nav-links {
