@@ -3,30 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tikaei Moto</title>
+  <title>[ti:kæı] Moto</title>
+  <link rel="icon" href="https://drive.google.com/thumbnail?id=1vBQTSOzCKA_tfk_JPe9mo2Uyl4aO5of6&width=64" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script>
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-GNER6HTD1X');
   </script>
 </head>
 <body class="theme-moto">
 
-  <!-- Google Drive Header Banner -->
   <div class="header-banner">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjX6YkJVRVEiNHTI7aZkGGjnfP3e4q-sKMYk8ewk08XlexV4t11l5Rr3sbrc-kNFgagerakCYRiUCBcg_BbEdPuQsQZ4qXJk_T82uq77aaFT1So_h2cE48eEOV_XPQg1vtMs3XR7lTdx8YXTR3o3QTyJcrweEOv4e_YdqUApl_T-mFVeg/s1600/image1786059289&width=1400" alt="Moto Header">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s1600/banner%20moto.png" alt="Moto Header">
     <div class="header-overlay">
       <h1>Moto</h1>
     </div>
@@ -34,7 +32,9 @@
 
   <div class="container">
     <div class="top-bar">
-      <a href="index.html" class="site-title" id="nav-title">&larr; Zurück zum Hub</a>
+      <a href="index.html">
+        <img src="https://drive.google.com/thumbnail?id=1PAj2KCymQpuKYoqjM-bTa6a07uaauGUk&width=300" alt="[ti:kæı]" class="site-logo">
+      </a>
       <div class="nav-links">
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
@@ -49,25 +49,22 @@
       <input type="text" id="search-input" class="search-input" placeholder="Motorrad-Beiträge durchsuchen..." oninput="filterPosts()">
     </div>
 
-    <!-- Grid-Ansicht -->
     <div id="grid-view" class="grid-layout">
-      <!-- Skeleton Loader -->
       <div class="card" style="opacity: 0.6;"><div class="card-img-wrapper"></div><div class="card-body"><div class="card-title">Lade Beiträge...</div></div></div>
     </div>
 
-    <!-- Detail-Ansicht -->
     <div id="detail-view" style="display: none;">
       <button class="theme-toggle-btn" style="margin-bottom: 20px;" onclick="showGrid()">&larr; Zurück zur Übersicht</button>
       <article>
         <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
           <span id="article-date" class="card-date"></span>
-          <h1 id="article-title" style="font-family: 'Playfair Display', Georgia, serif; font-size: 28px; margin: 5px 0 0 0; color: var(--text-main);"></h1>
+          <h1 id="article-title" style="font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 28px; margin: 5px 0 0 0; color: var(--text-main);"></h1>
         </div>
         <div id="article-body" style="font-size: 16px; line-height: 1.8; color: var(--text-main);"></div>
       </article>
 
       <div style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--border-color);">
-        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
+        <h3 style="font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
         <div id="comments-list"></div>
         <div style="margin-top: 25px; background: var(--input-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
           <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted);">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
@@ -77,7 +74,7 @@
     </div>
 
     <footer class="site-footer">
-      <p>&copy; Tikaei &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
+      <p>&copy; [ti:kæı] &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
     </footer>
   </div>
 
