@@ -324,6 +324,17 @@
         });
 
         renderGrid(loadedPosts);
+
+        // Prüfen, ob ein Beitrag direkt per URL-Parameter aufgerufen wurde
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoOpenId = urlParams.get('postId');
+        if (autoOpenId) {
+          const postIndex = loadedPosts.findIndex(p => p.postId === autoOpenId);
+          if (postIndex !== -1) {
+            openPost(postIndex);
+          }
+        }
+
         delete window[callbackName];
       };
 
@@ -356,7 +367,6 @@
       }
 
       postsToRender.forEach(post => {
-        // Original-Index im ungefilterten Array finden, damit der Klick den richtigen Post öffnet
         const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
 
         let dateStr = '';
@@ -395,7 +405,6 @@
       const post = loadedPosts[index];
       if (!post) return;
 
-      // Suchfeld in der Detailansicht ausblenden
       document.getElementById('search-wrapper').style.display = 'none';
 
       document.getElementById('article-title').textContent = post.title;
@@ -421,7 +430,6 @@
     }
 
     function showGrid() {
-      // Suchfeld in der Übersicht wieder einblenden
       document.getElementById('search-wrapper').style.display = 'block';
 
       document.getElementById('detail-view').style.display = 'none';
