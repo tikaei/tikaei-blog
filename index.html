@@ -11,7 +11,6 @@
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       background: transparent;
     }
 
@@ -24,6 +23,30 @@
       margin: 0 auto;
       padding: 10px;
       box-sizing: border-box;
+    }
+
+    /* Globales Suchfeld */
+    .search-container {
+      margin-bottom: 25px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-family: 'Roboto', sans-serif;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+      background-color: #f8f9fa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #4285f4;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.15);
     }
 
     .tikaei-viewport {
@@ -174,11 +197,19 @@
 <body>
 
   <div class="tikaei-feed-container">
+    
+    <!-- Suchfeld für alle Blogs -->
+    <div class="search-container">
+      <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." oninput="handleGlobalSearch()">
+    </div>
+
+    <!-- Karussell Viewport -->
     <div class="tikaei-viewport" id="tikaei-viewport">
       <div id="tikaei-posts" class="tikaei-track">
         <div class="tikaei-status">Lade aktuelle Beiträge...</div>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -220,6 +251,10 @@
         window[callbackName] = function(data) {
           if (data?.feed?.entry) {
             data.feed.entry.forEach(entry => {
+              const rawId = entry.id.$t;
+              const postIdMatch = rawId.match(/post-(\d+)/);
+              const postId = postIdMatch ? postIdMatch : '';
+
               let title = entry.title ? entry.title.$t : 'Beitrag';
               let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
               let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
@@ -239,7 +274,7 @@
               imageUrl = imageUrl ? makeOptimizedImage(imageUrl) : blog.defaultImg;
 
               allPosts.push({
-                title, pubDate, content, imageUrl,
+                postId, title, pubDate, content, imageUrl,
                 defaultImg: blog.defaultImg,
                 blogType: blog.type,
                 blogLabel: blog.label,
@@ -250,16 +285,19 @@
           
           loadedCount++;
           if (loadedCount === blogs.length) {
-            renderPosts();
+            allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+            renderPosts(allPosts.slice(0, 8));
           }
           delete window[callbackName];
         };
 
         const script = document.createElement('script');
-        script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=10&ts=${Date.now()}`;
+        script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15&ts=${Date.now()}`;
         script.onerror = function() {
           loadedCount++;
-          if (loadedCount === blogs.length) renderPosts();
+          if (loadedCount === blogs.length) {
+            renderPosts(allPosts.slice(0, 8));
+          }
         };
         document.body.appendChild(script);
       }
@@ -287,9 +325,12 @@
 
         if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
 
+        // Link zur Unterseite direkt mit angehängter postId für den Direktstart im Reader
+        const finalLink = `${item.targetUrl}?postId=${item.postId}`;
+
         return `
           <div class="tikaei-card blog-${item.blogType}">
-            <a href="${item.targetUrl}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
+            <a href="${finalLink}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
               <div class="tikaei-img-wrapper">
                 <img class="tikaei-img" src="${item.imageUrl}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src='${item.defaultImg}';">
               </div>
@@ -303,7 +344,7 @@
                   <div class="tikaei-snippet">${plainText}</div>
                 </div>
                 <div>
-                  <span class="tikaei-readmore">Blog besuchen &rarr;</span>
+                  <span class="tikaei-readmore">Beitrag lesen &rarr;</span>
                 </div>
               </div>
             </a>
@@ -311,24 +352,42 @@
         `;
       }
 
-      function renderPosts() {
+      window.handleGlobalSearch = function() {
+        const query = document.getElementById('global-search-input').value.toLowerCase().trim();
+        const viewport = document.getElementById('tikaei-viewport');
+
+        if (sliderInterval) clearInterval(sliderInterval);
+
+        if (query === '') {
+          renderPosts(allPosts.slice(0, 8));
+          return;
+        }
+
+        const filtered = allPosts.filter(post => {
+          const titleMatch = post.title.toLowerCase().includes(query);
+          const temp = document.createElement('div');
+          temp.innerHTML = post.content;
+          const text = (temp.textContent || temp.innerText || '').toLowerCase();
+          return titleMatch || text.includes(query);
+        });
+
+        renderSearchGrid(filtered);
+      };
+
+      function renderPosts(postsToDisplay) {
         const track = document.getElementById('tikaei-posts');
         const viewport = document.getElementById('tikaei-viewport');
 
-        if (allPosts.length === 0) {
+        if (postsToDisplay.length === 0) {
           track.innerHTML = '<div class="tikaei-status">Keine Beiträge gefunden.</div>';
           return;
         }
 
-        allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         track.innerHTML = '';
-
-        const latestPosts = allPosts.slice(0, 8);
-
-        for (let i = 0; i < latestPosts.length; i += 2) {
+        for (let i = 0; i < postsToDisplay.length; i += 2) {
           const row = document.createElement('div');
           row.className = 'tikaei-row';
-          const pair = latestPosts.slice(i, i + 2);
+          const pair = postsToDisplay.slice(i, i + 2);
           row.innerHTML = pair.map(createCardHtml).join('');
           track.appendChild(row);
         }
@@ -342,9 +401,41 @@
         }, 300);
       }
 
+      function renderSearchGrid(postsToDisplay) {
+        const track = document.getElementById('tikaei-posts');
+        const viewport = document.getElementById('tikaei-viewport');
+
+        if (postsToDisplay.length === 0) {
+          track.innerHTML = '<div class="tikaei-status">Keine passenden Beiträge gefunden.</div>';
+          viewport.style.height = '150px';
+          return;
+        }
+
+        track.innerHTML = '';
+        // Bei Suche zeigen wir alle Treffer in Reihen à 2 Kacheln
+        for (let i = 0; i < postsToDisplay.length; i += 2) {
+          const row = document.createElement('div');
+          row.className = 'tikaei-row';
+          const pair = postsToDisplay.slice(i, i + 2);
+          row.innerHTML = pair.map(createCardHtml).join('');
+          track.appendChild(row);
+        }
+
+        setTimeout(() => {
+          // Gesamthöhe aller Suchergebnis-Reihen berechnen
+          let totalHeight = 0;
+          track.querySelectorAll('.tikaei-row').forEach(r => {
+            totalHeight += r.offsetHeight + 20;
+          });
+          viewport.style.height = totalHeight + 'px';
+        }, 100);
+      }
+
       function startSlider() {
         const track = document.getElementById('tikaei-posts');
         const container = document.querySelector('.tikaei-feed-container');
+
+        if (sliderInterval) clearInterval(sliderInterval);
 
         function nextSlide() {
           const rows = track.querySelectorAll('.tikaei-row');
@@ -357,11 +448,11 @@
 
         sliderInterval = setInterval(nextSlide, 4000);
 
-        container.addEventListener('mouseenter', () => clearInterval(sliderInterval));
-        container.addEventListener('mouseleave', () => {
+        container.onmouseenter = () => clearInterval(sliderInterval);
+        container.onmouseleave = () => {
           clearInterval(sliderInterval);
           sliderInterval = setInterval(nextSlide, 4000);
-        });
+        };
       }
 
       blogs.forEach(blog => loadBloggerFeed(blog));
