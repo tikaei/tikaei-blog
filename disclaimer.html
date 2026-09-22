@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutz & Impressum - Tikaei</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body class="theme-hub">
+
+  <div class="container" style="max-width: 800px;">
+    <div class="top-bar">
+      <a href="index.html" class="site-title">&larr; Zurück zum Hub</a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+      </button>
+    </div>
+
+    <div style="background-color: var(--surface-color); border: 1px solid var(--border-color); padding: 30px; border-radius: 12px; box-shadow: var(--card-shadow); line-height: 1.7;">
+      <h2 style="font-family: 'Playfair Display', Georgia, serif; margin-top: 0;">Datenschutzerklärung & Impressum</h2>
+      
+      <h3>1. Datenschutz auf einen Blick</h3>
+      <p><strong>Allgemeine Hinweise:</strong> Diese Website wird rein privat und ohne kommerzielles Interesse betrieben.</p>
+      <p><strong>Verantwortliche Stelle:</strong> Verantwortlich für die Bereitstellung dieser privaten Inhalte ist:<br>
+      Toni Korb<br>
+      E-Mail: <a href="&#109;&#097;&#105;&#108;&#116;&#111;&#058;&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;">&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;</a></p>
+
+      <h3>2. Technische Datenverarbeitung durch Hosting & Infrastruktur</h3>
+      <p>Diese Website wird über <strong>GitHub Pages</strong> gehostet und bindet Inhalte von Blogger (Google) ein. Anbieter der Hosting-Infrastruktur ist GitHub, Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA.</p>
+      <p>Beim Aufruf dieser Website erfasst die Infrastruktur von GitHub automatisch technische Server-Logfiles (z. B. IP-Adresse, Browsertyp, Uhrzeit). Diese Verarbeitung erfolgt durch den Hostinganbieter zur sicheren und stabilen Bereitstellung der Server.</p>
+
+      <h3>3. Webanalyse durch Google Analytics</h3>
+      <p>Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited ("Google"), Gordon House, Barrow Street, Dublin 4, Irland.</p>
+      <p>Google Analytics verwendet Cookies und ähnliche Technologien, die eine Analyse der Benutzung der Website ermöglichen. Die dabei erzeugten Informationen werden in der Regel an einen Server von Google in den USA übertragen.</p>
+      <p><strong>IP-Anonymisierung:</strong> Wir nutzen Google Analytics mit aktivierter IP-Anonymisierung, wodurch Ihre IP-Adresse innerhalb der EU/EWR gekürzt wird.</p>
+      <p><strong>Zweck & Rechtsgrundlage:</strong> Die Nutzung erfolgt auf Grundlage unseres berechtigten Interesses an der statistischen Analyse unseres Onlineangebots (Art. 6 Abs. 1 lit. f DSGVO).</p>
+      <p><strong>Widerspruch (Opt-Out):</strong> Sie können die Erfassung durch Google Analytics verhindern, indem Sie das Browser-Plugin herunterladen: <a href="https://tools.google.com/dlpage/gaoptout?hl=de" target="_blank" rel="noopener">https://tools.google.com/dlpage/gaoptout?hl=de</a></p>
+
+      <h3>4. Ihre Rechte & Anfragen zum Datenschutz</h3>
+      <p>Da der Betreiber dieser Website selbst keine personenbezogenen Daten speichert, wenden Sie sich für Auskunftsanfragen bezüglich der Server-Logfiles direkt an den Hostinganbieter oder nutzen die Datenschutz-Informationen unter: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a></p>
+    </div>
+
+    <footer class="site-footer">
+      <p>&copy; Tikaei &bull; Privates Blog-Netzwerk</p>
+    </footer>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeUI(next);
+    }
+    function updateThemeUI(theme) {
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
+    }
+    updateThemeUI(savedTheme);
+  </script>
+</body>
+</html>
