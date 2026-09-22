@@ -324,6 +324,17 @@
         });
 
         renderGrid(loadedPosts);
+
+        // Prüfen, ob ein Beitrag direkt per URL-Parameter aufgerufen wurde
+        const urlParams = new URLSearchParams(window.location.search);
+        const autoOpenId = urlParams.get('postId');
+        if (autoOpenId) {
+          const postIndex = loadedPosts.findIndex(p => p.postId === autoOpenId);
+          if (postIndex !== -1) {
+            openPost(postIndex);
+          }
+        }
+
         delete window[callbackName];
       };
 
