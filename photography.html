@@ -1,568 +1,67 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <!-- Google Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tikaei Fotografie</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto', sans-serif !important;
-      color: #202124;
-      background-color: transparent;
-    }
-
-    .reader-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 20px 15px;
-      box-sizing: border-box;
-    }
-
-    /* Suchfeld Styling */
-    .search-container {
-      margin-bottom: 25px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-family: 'Roboto', sans-serif;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-sizing: border-box;
-      background-color: #f8f9fa;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: #4285f4;
-      background-color: #ffffff;
-      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.15);
-    }
-
-    /* Kachel-Grid */
-    .grid-layout {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-
-    .card-img-wrapper {
-      width: 100%;
-      height: 180px;
-      background-color: #f1f3f4;
-      overflow: hidden;
-    }
-
-    .card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card-body {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      justify-content: space-between;
-    }
-
-    .card-date {
-      font-size: 12px;
-      color: #5f6368;
-      margin-bottom: 6px;
-    }
-
-    .card-title {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 18px;
-      margin: 0 0 10px 0;
-      line-height: 1.3;
-      color: #202124;
-    }
-
-    .card-snippet {
-      font-size: 14px;
-      color: #3c4043;
-      margin-bottom: 14px;
-    }
-
-    .card-btn {
-      font-weight: 700;
-      font-size: 13px;
-      color: #4285f4;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Skeleton Loader */
-    .skeleton-card {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 320px;
-    }
-    .skeleton-img {
-      width: 100%;
-      height: 180px;
-      background: #e0e0e0;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-    .skeleton-body {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex-grow: 1;
-    }
-    .skeleton-line {
-      height: 14px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-    .skeleton-line.short { width: 50%; }
-    .skeleton-line.title { height: 20px; width: 80%; }
-    @keyframes pulse {
-      0% { opacity: 0.6; }
-      50% { opacity: 0.2; }
-      100% { opacity: 0.6; }
-    }
-
-    /* Detail-Ansicht */
-    .detail-layout {
-      display: none;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .back-button {
-      display: inline-flex;
-      align-items: center;
-      background-color: #f1f3f4;
-      color: #202124;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 20px;
-      font-weight: 500;
-      font-size: 14px;
-      cursor: pointer;
-      margin-bottom: 25px;
-      transition: background 0.2s;
-    }
-
-    .back-button:hover {
-      background-color: #e8eaed;
-    }
-
-    .article-header {
-      margin-bottom: 25px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-
-    .article-date {
-      font-size: 14px;
-      color: #5f6368;
-    }
-
-    .article-title {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 28px;
-      margin: 8px 0;
-      line-height: 1.25;
-    }
-
-    .article-body {
-      font-size: 16px;
-      line-height: 1.8;
-      color: #202124;
-    }
-
-    .article-body img {
-      max-width: 100% !important;
-      height: auto !important;
-      border-radius: 8px;
-      margin: 15px 0;
-    }
-
-    /* Kommentarbereich & CTA */
-    .comments-section {
-      margin-top: 50px;
-      padding-top: 30px;
-      border-top: 2px solid #f1f3f4;
-    }
-
-    .comments-title {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 22px;
-      margin-bottom: 20px;
-    }
-
-    .comment-item {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      border-left: 3px solid #4285f4;
-    }
-
-    .comment-author {
-      font-weight: 700;
-      font-size: 14px;
-      color: #202124;
-    }
-
-    .comment-date {
-      font-size: 11px;
-      color: #70757a;
-      margin-left: 8px;
-    }
-
-    .comment-body {
-      font-size: 14px;
-      margin-top: 6px;
-      color: #3c4043;
-    }
-
-    .comment-cta-box {
-      margin-top: 30px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 25px;
-      text-align: center;
-      border: 1px solid #e0e0e0;
-    }
-
-    .blogger-comment-btn {
-      display: inline-block;
-      background-color: #4285f4;
-      color: #ffffff;
-      padding: 12px 24px;
-      border-radius: 24px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      transition: background 0.2s, transform 0.2s;
-    }
-
-    .blogger-comment-btn:hover {
-      background-color: #3367d6;
-      transform: translateY(-2px);
-    }
-
-    /* Automatischer Dark Mode */
-    @media (prefers-color-scheme: dark) {
-      html, body {
-        background-color: #121212 !important;
-        color: #e8eaed;
-      }
-      .search-input { background-color: #1e1e1e; color: #e8eaed; border-color: #3c4043; }
-      .search-input:focus { border-color: #8ab4f8; background-color: #2d2d2d; }
-      .card, .skeleton-card, .comment-item, .comment-cta-box { background: #1e1e1e !important; border-color: #3c4043 !important; }
-      .card-title, .article-title, .comments-title, .comment-author { color: #e8eaed !important; }
-      .card-snippet, .comment-body, .article-date, .card-date, .comment-date { color: #9aa0a6 !important; }
-      .skeleton-img, .skeleton-line { background: #3c4043; }
-      .back-button { background-color: #3c4043; color: #e8eaed; }
-      .back-button:hover { background-color: #5f6368; }
-      .article-header { border-bottom-color: #3c4043; }
-      .comments-section { border-top-color: #3c4043; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </head>
-<body>
+<body class="theme-photo">
 
-  <div class="reader-container">
-    
-    <div id="search-wrapper" class="search-container">
+  <!-- Google Drive Header Banner -->
+  <div class="header-banner">
+    <img src="https://drive.google.com/thumbnail?id=HIER_DEINE_FOTO_DRIVE_ID&width=1400" alt="Fotografie Header">
+    <div class="header-overlay">
+      <h1>Fotografie</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="top-bar">
+      <a href="index.html" class="site-title">&larr; Zurück zum Hub</a>
+      <div class="nav-links">
+        <a href="photography.html" class="active">Photo</a>
+        <a href="music.html">Music</a>
+        <a href="moto.html">Moto</a>
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="search-container">
       <input type="text" id="search-input" class="search-input" placeholder="Fotografie-Beiträge durchsuchen..." oninput="filterPosts()">
     </div>
 
     <div id="grid-view" class="grid-layout">
-      <!-- Skeleton Loader -->
-      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
-      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
+      <!-- Grid Cards -->
     </div>
 
-    <div id="detail-view" class="detail-layout">
-      <button class="back-button" onclick="showGrid()">← Zurück zur Übersicht</button>
-      
-      <article>
-        <div class="article-header">
-          <span id="article-date" class="article-date"></span>
-          <h1 id="article-title" class="article-title"></h1>
-        </div>
-        <div id="article-body" class="article-body"></div>
-      </article>
-
-      <section class="comments-section">
-        <h3 class="comments-title">Kommentare (<span id="comment-count">0</span>)</h3>
-        <div id="comments-list"></div>
-
-        <div class="comment-cta-box">
-          <p style="margin: 0 0 15px 0; font-size: 14px; color: #5f6368;">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
-          <a id="blogger-comment-link" href="" target="_blank" class="blogger-comment-btn">Auf Blogger kommentieren &rarr;</a>
-        </div>
-      </section>
-
-      <div style="margin-top: 30px;">
-        <button class="back-button" onclick="showGrid()">← Zurück zur Übersicht</button>
-      </div>
-    </div>
-
+    <footer class="site-footer">
+      <p>&copy; Tikaei &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
+    </footer>
   </div>
 
   <script>
-    const BLOG_FEED_URL = 'https://tikaeiphoto.blogspot.com';
-    const DEFAULT_THUMB = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224';
-
-    let loadedPosts = [];
-
-    function initReader() {
-      const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
-      
-      window[callbackName] = function(data) {
-        const gridView = document.getElementById('grid-view');
-        
-        if (!data?.feed?.entry) {
-          gridView.innerHTML = '<div class="status-text">Keine Beiträge gefunden.</div>';
-          return;
-        }
-
-        loadedPosts = data.feed.entry.map(entry => {
-          const rawId = entry.id.$t;
-          const blogIdMatch = rawId.match(/blog-(\d+)/);
-          const postIdMatch = rawId.match(/post-(\d+)/);
-          
-          const blogId = blogIdMatch ? blogIdMatch : '';
-          const postId = postIdMatch ? postIdMatch : '';
-          
-          let postUrl = '';
-          if (entry.link) {
-            const alt = entry.link.find(l => l.rel === 'alternate');
-            if (alt) postUrl = alt.href;
-          }
-
-          let title = entry.title ? entry.title.$t : 'Ohne Titel';
-          let pubDate = entry.published ? entry.published.$t : '';
-          let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
-
-          let imageUrl = '';
-          if (content) {
-            const temp = document.createElement('div');
-            temp.innerHTML = content;
-            const img = temp.querySelector('img');
-            if (img) imageUrl = img.src;
-          }
-          if (!imageUrl && entry.media$thumbnail) {
-            imageUrl = entry.media$thumbnail.url;
-          }
-          if (imageUrl) {
-            imageUrl = imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/');
-          } else {
-            imageUrl = DEFAULT_THUMB;
-          }
-
-          return { blogId, postId, postUrl, title, pubDate, content, imageUrl };
-        });
-
-        renderGrid(loadedPosts);
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const autoOpenUrl = urlParams.get('postUrl');
-        if (autoOpenUrl) {
-          const decodedUrl = decodeURIComponent(autoOpenUrl);
-          const postIndex = loadedPosts.findIndex(p => p.postUrl === decodedUrl);
-          if (postIndex !== -1) {
-            openPost(postIndex);
-          }
-        }
-
-        delete window[callbackName];
-      };
-
-      const script = document.createElement('script');
-      script.src = `${BLOG_FEED_URL}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
-      document.body.appendChild(script);
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeUI(next);
     }
-
-    function filterPosts() {
-      const query = document.getElementById('search-input').value.toLowerCase().trim();
-      
-      const filtered = loadedPosts.filter(post => {
-        const titleMatch = post.title.toLowerCase().includes(query);
-        const temp = document.createElement('div');
-        temp.innerHTML = post.content;
-        const text = (temp.textContent || temp.innerText || '').toLowerCase();
-        return titleMatch || text.includes(query);
-      });
-
-      renderGrid(filtered);
+    function updateThemeUI(theme) {
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
     }
-
-    function renderGrid(postsToRender) {
-      const gridView = document.getElementById('grid-view');
-      gridView.innerHTML = '';
-
-      if (postsToRender.length === 0) {
-        gridView.innerHTML = '<div class="status-text">Keine passenden Beiträge gefunden.</div>';
-        return;
-      }
-
-      postsToRender.forEach(post => {
-        const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
-
-        let dateStr = '';
-        if (post.pubDate) {
-          const d = new Date(post.pubDate);
-          if (!isNaN(d)) dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
-
-        const temp = document.createElement('div');
-        temp.innerHTML = post.content;
-        let text = temp.textContent || temp.innerText || '';
-        if (text.length > 100) text = text.substring(0, 100) + '...';
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.onclick = () => openPost(originalIndex);
-
-        card.innerHTML = `
-          <div class="card-img-wrapper">
-            <img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" onerror="this.src='${DEFAULT_THUMB}'">
-          </div>
-          <div class="card-body">
-            <div>
-              <div class="card-date">${dateStr}</div>
-              <h3 class="card-title">${post.title}</h3>
-              <div class="card-snippet">${text}</div>
-            </div>
-            <div class="card-btn">Beitrag lesen &rarr;</div>
-          </div>
-        `;
-        gridView.appendChild(card);
-      });
-    }
-
-    function openPost(index) {
-      const post = loadedPosts[index];
-      if (!post) return;
-
-      document.getElementById('search-wrapper').style.display = 'none';
-
-      document.getElementById('article-title').textContent = post.title;
-      
-      if (post.pubDate) {
-        const d = new Date(post.pubDate);
-        document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
-      }
-
-      document.getElementById('article-body').innerHTML = post.content;
-
-      document.getElementById('grid-view').style.display = 'none';
-      document.getElementById('detail-view').style.display = 'block';
-
-      loadComments(post.postId);
-      
-      if (post.postUrl) {
-        const commentLink = document.getElementById('blogger-comment-link');
-        commentLink.href = post.postUrl + '#comment-form';
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showGrid() {
-      document.getElementById('search-wrapper').style.display = 'block';
-
-      document.getElementById('detail-view').style.display = 'none';
-      document.getElementById('grid-view').style.display = 'grid';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function loadComments(postId) {
-      const commentsList = document.getElementById('comments-list');
-      const commentCount = document.getElementById('comment-count');
-      commentsList.innerHTML = '<div class="status-text">Lade Kommentare...</div>';
-
-      const callbackName = 'comment_cb_' + Math.floor(Math.random() * 1000000);
-
-      window[callbackName] = function(data) {
-        commentsList.innerHTML = '';
-        
-        if (data?.feed?.entry) {
-          const comments = data.feed.entry;
-          commentCount.textContent = comments.length;
-
-          comments.forEach(c => {
-            const author = c.author ? c.author[0].name.$t : 'Anonym';
-            let dateStr = '';
-            if (c.published) {
-              const d = new Date(c.published.$t);
-              dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            }
-            const text = c.content ? c.content.$t : (c.summary ? c.summary.$t : '');
-
-            const item = document.createElement('div');
-            item.className = 'comment-item';
-            item.innerHTML = `
-              <div>
-                <span class="comment-author">${author}</span>
-                <span class="comment-date">${dateStr}</span>
-              </div>
-              <div class="comment-body">${text}</div>
-            `;
-            commentsList.appendChild(item);
-          });
-        } else {
-          commentCount.textContent = '0';
-          commentsList.innerHTML = '<p style="color: #70757a; font-size: 14px;">Noch keine Kommentare vorhanden.</p>';
-        }
-        delete window[callbackName];
-      };
-
-      const script = document.createElement('script');
-      script.src = `${BLOG_FEED_URL}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
-      script.onerror = function() {
-        commentCount.textContent = '0';
-        commentsList.innerHTML = '<p style="color: #70757a; font-size: 14px;">Kommentare konnten nicht geladen werden.</p>';
-      };
-      document.body.appendChild(script);
-    }
-
-    initReader();
+    updateThemeUI(savedTheme);
   </script>
 </body>
 </html>
