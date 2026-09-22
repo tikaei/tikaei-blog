@@ -300,6 +300,12 @@
           const blogId = blogIdMatch ? blogIdMatch : '';
           const postId = postIdMatch ? postIdMatch : '';
           
+          let postUrl = '';
+          if (entry.link) {
+            const alt = entry.link.find(l => l.rel === 'alternate');
+            if (alt) postUrl = alt.href;
+          }
+
           let title = entry.title ? entry.title.$t : 'Ohne Titel';
           let pubDate = entry.published ? entry.published.$t : '';
           let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
@@ -320,16 +326,17 @@
             imageUrl = DEFAULT_THUMB;
           }
 
-          return { blogId, postId, title, pubDate, content, imageUrl };
+          return { blogId, postId, postUrl, title, pubDate, content, imageUrl };
         });
 
         renderGrid(loadedPosts);
 
-        // Prüfen, ob ein Beitrag direkt per URL-Parameter aufgerufen wurde
+        // Automatisch öffnen per postUrl Parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const autoOpenId = urlParams.get('postId');
-        if (autoOpenId) {
-          const postIndex = loadedPosts.findIndex(p => p.postId === autoOpenId);
+        const autoOpenUrl = urlParams.get('postUrl');
+        if (autoOpenUrl) {
+          const decodedUrl = decodeURIComponent(autoOpenUrl);
+          const postIndex = loadedPosts.findIndex(p => p.postUrl === decodedUrl);
           if (postIndex !== -1) {
             openPost(postIndex);
           }
