@@ -115,9 +115,46 @@
     .card-btn {
       font-weight: 700;
       font-size: 13px;
-      color: #b51200; /* Musik-Akzentfarbe */
+      color: #b51200;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    /* Skeleton Loader */
+    .skeleton-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 320px;
+    }
+    .skeleton-img {
+      width: 100%;
+      height: 180px;
+      background: #e0e0e0;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-grow: 1;
+    }
+    .skeleton-line {
+      height: 14px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-line.short { width: 50%; }
+    .skeleton-line.title { height: 20px; width: 80%; }
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 0.2; }
+      100% { opacity: 0.6; }
     }
 
     /* Detail-Ansicht */
@@ -181,7 +218,7 @@
       margin: 15px 0;
     }
 
-    /* Kommentarbereich */
+    /* Kommentarbereich & CTA */
     .comments-section {
       margin-top: 50px;
       padding-top: 30px;
@@ -220,17 +257,45 @@
       color: #3c4043;
     }
 
-    .comment-iframe-container {
-      margin-top: 25px;
-      background: #ffffff;
+    .comment-cta-box {
+      margin-top: 30px;
+      background: #f8f9fa;
       border-radius: 8px;
-      overflow: hidden;
+      padding: 25px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
     }
 
-    .status-text {
-      text-align: center;
-      padding: 40px;
-      color: #70757a;
+    .blogger-comment-btn {
+      display: inline-block;
+      background-color: #b51200;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .blogger-comment-btn:hover {
+      background-color: #900e00;
+      transform: translateY(-2px);
+    }
+
+    /* Automatischer Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      body { color: #e8eaed; }
+      .search-input { background-color: #1e1e1e; color: #e8eaed; border-color: #3c4043; }
+      .search-input:focus { border-color: #ff8a80; background-color: #2d2d2d; }
+      .card, .skeleton-card, .comment-item, .comment-cta-box { background: #1e1e1e !important; border-color: #3c4043 !important; }
+      .card-title, .article-title, .comments-title, .comment-author { color: #e8eaed !important; }
+      .card-snippet, .comment-body, .article-date, .card-date, .comment-date { color: #9aa0a6 !important; }
+      .skeleton-img, .skeleton-line { background: #3c4043; }
+      .back-button { background-color: #3c4043; color: #e8eaed; }
+      .back-button:hover { background-color: #5f6368; }
+      .article-header { border-bottom-color: #3c4043; }
+      .comments-section { border-top-color: #3c4043; }
     }
   </style>
 </head>
@@ -238,13 +303,14 @@
 
   <div class="reader-container">
     
-    <!-- Suchfeld -->
     <div id="search-wrapper" class="search-container">
       <input type="text" id="search-input" class="search-input" placeholder="Musik-Beiträge durchsuchen..." oninput="filterPosts()">
     </div>
 
     <div id="grid-view" class="grid-layout">
-      <div class="status-text">Lade Beiträge...</div>
+      <!-- Skeleton Loader -->
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
     </div>
 
     <div id="detail-view" class="detail-layout">
@@ -262,9 +328,9 @@
         <h3 class="comments-title">Kommentare (<span id="comment-count">0</span>)</h3>
         <div id="comments-list"></div>
 
-        <div class="comment-iframe-container">
-          <h4>Kommentar hinterlassen:</h4>
-          <iframe id="comment-form-iframe" src="" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
+        <div class="comment-cta-box">
+          <p style="margin: 0 0 15px 0; font-size: 14px; color: #5f6368;">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
+          <a id="blogger-comment-link" href="" target="_blank" class="blogger-comment-btn">Auf Blogger kommentieren &rarr;</a>
         </div>
       </section>
 
@@ -331,7 +397,6 @@
 
         renderGrid(loadedPosts);
 
-        // Automatisch öffnen per postUrl Parameter
         const urlParams = new URLSearchParams(window.location.search);
         const autoOpenUrl = urlParams.get('postUrl');
         if (autoOpenUrl) {
@@ -428,9 +493,9 @@
 
       loadComments(post.postId);
       
-      if (post.blogId && post.postId) {
-        const commentIframe = document.getElementById('comment-form-iframe');
-        commentIframe.src = `https://www.blogger.com/comment-iframe.g?blogID=${post.blogId}&postID=${post.postId}`;
+      if (post.postUrl) {
+        const commentLink = document.getElementById('blogger-comment-link');
+        commentLink.href = post.postUrl + '#comment-form';
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
