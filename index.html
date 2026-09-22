@@ -325,8 +325,13 @@
 
         if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
 
-        // Link zur Unterseite direkt mit angehängter postId für den Direktstart im Reader
-        const finalLink = `${item.targetUrl}?postId=${item.postId}`;
+        // Die exakte Blogger-URL als sicheren Parameter übergeben
+        let altUrl = '';
+        if (entry.link) {
+          const alt = entry.link.find(l => l.rel === 'alternate');
+          if (alt) altUrl = alt.href;
+        }
+        const finalLink = `${item.targetUrl}?postUrl=${encodeURIComponent(altUrl)}`;
 
         return `
           <div class="tikaei-card blog-${item.blogType}">
