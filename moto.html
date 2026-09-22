@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif !important;
+      color: #202124;
+      background-color: transparent;
+    }
+
+    .reader-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 15px;
+      box-sizing: border-box;
+    }
+
+    /* Kachel-Grid */
+    .grid-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .card-img-wrapper {
+      width: 100%;
+      height: 180px;
+      background-color: #f1f3f4;
+      overflow: hidden;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .card-date {
+      font-size: 12px;
+      color: #5f6368;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-size: 18px;
+      margin: 0 0 10px 0;
+      line-height: 1.3;
+      color: #202124;
+    }
+
+    .card-snippet {
+      font-size: 14px;
+      color: #3c4043;
+      margin-bottom: 14px;
+    }
+
+    .card-btn {
+      font-weight: 700;
+      font-size: 13px;
+      color: #0b8043; /* Moto-Akzentfarbe */
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Detail-Ansicht */
+    .detail-layout {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      background-color: #f1f3f4;
+      color: #202124;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 25px;
+      transition: background 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: #e8eaed;
+    }
+
+    .article-header {
+      margin-bottom: 25px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .article-date {
+      font-size: 14px;
+      color: #5f6368;
+    }
+
+    .article-title {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-size: 28px;
+      margin: 8px 0;
+      line-height: 1.25;
+    }
+
+    .article-body {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #202124;
+    }
+
+    .article-body img {
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    /* Kommentarbereich */
+    .comments-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #f1f3f4;
+    }
+
+    .comments-title {
+      font-family: 'Playfair Display', Georgia, serif !important;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .comment-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border-left: 3px solid #0b8043;
+    }
+
+    .comment-author {
+      font-weight: 700;
+      font-size: 14px;
+      color: #202124;
+    }
+
+    .comment-date {
+      font-size: 11px;
+      color: #70757a;
+      margin-left: 8px;
+    }
+
+    .comment-body {
+      font-size: 14px;
+      margin-top: 6px;
+      color: #3c4043;
+    }
+
+    .comment-iframe-container {
+      margin-top: 25px;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .status-text {
+      text-align: center;
+      padding: 40px;
+      color: #70757a;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reader-container">
+    
+    <div id="grid-view" class="grid-layout">
+      <div class="status-text">Lade Beiträge...</div>
+    </div>
+
+    <div id="detail-view" class="detail-layout">
+      <button class="back-button" onclick="showGrid()">← Zurück zur Übersicht</button>
+      
+      <article>
+        <div class="article-header">
+          <span id="article-date" class="article-date"></span>
+          <h1 id="article-title" class="article-title"></h1>
+        </div>
+        <div id="article-body" class="article-body"></div>
+      </article>
+
+      <section class="comments-section">
+        <h3 class="comments-title">Kommentare (<span id="comment-count">0</span>)</h3>
+        <div id="comments-list"></div>
+
+        <div class="comment-iframe-container">
+          <h4>Kommentar hinterlassen:</h4>
+          <iframe id="comment-form-iframe" src="" width="100%" height="260" frameborder="0" scrolling="no"></iframe>
+        </div>
+      </section>
+
+      <div style="margin-top: 30px;">
+        <button class="back-button" onclick="showGrid()">← Zurück zur Übersicht</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // FÜR MOTORRAD
+    const BLOG_FEED_URL = 'https://tikaeimoto.blogspot.com';
+    const DEFAULT_THUMB = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289';
+
+    let loadedPosts = [];
+
+    function initReader() {
+      const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
+      
+      window[callbackName] = function(data) {
+        const gridView = document.getElementById('grid-view');
+        
+        if (!data?.feed?.entry) {
+          gridView.innerHTML = '<div class="status-text">Keine Beiträge gefunden.</div>';
+          return;
+        }
+
+        loadedPosts = data.feed.entry.map(entry => {
+          const rawId = entry.id.$t;
+          const blogIdMatch = rawId.match(/blog-(\d+)/);
+          const postIdMatch = rawId.match(/post-(\d+)/);
+          
+          const blogId = blogIdMatch ? blogIdMatch : '';
+          const postId = postIdMatch ? postIdMatch : '';
+          
+          let title = entry.title ? entry.title.$t : 'Ohne Titel';
+          let pubDate = entry.published ? entry.published.$t : '';
+          let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
+
+          let imageUrl = '';
+          if (content) {
+            const temp = document.createElement('div');
+            temp.innerHTML = content;
+            const img = temp.querySelector('img');
+            if (img) imageUrl = img.src;
+          }
+          if (!imageUrl && entry.media$thumbnail) {
+            imageUrl = entry.media$thumbnail.url;
+          }
+          if (imageUrl) {
+            imageUrl = imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/');
+          } else {
+            imageUrl = DEFAULT_THUMB;
+          }
+
+          return { blogId, postId, title, pubDate, content, imageUrl };
+        });
+
+        renderGrid();
+        delete window[callbackName];
+      };
+
+      const script = document.createElement('script');
+      script.src = `${BLOG_FEED_URL}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
+      document.body.appendChild(script);
+    }
+
+    function renderGrid() {
+      const gridView = document.getElementById('grid-view');
+      gridView.innerHTML = '';
+
+      loadedPosts.forEach((post, index) => {
+        let dateStr = '';
+        if (post.pubDate) {
+          const d = new Date(post.pubDate);
+          if (!isNaN(d)) dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        const temp = document.createElement('div');
+        temp.innerHTML = post.content;
+        let text = temp.textContent || temp.innerText || '';
+        if (text.length > 100) text = text.substring(0, 100) + '...';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => openPost(index);
+
+        card.innerHTML = `
+          <div class="card-img-wrapper">
+            <img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" onerror="this.src='${DEFAULT_THUMB}'">
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="card-date">${dateStr}</div>
+              <h3 class="card-title">${post.title}</h3>
+              <div class="card-snippet">${text}</div>
+            </div>
+            <div class="card-btn">Beitrag lesen &rarr;</div>
+          </div>
+        `;
+        gridView.appendChild(card);
+      });
+    }
+
+    function openPost(index) {
+      const post = loadedPosts[index];
+      if (!post) return;
+
+      document.getElementById('article-title').textContent = post.title;
+      
+      if (post.pubDate) {
+        const d = new Date(post.pubDate);
+        document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+      }
+
+      document.getElementById('article-body').innerHTML = post.content;
+
+      document.getElementById('grid-view').style.display = 'none';
+      document.getElementById('detail-view').style.display = 'block';
+
+      loadComments(post.postId);
+      
+      if (post.blogId && post.postId) {
+        const commentIframe = document.getElementById('comment-form-iframe');
+        commentIframe.src = `https://www.blogger.com/comment-iframe.g?blogID=${post.blogId}&postID=${post.postId}`;
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showGrid() {
+      document.getElementById('detail-view').style.display = 'none';
+      document.getElementById('grid-view').style.display = 'grid';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function loadComments(postId) {
+      const commentsList = document.getElementById('comments-list');
+      const commentCount = document.getElementById('comment-count');
+      commentsList.innerHTML = '<div class="status-text">Lade Kommentare...`;';
+
+      const callbackName = 'comment_cb_' + Math.floor(Math.random() * 1000000);
+
+      window[callbackName] = function(data) {
+        commentsList.innerHTML = '';
+        
+        if (data?.feed?.entry) {
+          const comments = data.feed.entry;
+          commentCount.textContent = comments.length;
+
+          comments.forEach(c => {
+            const author = c.author ? c.author[0].name.$t : 'Anonym';
+            let dateStr = '';
+            if (c.published) {
+              const d = new Date(c.published.$t);
+              dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+            const text = c.content ? c.content.$t : (c.summary ? c.summary.$t : '');
+
+            const item = document.createElement('div');
+            item.className = 'comment-item';
+            item.innerHTML = `
+              <div>
+                <span class="comment-author">${author}</span>
+                <span class="comment-date">${dateStr}</span>
+              </div>
+              <div class="comment-body">${text}</div>
+            `;
+            commentsList.appendChild(item);
+          });
+        } else {
+          commentCount.textContent = '0';
+          commentsList.innerHTML = '<p style="color: #70757a; font-size: 14px;">Noch keine Kommentare vorhanden.</p>';
+        }
+        delete window[callbackName];
+      };
+
+      const script = document.createElement('script');
+      script.src = `${BLOG_FEED_URL}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
+      script.onerror = function() {
+        commentCount.textContent = '0';
+        commentsList.innerHTML = '<p style="color: #70757a; font-size: 14px;">Kommentare konnten nicht geladen werden.</p>';
+      };
+      document.body.appendChild(script);
+    }
+
+    initReader();
+  </script>
+</body>
+</html>
