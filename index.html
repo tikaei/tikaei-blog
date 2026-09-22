@@ -1,526 +1,60 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <!-- Google Fonts -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tikaei Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: transparent;
-    }
-
-    .tikaei-feed-container {
-      font-family: 'Roboto', sans-serif !important;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #202124;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-    /* Globales Suchfeld */
-    .search-container {
-      margin-bottom: 25px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 12px 18px;
-      font-size: 15px;
-      font-family: 'Roboto', sans-serif;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-sizing: border-box;
-      background-color: #f8f9fa;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: #4285f4;
-      background-color: #ffffff;
-      box-shadow: 0 2px 8px rgba(66, 133, 244, 0.15);
-    }
-
-    .tikaei-viewport {
-      overflow: hidden;
-      position: relative;
-      width: 100%;
-    }
-
-    .tikaei-track {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .tikaei-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .tikaei-card {
-      background-color: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 0 0 20px 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      border-top-width: 5px;
-      box-sizing: border-box;
-    }
-
-    .tikaei-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    }
-
-    .tikaei-img-wrapper {
-      width: 100%;
-      height: 180px;
-      overflow: hidden;
-      background-color: #f1f3f4;
-      position: relative;
-    }
-
-    .tikaei-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .tikaei-card:hover .tikaei-img {
-      transform: scale(1.05);
-    }
-
-    .tikaei-card-body {
-      padding: 16px 20px 0 20px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      justify-content: space-between;
-    }
-
-    .tikaei-card.blog-photo { border-top-color: #4285f4; }
-    .tikaei-card.blog-photo .tikaei-tag { background-color: #e8f0fe; color: #4285f4; }
-    .tikaei-card.blog-photo .tikaei-title,
-    .tikaei-card.blog-photo .tikaei-readmore { color: #4285f4; }
-
-    .tikaei-card.blog-music { border-top-color: #b51200; }
-    .tikaei-card.blog-music .tikaei-tag { background-color: #fce8e6; color: #b51200; }
-    .tikaei-card.blog-music .tikaei-title,
-    .tikaei-card.blog-music .tikaei-readmore { color: #b51200; }
-
-    .tikaei-card.blog-moto { border-top-color: #0b8043; }
-    .tikaei-card.blog-moto .tikaei-tag { background-color: #e6f4ea; color: #0b8043; }
-    .tikaei-card.blog-moto .tikaei-title,
-    .tikaei-card.blog-moto .tikaei-readmore { color: #0b8043; }
-
-    .tikaei-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .tikaei-tag {
-      font-family: 'Roboto', sans-serif !important;
-      font-size: 11px !important;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-      letter-spacing: 0.5px;
-    }
-
-    .tikaei-title {
-      font-family: 'Playfair Display', Georgia, serif !important;
-      font-size: 18px !important;
-      font-weight: 700;
-      line-height: 1.3;
-      margin: 0 0 8px 0;
-      color: #202124;
-    }
-
-    .tikaei-meta {
-      font-family: 'Roboto', sans-serif !important;
-      font-size: 13px !important;
-      color: #5f6368;
-    }
-
-    .tikaei-snippet {
-      font-family: 'Roboto', sans-serif !important;
-      font-size: 14px !important;
-      color: #3c4043;
-      margin-bottom: 12px;
-      flex-grow: 1;
-    }
-
-    .tikaei-readmore {
-      font-family: 'Roboto', sans-serif !important;
-      font-size: 14px !important;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .tikaei-card:hover .tikaei-title,
-    .tikaei-card:hover .tikaei-readmore {
-      text-decoration: underline;
-    }
-
-    /* Skeleton Loader */
-    .skeleton-card {
-      background-color: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 320px;
-    }
-    .skeleton-img {
-      width: 100%;
-      height: 180px;
-      background: #e0e0e0;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-    .skeleton-body {
-      padding: 16px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      flex-grow: 1;
-    }
-    .skeleton-line {
-      height: 14px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-    .skeleton-line.short { width: 40%; }
-    .skeleton-line.title { height: 20px; width: 80%; }
-    @keyframes pulse {
-      0% { opacity: 0.6; }
-      50% { opacity: 0.2; }
-      100% { opacity: 0.6; }
-    }
-
-    /* Automatischer Dark Mode */
-    @media (prefers-color-scheme: dark) {
-      html, body {
-        background-color: #121212 !important;
-      }
-      .search-input {
-        background-color: #1e1e1e;
-        color: #e8eaed;
-        border-color: #3c4043;
-      }
-      .search-input:focus {
-        border-color: #8ab4f8;
-        background-color: #2d2d2d;
-      }
-      .tikaei-card, .skeleton-card {
-        background-color: #1e1e1e !important;
-        border-color: #3c4043 !important;
-      }
-      .tikaei-title {
-        color: #e8eaed !important;
-      }
-      .tikaei-snippet, .tikaei-meta {
-        color: #9aa0a6 !important;
-      }
-      .skeleton-img, .skeleton-line {
-        background: #3c4043;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Theme direkt im Kopf setzen, um Flackern zu verhindern
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </head>
-<body>
+<body class="theme-hub">
 
-  <div class="tikaei-feed-container">
-    
+  <div class="container">
+    <div class="top-bar">
+      <a href="index.html" class="site-title">Tikaei Hub</a>
+      <div class="nav-links">
+        <a href="photography.html">Photo</a>
+        <a href="music.html">Music</a>
+        <a href="moto.html">Moto</a>
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+        </button>
+      </div>
+    </div>
+
     <div class="search-container">
       <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." oninput="handleGlobalSearch()">
     </div>
 
-    <div class="tikaei-viewport" id="tikaei-viewport">
-      <div id="tikaei-posts" class="tikaei-track">
-        <!-- Skeleton Loader beim Start -->
-        <div class="tikaei-row">
-          <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
-          <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line"></div></div></div>
-        </div>
-      </div>
+    <div id="tikaei-posts">
+      <!-- Posts-Inhalt -->
     </div>
 
+    <footer class="site-footer">
+      <p>&copy; Tikaei &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
+    </footer>
   </div>
 
   <script>
-    (function() {
-      const blogs = [
-        { 
-          type: 'photo', label: 'Photo', 
-          feedUrl: 'https://tikaeiphoto.blogspot.com', 
-          internalUrl: 'https://tikaei.github.io/tikaei-blog-scripts/photography.html',
-          defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224'
-        },
-        { 
-          type: 'music', label: 'Music', 
-          feedUrl: 'https://tikaeimusic.blogspot.com', 
-          internalUrl: 'https://tikaei.github.io/tikaei-blog-scripts/music.html',
-          defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015'
-        },
-        { 
-          type: 'moto', label: 'Moto', 
-          feedUrl: 'https://tikaeimoto.blogspot.com', 
-          internalUrl: 'https://tikaei.github.io/tikaei-blog-scripts/moto.html',
-          defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289'
-        }
-      ];
-
-      let allPosts = [];
-      let loadedCount = 0;
-      let currentRow = 0;
-      let sliderInterval = null;
-
-      function makeOptimizedImage(url) {
-        if (!url) return '';
-        return url.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/');
-      }
-
-      function loadBloggerFeed(blog) {
-        const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
-        
-        window[callbackName] = function(data) {
-          if (data?.feed?.entry) {
-            data.feed.entry.forEach(entry => {
-              const rawId = entry.id.$t;
-              const postIdMatch = rawId.match(/post-(\d+)/);
-              const postId = postIdMatch ? postIdMatch : '';
-
-              let postUrl = '';
-              if (entry.link) {
-                const alt = entry.link.find(l => l.rel === 'alternate');
-                if (alt) postUrl = alt.href;
-              }
-
-              let title = entry.title ? entry.title.$t : 'Beitrag';
-              let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
-              let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
-
-              let imageUrl = '';
-              if (content) {
-                const tempEl = document.createElement('div');
-                tempEl.innerHTML = content;
-                const imgEl = tempEl.querySelector('img');
-                if (imgEl && imgEl.src) imageUrl = imgEl.src;
-              }
-
-              if (!imageUrl && entry.media$thumbnail?.url) {
-                imageUrl = entry.media$thumbnail.url;
-              }
-
-              imageUrl = imageUrl ? makeOptimizedImage(imageUrl) : blog.defaultImg;
-
-              allPosts.push({
-                postId, postUrl, title, pubDate, content, imageUrl,
-                defaultImg: blog.defaultImg,
-                blogType: blog.type,
-                blogLabel: blog.label,
-                targetUrl: blog.internalUrl
-              });
-            });
-          }
-          
-          loadedCount++;
-          if (loadedCount === blogs.length) {
-            allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-            renderPosts(allPosts.slice(0, 8));
-          }
-          delete window[callbackName];
-        };
-
-        const script = document.createElement('script');
-        script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15&ts=${Date.now()}`;
-        script.onerror = function() {
-          loadedCount++;
-          if (loadedCount === blogs.length) {
-            renderPosts(allPosts.slice(0, 8));
-          }
-        };
-        document.body.appendChild(script);
-      }
-
-      function createCardHtml(item) {
-        let dateStr = '';
-        if (item.pubDate) {
-          const dateObj = new Date(item.pubDate);
-          if (!isNaN(dateObj)) {
-            dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-          }
-        }
-
-        let tempDiv = document.createElement('div');
-        tempDiv.innerHTML = item.content;
-        ['.feed-links', '.post-footer', '.blogger-post-footer', 'a[href*="blogspot.com"]'].forEach(s => {
-          tempDiv.querySelectorAll(s).forEach(el => el.remove());
-        });
-
-        let plainText = (tempDiv.textContent || tempDiv.innerText || '')
-          .replace(/Abonnieren Kommentare zum Post \(Atom\)/gi, '')
-          .replace(/Fußzeile für den Post-Feed/gi, '')
-          .replace(/Post-Feed/gi, '')
-          .trim();
-
-        if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
-
-        const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
-
-        return `
-          <div class="tikaei-card blog-${item.blogType}">
-            <a href="${finalLink}" target="_blank" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
-              <div class="tikaei-img-wrapper">
-                <img class="tikaei-img" src="${item.imageUrl}" alt="${item.title}" loading="lazy" onerror="this.onerror=null; this.src='${item.defaultImg}';">
-              </div>
-              <div class="tikaei-card-body">
-                <div>
-                  <div class="tikaei-card-header">
-                    <span class="tikaei-meta">${dateStr}</span>
-                    <span class="tikaei-tag">${item.blogLabel}</span>
-                  </div>
-                  <h3 class="tikaei-title">${item.title}</h3>
-                  <div class="tikaei-snippet">${plainText}</div>
-                </div>
-                <div>
-                  <span class="tikaei-readmore">Beitrag lesen &rarr;</span>
-                </div>
-              </div>
-            </a>
-          </div>
-        `;
-      }
-
-      window.handleGlobalSearch = function() {
-        const query = document.getElementById('global-search-input').value.toLowerCase().trim();
-        const viewport = document.getElementById('tikaei-viewport');
-
-        if (sliderInterval) clearInterval(sliderInterval);
-
-        if (query === '') {
-          renderPosts(allPosts.slice(0, 8));
-          return;
-        }
-
-        const filtered = allPosts.filter(post => {
-          const titleMatch = post.title.toLowerCase().includes(query);
-          const temp = document.createElement('div');
-          temp.innerHTML = post.content;
-          const text = (temp.textContent || temp.innerText || '').toLowerCase();
-          return titleMatch || text.includes(query);
-        });
-
-        renderSearchGrid(filtered);
-      };
-
-      function renderPosts(postsToDisplay) {
-        const track = document.getElementById('tikaei-posts');
-        const viewport = document.getElementById('tikaei-viewport');
-
-        if (postsToDisplay.length === 0) {
-          track.innerHTML = '<div class="tikaei-status">Keine Beiträge gefunden.</div>';
-          return;
-        }
-
-        track.innerHTML = '';
-        for (let i = 0; i < postsToDisplay.length; i += 2) {
-          const row = document.createElement('div');
-          row.className = 'tikaei-row';
-          const pair = postsToDisplay.slice(i, i + 2);
-          row.innerHTML = pair.map(createCardHtml).join('');
-          track.appendChild(row);
-        }
-
-        setTimeout(() => {
-          const firstRow = track.querySelector('.tikaei-row');
-          if (firstRow) {
-            viewport.style.height = firstRow.offsetHeight + 'px';
-            startSlider();
-          }
-        }, 300);
-      }
-
-      function renderSearchGrid(postsToDisplay) {
-        const track = document.getElementById('tikaei-posts');
-        const viewport = document.getElementById('tikaei-viewport');
-
-        if (postsToDisplay.length === 0) {
-          track.innerHTML = '<div class="tikaei-status">Keine passenden Beiträge gefunden.</div>';
-          viewport.style.height = '150px';
-          return;
-        }
-
-        track.innerHTML = '';
-        for (let i = 0; i < postsToDisplay.length; i += 2) {
-          const row = document.createElement('div');
-          row.className = 'tikaei-row';
-          const pair = postsToDisplay.slice(i, i + 2);
-          row.innerHTML = pair.map(createCardHtml).join('');
-          track.appendChild(row);
-        }
-
-        setTimeout(() => {
-          let totalHeight = 0;
-          track.querySelectorAll('.tikaei-row').forEach(r => {
-            totalHeight += r.offsetHeight + 20;
-          });
-          viewport.style.height = totalHeight + 'px';
-        }, 100);
-      }
-
-      function startSlider() {
-        const track = document.getElementById('tikaei-posts');
-        const container = document.querySelector('.tikaei-feed-container');
-
-        if (sliderInterval) clearInterval(sliderInterval);
-
-        function nextSlide() {
-          const rows = track.querySelectorAll('.tikaei-row');
-          if (rows.length <= 1) return;
-
-          currentRow = (currentRow + 1) % rows.length;
-          const stepHeight = rows[0].offsetHeight + 20;
-          track.style.transform = `translateY(-${currentRow * stepHeight}px)`;
-        }
-
-        sliderInterval = setInterval(nextSlide, 4000);
-
-        container.onmouseenter = () => clearInterval(sliderInterval);
-        container.onmouseleave = () => {
-          clearInterval(sliderInterval);
-          sliderInterval = setInterval(nextSlide, 4000);
-        };
-      }
-
-      blogs.forEach(blog => loadBloggerFeed(blog));
-    })();
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeUI(next);
+    }
+    function updateThemeUI(theme) {
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
+    }
+    updateThemeUI(savedTheme);
   </script>
 </body>
 </html>
