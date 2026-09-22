@@ -21,38 +21,30 @@
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Standard-Akzent (Fallback Hub / Blau) */
+/* Akzentfarben */
 :root, .theme-hub, .theme-photo {
   --accent-color: #4285f4;
   --accent-hover: #3367d6;
   --accent-light: #e8f0fe;
 }
-[data-theme="dark"] .theme-photo {
-  --accent-light: #1f3762;
-}
+[data-theme="dark"] .theme-photo { --accent-light: #1f3762; }
 
-/* Musik (Rot) */
 .theme-music {
   --accent-color: #b51200;
   --accent-hover: #900e00;
   --accent-light: #fce8e6;
 }
-[data-theme="dark"] .theme-music {
-  --accent-light: #521814;
-}
+[data-theme="dark"] .theme-music { --accent-light: #521814; }
 
-/* Moto (Grün) */
 .theme-moto {
   --accent-color: #0b8043;
   --accent-hover: #096a37;
   --accent-light: #e6f4ea;
 }
-[data-theme="dark"] .theme-moto {
-  --accent-light: #113822;
-}
+[data-theme="dark"] .theme-moto { --accent-light: #113822; }
 
 /* ==========================================
-   2. GLOBAL LAYOUT & TYPOGRAPHY
+   2. GLOBAL LAYOUT & MODERN TYPOGRAPHY
    ========================================== */
 body {
   margin: 0;
@@ -75,7 +67,6 @@ body {
   width: 100%;
 }
 
-/* Top Bar & Navigation */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -84,8 +75,9 @@ body {
 }
 
 .site-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 26px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
   margin: 0;
   color: var(--text-main);
   text-decoration: none;
@@ -117,6 +109,7 @@ body {
   border-radius: 20px;
   cursor: pointer;
   font-size: 13px;
+  font-family: 'Roboto', sans-serif;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -128,7 +121,7 @@ body {
 }
 
 /* ==========================================
-   3. GOOGLE DRIVE HEADER BANNER
+   3. HEADER BANNER
    ========================================== */
 .header-banner {
   width: 100%;
@@ -153,7 +146,8 @@ body {
 }
 
 .header-overlay h1 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
   font-size: 32px;
   margin: 0;
 }
@@ -245,7 +239,8 @@ body {
 }
 
 .card-title, .tikaei-title {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
   font-size: 18px;
   margin: 0 0 8px 0;
   color: var(--text-main);
@@ -277,7 +272,7 @@ body {
 }
 
 /* ==========================================
-   5. FOOTER & DISCLAIMER
+   5. FOOTER
    ========================================== */
 .site-footer {
   margin-top: 50px;
@@ -298,5 +293,3 @@ body {
   color: var(--accent-color);
   text-decoration: underline;
 }
-
-/* Script zur Theme-Initialisierung (verhindert Flackern) */
