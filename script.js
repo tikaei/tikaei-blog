@@ -455,18 +455,6 @@ function initBlogReader(feedUrl, defaultThumb) {
 }
 
 
-// --- 4. GLOBALER EVENT-LISTENER FÜR DIE ESCAPE-TASTE ---
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const detailView = document.getElementById('detail-view');
-    if (detailView && detailView.style.display === 'block' && typeof window.showGrid === 'function') {
-      window.showGrid();
-    }
-  }
-});
-
-
 // --- 5. SCROLL-TO-TOP BUTTON LOGIK ---
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -487,4 +475,64 @@ document.addEventListener('DOMContentLoaded', () => {
   scrollTopBtn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+});
+
+
+// --- 6. BILDER-LIGHTBOX LOGIK ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Lightbox-Element dynamisch im DOM erzeugen
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox-overlay';
+  lightbox.innerHTML = `
+    <button class="lightbox-close" aria-label="Schließen">&times;</button>
+    <img class="lightbox-img" src="" alt="">
+  `;
+  document.body.appendChild(lightbox);
+
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const closeBtn = lightbox.querySelector('.lightbox-close');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || 'Vergrößertes Bild';
+    lightbox.classList.add('active');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+  }
+
+  // Event-Delegation: Klicks auf Bilder im Artikeltext abfangen
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
+      // Verhindert Weiterleitung, falls das Bild von einem Blogger-Link umschlossen ist
+      if (e.target.parentElement && e.target.parentElement.tagName === 'A') {
+        e.preventDefault();
+      }
+      openLightbox(e.target.src, e.target.alt);
+    }
+  });
+
+  // Schließen bei Klick auf den Hintergrund oder das 'X'
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || e.target === closeBtn) {
+      closeLightbox();
+    }
+  });
+});
+
+// Aktualisierte Escape-Steuerung (Schließt erst Lightbox, dann Artikel)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const lightbox = document.querySelector('.lightbox-overlay');
+    if (lightbox && lightbox.classList.contains('active')) {
+      lightbox.classList.remove('active');
+      return;
+    }
+    const detailView = document.getElementById('detail-view');
+    if (detailView && detailView.style.display === 'block' && typeof window.showGrid === 'function') {
+      window.showGrid();
+    }
+  }
 });
