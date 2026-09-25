@@ -61,21 +61,22 @@ function initHub() {
     { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
   ];
 
-  let allPosts = [];
+  let freshPosts = []; // Nur frische Beiträge von den Feeds sammeln
   let loadedCount = 0;
 
-  // Instant-Loading aus dem Cache, falls vorhanden
+  // 1. Sofortiges Anzeigen aus dem Cache (falls vorhanden)
   const cachedData = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
   if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
     try {
-      allPosts = JSON.parse(cachedData);
-      renderHubPosts(allPosts.slice(0, 8));
+      const cachedPosts = JSON.parse(cachedData);
+      renderHubPosts(cachedPosts.slice(0, 8));
     } catch (e) {
       console.error('Cache Read Error:', e);
     }
   }
 
+  // 2. Feeds abrufen
   blogs.forEach(blog => {
     const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
     window[callbackName] = function(data) {
@@ -102,7 +103,7 @@ function initHub() {
           if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
           imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
 
-          allPosts.push({
+          freshPosts.push({
             postId, postUrl, title, pubDate, content, imageUrl,
             defaultImg: blog.defaultImg,
             blogType: blog.type,
@@ -113,11 +114,11 @@ function initHub() {
       }
       loadedCount++;
       if (loadedCount === blogs.length) {
-        // Doppelte Eintragsfilterung durch Re-Fetch
-        const uniquePosts = Array.from(new Map(allPosts.map(p => [p.postId, p])).values());
+        // Eindeutige Beiträge nach URL filtern
+        const uniquePosts = Array.from(new Map(freshPosts.map(p => [p.postUrl || p.postId, p])).values());
         uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         
-        // Cache aktualisieren
+        // Sauber im Speicher ablegen
         localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
         localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
@@ -130,8 +131,10 @@ function initHub() {
     script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
     script.onerror = () => {
       loadedCount++;
-      if (loadedCount === blogs.length) {
-        renderHubPosts(allPosts.slice(0, 8));
+      if (loadedCount === blogs.length && freshPosts.length > 0) {
+        const uniquePosts = Array.from(new Map(freshPosts.map(p => [p.postUrl || p.postId, p])).values());
+        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        renderHubPosts(uniquePosts.slice(0, 8));
       }
     };
     document.body.appendChild(script);
@@ -192,11 +195,12 @@ function initHub() {
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       const query = this.value.toLowerCase().trim();
+      const currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
       if (query === '') {
-        renderHubPosts(allPosts.slice(0, 8));
+        renderHubPosts(currentPosts.slice(0, 8));
         return;
       }
-      const filtered = allPosts.filter(post => {
+      const filtered = currentPosts.filter(post => {
         const titleMatch = post.title.toLowerCase().includes(query);
         const temp = document.createElement('div');
         temp.innerHTML = post.content;
