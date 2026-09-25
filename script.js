@@ -381,3 +381,15 @@ function initBlogReader(feedUrl, defaultThumb) {
     document.body.appendChild(script);
   }
 }
+
+
+// --- 4. GLOBALER EVENT-LISTENER FÜR DIE ESCAPE-TASTE ---
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const detailView = document.getElementById('detail-view');
+    if (detailView && detailView.style.display === 'block' && typeof window.showGrid === 'function') {
+      window.showGrid();
+    }
+  }
+});
