@@ -14,8 +14,11 @@
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Preconnect für beschleunigtes Laden -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://blogger.googleusercontent.com">
+  
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
@@ -46,29 +49,29 @@
 
   <div class="container">
     <div class="top-bar">
-      <a href="index.html">
-        <img src="images/logo.png" alt="[ti:kæı]" class="site-logo">
+      <a href="index.html" aria-label="Zur Startseite">
+        <img src="images/logo.png" alt="[ti:kæı] Logo" class="site-logo">
       </a>
-      <div class="nav-links">
+      <nav class="nav-links" aria-label="Hauptnavigation">
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
-      </div>
+      </nav>
     </div>
 
     <div class="search-container">
-      <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." autocomplete="off">
+      <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." aria-label="Alle Blogs durchsuchen" autocomplete="off">
     </div>
 
-    <div id="tikaei-posts" class="grid-layout">
+    <main id="tikaei-posts" class="grid-layout" aria-live="polite">
       <div class="card" style="opacity: 0.6;"><div class="card-img-wrapper"></div><div class="card-body"><div class="card-title">Lade Beiträge...</div></div></div>
-    </div>
+    </main>
 
     <footer class="site-footer">
-      <p>&copy; [ti:kæı] &bull; RSS Feeds (<a href="https://tikaeiphoto.blogspot.com/feeds/posts/default" target="_blank">Photo</a>, <a href="https://tikaeimusic.blogspot.com/feeds/posts/default" target="_blank">Music</a>, <a href="https://tikaeimoto.blogspot.com/feeds/posts/default" target="_blank">Moto</a>) &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
+      <p>&copy; [ti:kæı] &bull; RSS Feeds (<a href="https://tikaeiphoto.blogspot.com/feeds/posts/default" target="_blank" rel="noopener">Photo</a>, <a href="https://tikaeimusic.blogspot.com/feeds/posts/default" target="_blank" rel="noopener">Music</a>, <a href="https://tikaeimoto.blogspot.com/feeds/posts/default" target="_blank" rel="noopener">Moto</a>) &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
     </footer>
   </div>
 
