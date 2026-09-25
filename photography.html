@@ -209,7 +209,12 @@
     }
 
 function copyPostLink() {
-      navigator.clipboard.writeText(window.location.href).then(() => {
+      // Entweder den echten Blogger-Link oder den aktuellen Domain-Link kopieren:
+      // Variante A: Den echten Blogger-Link kopieren (falls vorhanden)
+      const currentPost = loadedPosts.find(p => window.location.search.includes(encodeURIComponent(p.postUrl)));
+      const linkToCopy = currentPost && currentPost.postUrl ? currentPost.postUrl : window.location.href;
+
+      navigator.clipboard.writeText(linkToCopy).then(() => {
         const btn = document.getElementById('copy-link-btn');
         btn.textContent = '✓ Link kopiert!';
         setTimeout(() => {
@@ -219,8 +224,8 @@ function copyPostLink() {
         console.error('Fehler beim Kopieren: ', err);
       });
     }
-
-    function openPost(index) {
+    
+function openPost(index) {
       const post = loadedPosts[index];
       if (!post) return;
       document.getElementById('search-wrapper').style.display = 'none';
