@@ -61,7 +61,10 @@
     </div>
 
     <div id="detail-view" style="display: none;">
-      <button class="theme-toggle-btn" style="margin-bottom: 20px;" onclick="showGrid()">&larr; Zurück zur Übersicht</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <button class="theme-toggle-btn" onclick="showGrid()">&larr; Zurück zur Übersicht</button>
+        <button id="copy-link-btn" class="theme-toggle-btn" onclick="copyPostLink()">🔗 Link kopieren</button>
+      </div>
       <article>
         <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
           <span id="article-date" class="card-date"></span>
@@ -205,12 +208,30 @@
       });
     }
 
+    function copyPostLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('copy-link-btn');
+        btn.textContent = '✓ Link kopiert!';
+        setTimeout(() => {
+          btn.textContent = '🔗 Link kopieren';
+        }, 2000);
+      }).catch(err => {
+        console.error('Fehler beim Kopieren: ', err);
+      });
+    }
+
     function openPost(index) {
       const post = loadedPosts[index];
       if (!post) return;
       document.getElementById('search-wrapper').style.display = 'none';
       document.getElementById('grid-view').style.display = 'none';
       document.getElementById('detail-view').style.display = 'block';
+
+      // URL in der Adressleiste aktualisieren (für direktes Teilen)
+      if (post.postUrl) {
+        const cleanUrl = window.location.pathname + '?postUrl=' + encodeURIComponent(post.postUrl);
+        window.history.pushState({path: cleanUrl}, '', cleanUrl);
+      }
 
       document.getElementById('article-title').textContent = post.title;
       if (post.pubDate) {
@@ -229,9 +250,13 @@
       document.getElementById('search-wrapper').style.display = 'block';
       document.getElementById('detail-view').style.display = 'none';
       document.getElementById('grid-view').style.display = 'grid';
+      
+      // URL beim Zurückgehen auf die Hauptseite der Unterseite zurücksetzen
+      window.history.pushState({path: window.location.pathname}, '', window.location.pathname);
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
+    
     function loadComments(postId) {
       const commentsList = document.getElementById('comments-list');
       const commentCount = document.getElementById('comment-count');
