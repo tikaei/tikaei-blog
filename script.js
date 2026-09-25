@@ -407,3 +407,26 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
+
+// --- 5. SCROLL-TO-TOP BUTTON LOGIK ---
+
+document.addEventListener('DOMContentLoaded', () => {
+  const scrollTopBtn = document.createElement('button');
+  scrollTopBtn.className = 'scroll-top-btn';
+  scrollTopBtn.setAttribute('aria-label', 'Nach oben scrollen');
+  scrollTopBtn.innerHTML = '↑';
+  document.body.appendChild(scrollTopBtn);
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollTopBtn.classList.add('visible');
+    } else {
+      scrollTopBtn.classList.remove('visible');
+    }
+  });
+
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
