@@ -13,13 +13,13 @@
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
-  <!-- Google Analytics: Ersetze G-XXXXXXXXXX mit deiner GA-ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-GNER6HTD1X');
+    gtag('config', 'G-XXXXXXXXXX');
   </script>
 </head>
 <body class="theme-hub">
@@ -73,6 +73,12 @@
     }
     updateThemeUI(savedTheme);
 
+    // Hilfsfunktion gegen Mixed-Content-Warnungen (erzwingt https://)
+    function secureUrl(url) {
+      if (!url) return '';
+      return url.replace(/^http:\/\//i, 'https://');
+    }
+
     (function() {
       const blogs = [
         { type: 'photo', label: 'Photo', feedUrl: 'https://tikaeiphoto.blogspot.com', internalUrl: 'photography.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224' },
@@ -82,11 +88,6 @@
 
       let allPosts = [];
       let loadedCount = 0;
-
-      function makeOptimizedImage(url) {
-        if (!url) return '';
-        return url.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/');
-      }
 
       function loadBloggerFeed(blog) {
         const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
@@ -99,7 +100,7 @@
               let postUrl = '';
               if (entry.link) {
                 const alt = entry.link.find(l => l.rel === 'alternate');
-                if (alt) postUrl = alt.href;
+                if (alt) postUrl = secureUrl(alt.href);
               }
               let title = entry.title ? entry.title.$t : 'Beitrag';
               let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
@@ -112,7 +113,7 @@
                 if (imgEl && imgEl.src) imageUrl = imgEl.src;
               }
               if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
-              imageUrl = imageUrl ? makeOptimizedImage(imageUrl) : blog.defaultImg;
+              imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : blog.defaultImg);
 
               allPosts.push({
                 postId, postUrl, title, pubDate, content, imageUrl,
