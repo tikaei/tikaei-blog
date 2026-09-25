@@ -186,6 +186,15 @@ function initBlogReader(feedUrl, defaultThumb) {
   let loadedPosts = [];
   let currentActivePost = null;
 
+  // SOFORTIGE Bereinigung der Adressleiste vor dem Laden des Feeds
+  const urlParams = new URLSearchParams(window.location.search);
+  const autoOpenUrlParam = urlParams.get('postUrl');
+  const targetPostUrl = autoOpenUrlParam ? decodeURIComponent(autoOpenUrlParam) : null;
+
+  if (autoOpenUrlParam) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
   window[callbackName] = function(data) {
     const gridView = document.getElementById('grid-view');
@@ -218,10 +227,8 @@ function initBlogReader(feedUrl, defaultThumb) {
 
     renderGrid(loadedPosts);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const autoOpenUrl = urlParams.get('postUrl');
-    if (autoOpenUrl) {
-      const postIndex = loadedPosts.findIndex(p => p.postUrl === decodeURIComponent(autoOpenUrl));
+    if (targetPostUrl) {
+      const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
       if (postIndex !== -1) openPost(postIndex);
     }
     delete window[callbackName];
@@ -294,7 +301,6 @@ function initBlogReader(feedUrl, defaultThumb) {
     document.getElementById('grid-view').style.display = 'none';
     document.getElementById('detail-view').style.display = 'block';
 
-    // Adressleiste sofort säubern (entfernt ?postUrl=... vollkommen unsichtbar)
     window.history.replaceState({}, '', window.location.pathname);
 
     const readingTime = calculateReadingTime(post.content);
