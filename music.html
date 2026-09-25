@@ -3,23 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[ti:kæı] Fotografie</title>
+  <title>[ti:kæı] Musik</title>
   <link rel="icon" href="images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script>
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  </script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GNER6HTD1X');
-  </script>
+  
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.tonikorb.de/music.html">
@@ -27,17 +13,36 @@
   <meta property="og:description" content="Klänge, Aufnahmen und musikalische Einblicke von Toni Korb.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-music.png">
   <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-GNER6HTD1X');
+  </script>
 </head>
 <body class="theme-music">
 
   <div class="header-banner">
-  <img src="images/banner-music.png" alt="Musik Header">
-  <div class="header-overlay">
-    <h1>Musik</h1>
+    <img src="images/banner-music.png" alt="Musik Header">
+    <div class="header-overlay">
+      <h1>Musik</h1>
+    </div>
   </div>
-</div>
 
-<div class="container">
+  <div class="container">
     <div class="top-bar">
       <a href="index.html">
         <img src="images/logo.png" alt="[ti:kæı]" class="site-logo">
@@ -53,7 +58,7 @@
     </div>
 
     <div id="search-wrapper" class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="Fotografie-Beiträge durchsuchen..." oninput="filterPosts()">
+      <input type="text" id="search-input" class="search-input" placeholder="Musik-Beiträge durchsuchen..." oninput="filterPosts()" autocomplete="off">
     </div>
 
     <div id="grid-view" class="grid-layout">
@@ -88,217 +93,12 @@
     </footer>
   </div>
 
+  <script src="script.js"></script>
   <script>
-    const BLOG_FEED_URL = 'https://tikaeimusic.blogspot.com';
-    const DEFAULT_THUMB = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015';
-    let loadedPosts = [];
-
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateThemeUI(next);
-    }
-    function updateThemeUI(theme) {
-      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
-      document.getElementById('theme-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
-    }
-    updateThemeUI(savedTheme);
-
-    function secureUrl(url) {
-      if (!url) return '';
-      return url.replace(/^http:\/\//i, 'https://');
-    }
-
-    function secureHtmlContent(html) {
-      if (!html) return '';
-      return html.replace(/src="http:\/\//gi, 'src="https://').replace(/href="http:\/\//gi, 'href="https://');
-    }
-
-    function initReader() {
-      const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
-      window[callbackName] = function(data) {
-        const gridView = document.getElementById('grid-view');
-        if (!data?.feed?.entry) { gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; return; }
-
-        loadedPosts = data.feed.entry.map(entry => {
-          const rawId = entry.id.$t;
-          const postIdMatch = rawId.match(/post-(\d+)/);
-          const postId = postIdMatch ? postIdMatch : '';
-          let postUrl = '';
-          if (entry.link) {
-            const alt = entry.link.find(l => l.rel === 'alternate');
-            if (alt) postUrl = secureUrl(alt.href);
-          }
-          let title = entry.title ? entry.title.$t : 'Ohne Titel';
-          let pubDate = entry.published ? entry.published.$t : '';
-          let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
-          let imageUrl = '';
-          if (content) {
-            const temp = document.createElement('div');
-            temp.innerHTML = content;
-            const img = temp.querySelector('img');
-            if (img) imageUrl = img.src;
-          }
-          if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
-          imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : DEFAULT_THUMB);
-          return { postId, postUrl, title, pubDate, content, imageUrl };
-        });
-
-        renderGrid(loadedPosts);
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const autoOpenUrl = urlParams.get('postUrl');
-        if (autoOpenUrl) {
-          const postIndex = loadedPosts.findIndex(p => p.postUrl === decodeURIComponent(autoOpenUrl));
-          if (postIndex !== -1) openPost(postIndex);
-        }
-        delete window[callbackName];
-      };
-      const script = document.createElement('script');
-      script.src = `${BLOG_FEED_URL}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
-      document.body.appendChild(script);
-    }
-
-    function filterPosts() {
-      const query = document.getElementById('search-input').value.toLowerCase().trim();
-      const filtered = loadedPosts.filter(post => {
-        const titleMatch = post.title.toLowerCase().includes(query);
-        const temp = document.createElement('div');
-        temp.innerHTML = post.content;
-        const text = (temp.textContent || temp.innerText || '').toLowerCase();
-        return titleMatch || text.includes(query);
-      });
-      renderGrid(filtered);
-    }
-
-    function renderGrid(postsToRender) {
-      const gridView = document.getElementById('grid-view');
-      gridView.innerHTML = '';
-      if (postsToRender.length === 0) { gridView.innerHTML = '<div>Keine passenden Beiträge gefunden.</div>'; return; }
-
-      postsToRender.forEach(post => {
-        const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
-        let dateStr = '';
-        if (post.pubDate) {
-          const d = new Date(post.pubDate);
-          if (!isNaN(d)) dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
-        const temp = document.createElement('div');
-        temp.innerHTML = post.content;
-        let text = temp.textContent || temp.innerText || '';
-        if (text.length > 90) text = text.substring(0, 90) + '...';
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.onclick = () => openPost(originalIndex);
-        card.innerHTML = `
-          <div class="card-img-wrapper"><img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" onerror="this.src='${DEFAULT_THUMB}'"></div>
-          <div class="card-body">
-            <div>
-              <div class="card-date">${dateStr}</div>
-              <h3 class="card-title">${post.title}</h3>
-              <div class="card-snippet">${text}</div>
-            </div>
-            <div class="card-btn">Beitrag lesen &rarr;</div>
-          </div>
-        `;
-        gridView.appendChild(card);
-      });
-    }
-
- function copyPostLink() {
-      // Entweder den echten Blogger-Link oder den aktuellen Domain-Link kopieren:
-      // Variante A: Den echten Blogger-Link kopieren (falls vorhanden)
-      const currentPost = loadedPosts.find(p => window.location.search.includes(encodeURIComponent(p.postUrl)));
-      const linkToCopy = currentPost && currentPost.postUrl ? currentPost.postUrl : window.location.href;
-
-      navigator.clipboard.writeText(linkToCopy).then(() => {
-        const btn = document.getElementById('copy-link-btn');
-        btn.textContent = '✓ Link kopiert!';
-        setTimeout(() => {
-          btn.textContent = '🔗 Link kopieren';
-        }, 2000);
-      }).catch(err => {
-        console.error('Fehler beim Kopieren: ', err);
-      });
-    }
-
-    function openPost(index) {
-      const post = loadedPosts[index];
-      if (!post) return;
-      document.getElementById('search-wrapper').style.display = 'none';
-      document.getElementById('grid-view').style.display = 'none';
-      document.getElementById('detail-view').style.display = 'block';
-
-      // URL in der Adressleiste aktualisieren (für direktes Teilen)
-      if (post.postUrl) {
-        const cleanUrl = window.location.pathname + '?postUrl=' + encodeURIComponent(post.postUrl);
-        window.history.pushState({path: cleanUrl}, '', cleanUrl);
-      }
-
-      document.getElementById('article-title').textContent = post.title;
-      if (post.pubDate) {
-        const d = new Date(post.pubDate);
-        document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
-      }
-      document.getElementById('article-body').innerHTML = post.content;
-      loadComments(post.postId);
-      if (post.postUrl) {
-        document.getElementById('blogger-comment-link').href = secureUrl(post.postUrl) + '#comment-form';
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showGrid() {
-      document.getElementById('search-wrapper').style.display = 'block';
-      document.getElementById('detail-view').style.display = 'none';
-      document.getElementById('grid-view').style.display = 'grid';
-      
-      // URL beim Zurückgehen auf die Hauptseite der Unterseite zurücksetzen
-      window.history.pushState({path: window.location.pathname}, '', window.location.pathname);
-      
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
-    function loadComments(postId) {
-      const commentsList = document.getElementById('comments-list');
-      const commentCount = document.getElementById('comment-count');
-      commentsList.innerHTML = '<div>Lade Kommentare...</div>';
-      const callbackName = 'comment_cb_' + Math.floor(Math.random() * 1000000);
-
-      window[callbackName] = function(data) {
-        commentsList.innerHTML = '';
-        if (data?.feed?.entry) {
-          const comments = data.feed.entry;
-          commentCount.textContent = comments.length;
-          comments.forEach(c => {
-            const author = c.author ? c.author[0].name.$t : 'Anonym';
-            let dateStr = '';
-            if (c.published) {
-              const d = new Date(c.published.$t);
-              dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            }
-            const text = secureHtmlContent(c.content ? c.content.$t : (c.summary ? c.summary.$t : ''));
-            const item = document.createElement('div');
-            item.style.cssText = 'background: var(--input-bg); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; border-left: 3px solid var(--accent-color);';
-            item.innerHTML = `<div><strong style="font-size: 14px; color: var(--text-main);">${author}</strong> <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">${dateStr}</span></div><div style="font-size: 14px; margin-top: 6px; color: var(--text-muted);">${text}</div>`;
-            commentsList.appendChild(item);
-          });
-        } else {
-          commentCount.textContent = '0';
-          commentsList.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Noch keine Kommentare vorhanden.</p>';
-        }
-        delete window[callbackName];
-      };
-      const script = document.createElement('script');
-      script.src = `${BLOG_FEED_URL}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
-      script.onerror = () => { commentCount.textContent = '0'; commentsList.innerHTML = '<p style="color: var(--text-muted);">Kommentare konnten nicht geladen werden.</p>'; };
-      document.body.appendChild(script);
-    }
-
-    initReader();
+    initBlogReader(
+      'https://tikaeimusic.blogspot.com', 
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015'
+    );
   </script>
 </body>
 </html>
