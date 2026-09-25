@@ -14,8 +14,11 @@
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-photo.png">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Preconnect für beschleunigtes Laden -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://blogger.googleusercontent.com">
+
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
@@ -38,7 +41,7 @@
 <body class="theme-photo">
 
   <div class="header-banner">
-    <img src="images/banner-photo.png" alt="Fotografie Header">
+    <img src="images/banner-photo.png" alt="Fotografie Header Banner">
     <div class="header-overlay">
       <h1>Fotografie</h1>
     </div>
@@ -46,31 +49,31 @@
 
   <div class="container">
     <div class="top-bar">
-      <a href="index.html">
-        <img src="images/logo.png" alt="[ti:kæı]" class="site-logo">
+      <a href="index.html" aria-label="Zur Startseite">
+        <img src="images/logo.png" alt="[ti:kæı] Logo" class="site-logo">
       </a>
-      <div class="nav-links">
-        <a href="photography.html" class="active">Photo</a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="photography.html" class="active" aria-current="page">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
-      </div>
+      </nav>
     </div>
 
     <div id="search-wrapper" class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="Fotografie-Beiträge durchsuchen..." oninput="filterPosts()" autocomplete="off">
+      <input type="text" id="search-input" class="search-input" placeholder="Fotografie-Beiträge durchsuchen..." oninput="filterPosts()" aria-label="Fotografie-Beiträge durchsuchen" autocomplete="off">
     </div>
 
-    <div id="grid-view" class="grid-layout">
+    <main id="grid-view" class="grid-layout" aria-live="polite">
       <div class="card" style="opacity: 0.6;"><div class="card-img-wrapper"></div><div class="card-body"><div class="card-title">Lade Beiträge...</div></div></div>
-    </div>
+    </main>
 
     <div id="detail-view" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <button class="theme-toggle-btn" onclick="showGrid()">&larr; Zurück zur Übersicht</button>
-        <button id="copy-link-btn" class="theme-toggle-btn" onclick="copyPostLink()">🔗 Link kopieren</button>
+        <button class="theme-toggle-btn" onclick="showGrid()" aria-label="Zurück zur Beitragsübersicht">&larr; Zurück zur Übersicht</button>
+        <button id="copy-link-btn" class="theme-toggle-btn" onclick="copyPostLink()" aria-label="Link zu diesem Beitrag kopieren">🔗 Link kopieren</button>
       </div>
       <article>
         <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
@@ -80,18 +83,18 @@
         <div id="article-body" style="font-size: 16px; line-height: 1.8; color: var(--text-main);"></div>
       </article>
 
-      <div style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--border-color);">
+      <section style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--border-color);" aria-label="Kommentare">
         <h3 style="font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
         <div id="comments-list"></div>
         <div style="margin-top: 25px; background: var(--input-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
           <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted);">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
-          <a id="blogger-comment-link" href="" target="_blank" class="card-btn" style="display: inline-board; background-color: var(--accent-color); color: #fff; padding: 10px 20px; border-radius: 20px; text-decoration: none;">Auf Blogger kommentieren &rarr;</a>
+          <a id="blogger-comment-link" href="" target="_blank" rel="noopener" class="card-btn" style="display: inline-block; background-color: var(--accent-color); color: #fff; padding: 10px 20px; border-radius: 20px; text-decoration: none;">Auf Blogger kommentieren &rarr;</a>
         </div>
-      </div>
+      </section>
     </div>
 
     <footer class="site-footer">
-      <p>&copy; [ti:kæı] &bull; <a href="https://tikaeiphoto.blogspot.com/feeds/posts/default" target="_blank">RSS-Feed</a> &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
+      <p>&copy; [ti:kæı] &bull; <a href="https://tikaeiphoto.blogspot.com/feeds/posts/default" target="_blank" rel="noopener">RSS-Feed</a> &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
     </footer>
   </div>
 
