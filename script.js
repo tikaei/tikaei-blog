@@ -30,6 +30,13 @@ function secureHtmlContent(html) {
   return html.replace(/src="http:\/\//gi, 'src="https://').replace(/href="http:\/\//gi, 'href="https://');
 }
 
+// Bildgrößen-Steuerung für Blogger (s600 = Thumbnails, s1600 = Detailansicht)
+function optimizeBloggerImage(url, targetSize = 's600') {
+  if (!url) return '';
+  const secure = secureUrl(url);
+  return secure.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, `/${targetSize}/`);
+}
+
 function calculateReadingTime(htmlContent) {
   if (!htmlContent) return 1;
   const temp = document.createElement('div');
@@ -44,6 +51,10 @@ function calculateReadingTime(htmlContent) {
 // --- 2. LOGIK FÜR DEN HUB (index.html) ---
 
 function initHub() {
+  const CACHE_KEY = 'tikaei_hub_cache';
+  const CACHE_TIME_KEY = 'tikaei_hub_cache_time';
+  const CACHE_TTL = 15 * 60 * 1000; // 15 Minuten Caching
+
   const blogs = [
     { type: 'photo', label: 'Photo', feedUrl: 'https://tikaeiphoto.blogspot.com', internalUrl: 'photography.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224' },
     { type: 'music', label: 'Music', feedUrl: 'https://tikaeimusic.blogspot.com', internalUrl: 'music.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015' },
@@ -52,6 +63,18 @@ function initHub() {
 
   let allPosts = [];
   let loadedCount = 0;
+
+  // Instant-Loading aus dem Cache, falls vorhanden
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+  if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
+    try {
+      allPosts = JSON.parse(cachedData);
+      renderHubPosts(allPosts.slice(0, 8));
+    } catch (e) {
+      console.error('Cache Read Error:', e);
+    }
+  }
 
   blogs.forEach(blog => {
     const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
@@ -77,7 +100,7 @@ function initHub() {
             if (imgEl && imgEl.src) imageUrl = imgEl.src;
           }
           if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
-          imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : blog.defaultImg);
+          imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
 
           allPosts.push({
             postId, postUrl, title, pubDate, content, imageUrl,
@@ -90,8 +113,15 @@ function initHub() {
       }
       loadedCount++;
       if (loadedCount === blogs.length) {
-        allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        renderHubPosts(allPosts.slice(0, 8));
+        // Doppelte Eintragsfilterung durch Re-Fetch
+        const uniquePosts = Array.from(new Map(allPosts.map(p => [p.postId, p])).values());
+        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        
+        // Cache aktualisieren
+        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+        renderHubPosts(uniquePosts.slice(0, 8));
       }
       delete window[callbackName];
     };
@@ -101,7 +131,6 @@ function initHub() {
     script.onerror = () => {
       loadedCount++;
       if (loadedCount === blogs.length) {
-        allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         renderHubPosts(allPosts.slice(0, 8));
       }
     };
@@ -186,13 +215,32 @@ function initBlogReader(feedUrl, defaultThumb) {
   let loadedPosts = [];
   let currentActivePost = null;
 
-  // SOFORTIGE Bereinigung der Adressleiste vor dem Laden des Feeds
+  const CACHE_KEY = 'tikaei_reader_' + feedUrl;
+  const CACHE_TIME_KEY = 'tikaei_reader_time_' + feedUrl;
+  const CACHE_TTL = 15 * 60 * 1000;
+
   const urlParams = new URLSearchParams(window.location.search);
   const autoOpenUrlParam = urlParams.get('postUrl');
   const targetPostUrl = autoOpenUrlParam ? decodeURIComponent(autoOpenUrlParam) : null;
 
   if (autoOpenUrlParam) {
     window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  // Instant-Loading aus Cache
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+  if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
+    try {
+      loadedPosts = JSON.parse(cachedData);
+      renderGrid(loadedPosts);
+      if (targetPostUrl) {
+        const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+        if (postIndex !== -1) openPost(postIndex);
+      }
+    } catch (e) {
+      console.error('Reader Cache Error:', e);
+    }
   }
 
   const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
@@ -221,9 +269,13 @@ function initBlogReader(feedUrl, defaultThumb) {
         if (img) imageUrl = img.src;
       }
       if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
-      imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : defaultThumb);
+      imageUrl = optimizeBloggerImage(imageUrl || defaultThumb, 's600');
+
       return { postId, postUrl, title, pubDate, content, imageUrl };
     });
+
+    localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
+    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
 
     renderGrid(loadedPosts);
 
@@ -310,7 +362,21 @@ function initBlogReader(feedUrl, defaultThumb) {
       const d = new Date(post.pubDate);
       document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) + ' \u2022 ⏱️ ' + readingTime + ' Min. Lesezeit';
     }
-    document.getElementById('article-body').innerHTML = post.content;
+
+    // Artikelinhalte für hohe Bildauflösung (s1600) optimieren
+    const tempArticleBody = document.createElement('div');
+    tempArticleBody.innerHTML = post.content;
+    tempArticleBody.querySelectorAll('img').forEach(img => {
+      if (img.src) {
+        img.src = optimizeBloggerImage(img.src, 's1600');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.borderRadius = '8px';
+      }
+    });
+
+    document.getElementById('article-body').innerHTML = tempArticleBody.innerHTML;
+
     loadComments(feedUrl, post.postId);
     if (post.postUrl) {
       document.getElementById('blogger-comment-link').href = secureUrl(post.postUrl) + '#comment-form';
@@ -332,32 +398,24 @@ function initBlogReader(feedUrl, defaultThumb) {
     const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
     const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
 
-    // Auf Smartphones mit nativem Teilen-Dialog (iOS / Android)
     if (navigator.share) {
       navigator.share({
         title: shareTitle,
         url: linkToCopy
       }).catch(err => {
-        if (err.name !== 'AbortError') {
-          console.error('Fehler beim Teilen:', err);
-        }
+        if (err.name !== 'AbortError') console.error('Fehler beim Teilen:', err);
       });
     } else {
-      // Fallback für Desktop: Link direkt in die Zwischenablage kopieren
       navigator.clipboard.writeText(linkToCopy).then(() => {
         const btn = document.getElementById('copy-link-btn');
         if (btn) {
           btn.textContent = '✓ Link kopiert!';
-          setTimeout(() => {
-            btn.textContent = '🔗 Link kopieren';
-          }, 2000);
+          setTimeout(() => { btn.textContent = '🔗 Link kopieren'; }, 2000);
         }
-      }).catch(err => {
-        console.error('Fehler beim Kopieren: ', err);
-      });
+      }).catch(err => console.error('Fehler beim Kopieren: ', err));
     }
   };
-  
+
   function loadComments(blogFeedUrl, postId) {
     const commentsList = document.getElementById('comments-list');
     const commentCount = document.getElementById('comment-count');
