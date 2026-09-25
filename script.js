@@ -330,20 +330,34 @@ function initBlogReader(feedUrl, defaultThumb) {
 
   window.copyPostLink = function() {
     const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
+    const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
 
-    navigator.clipboard.writeText(linkToCopy).then(() => {
-      const btn = document.getElementById('copy-link-btn');
-      if (btn) {
-        btn.textContent = '✓ Link kopiert!';
-        setTimeout(() => {
-          btn.textContent = '🔗 Link kopieren';
-        }, 2000);
-      }
-    }).catch(err => {
-      console.error('Fehler beim Kopieren: ', err);
-    });
+    // Auf Smartphones mit nativem Teilen-Dialog (iOS / Android)
+    if (navigator.share) {
+      navigator.share({
+        title: shareTitle,
+        url: linkToCopy
+      }).catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error('Fehler beim Teilen:', err);
+        }
+      });
+    } else {
+      // Fallback für Desktop: Link direkt in die Zwischenablage kopieren
+      navigator.clipboard.writeText(linkToCopy).then(() => {
+        const btn = document.getElementById('copy-link-btn');
+        if (btn) {
+          btn.textContent = '✓ Link kopiert!';
+          setTimeout(() => {
+            btn.textContent = '🔗 Link kopieren';
+          }, 2000);
+        }
+      }).catch(err => {
+        console.error('Fehler beim Kopieren: ', err);
+      });
+    }
   };
-
+  
   function loadComments(blogFeedUrl, postId) {
     const commentsList = document.getElementById('comments-list');
     const commentCount = document.getElementById('comment-count');
