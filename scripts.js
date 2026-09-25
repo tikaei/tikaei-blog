@@ -1,4 +1,4 @@
-// --- 1. GLOBALE HILFSFUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT) ---
+// --- 1. GLOBALE FUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT) ---
 
 const savedTheme = localStorage.getItem('theme') || 'light';
 document.documentElement.setAttribute('data-theme', savedTheme);
@@ -99,10 +99,13 @@ function initHub() {
     };
 
     const script = document.createElement('script');
-    script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15&ts=${Date.now()}`;
+    script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
     script.onerror = () => {
       loadedCount++;
-      if (loadedCount === blogs.length) renderHubPosts(allPosts.slice(0, 8));
+      if (loadedCount === blogs.length) {
+        allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        renderHubPosts(allPosts.slice(0, 8));
+      }
     };
     document.body.appendChild(script);
   });
@@ -120,7 +123,6 @@ function initHub() {
         const dateObj = new Date(item.pubDate);
         if (!isNaN(dateObj)) dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       }
-      
       const readingTime = calculateReadingTime(item.content);
 
       let tempDiv = document.createElement('div');
@@ -244,6 +246,7 @@ function initBlogReader(feedUrl, defaultThumb) {
 
   function renderGrid(postsToRender) {
     const gridView = document.getElementById('grid-view');
+    if (!gridView) return;
     gridView.innerHTML = '';
     if (postsToRender.length === 0) { gridView.innerHTML = '<div>Keine passenden Beiträge gefunden.</div>'; return; }
 
@@ -313,7 +316,8 @@ function initBlogReader(feedUrl, defaultThumb) {
   window.showGrid = function() {
     document.getElementById('search-wrapper').style.display = 'block';
     document.getElementById('detail-view').style.display = 'none';
-    document.getElementById('grid-view').style.display = 'grid';
+    const gridView = document.getElementById('grid-view');
+    if (gridView) gridView.style.display = 'grid';
     window.history.pushState({path: window.location.pathname}, '', window.location.pathname);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
