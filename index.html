@@ -5,14 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>[ti:kæı]'s Blog</title>
   <link rel="icon" href="images/favicon.png" type="image/png">
+  
+  <!-- Open Graph / Social Media Vorschau -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.tonikorb.de/">
+  <meta property="og:title" content="[ti:kæı]'s Blog">
+  <meta property="og:description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
+  <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  
   <script>
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
+  
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
@@ -21,24 +32,17 @@
     gtag('js', new Date());
     gtag('config', 'G-GNER6HTD1X');
   </script>
-  <!-- Open Graph / Social Media Vorschau -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.tonikorb.de/">
-  <meta property="og:title" content="[ti:kæı]'s Blog">
-  <meta property="og:description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
-  <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
-  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body class="theme-hub">
 
   <div class="header-banner">
-  <img src="images/banner-hub.png" alt="[ti:kæı] Hub Banner">
-  <div class="header-overlay">
-    <h1>[ti:kæı]'s Blog</h1>
+    <img src="images/banner-hub.png" alt="[ti:kæı]'s Blog Banner">
+    <div class="header-overlay">
+      <h1>[ti:kæı]'s Blog</h1>
+    </div>
   </div>
-</div>
 
-<div class="container">
+  <div class="container">
     <div class="top-bar">
       <a href="index.html">
         <img src="images/logo.png" alt="[ti:kæı]" class="site-logo">
@@ -54,7 +58,7 @@
     </div>
 
     <div class="search-container">
-      <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." oninput="handleGlobalSearch()">
+      <input type="text" id="global-search-input" class="search-input" placeholder="Alle Blogs (Photo, Music, Moto) durchsuchen..." autocomplete="off">
     </div>
 
     <div id="tikaei-posts" class="grid-layout">
@@ -66,165 +70,7 @@
     </footer>
   </div>
 
-  <script>
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-      updateThemeUI(next);
-    }
-    function updateThemeUI(theme) {
-      document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
-      document.getElementById('theme-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
-    }
-    updateThemeUI(savedTheme);
-
-    // Hilfsfunktion gegen Mixed-Content-Warnungen (erzwingt https://)
-    function secureUrl(url) {
-      if (!url) return '';
-      return url.replace(/^http:\/\//i, 'https://');
-    }
-
-    (function() {
-      const blogs = [
-        { type: 'photo', label: 'Photo', feedUrl: 'https://tikaeiphoto.blogspot.com', internalUrl: 'photography.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224' },
-        { type: 'music', label: 'Music', feedUrl: 'https://tikaeimusic.blogspot.com', internalUrl: 'music.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015' },
-        { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
-      ];
-
-      let allPosts = [];
-      let loadedCount = 0;
-
-      function loadBloggerFeed(blog) {
-        const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
-        window[callbackName] = function(data) {
-          if (data?.feed?.entry) {
-            data.feed.entry.forEach(entry => {
-              const rawId = entry.id.$t;
-              const postIdMatch = rawId.match(/post-(\d+)/);
-              const postId = postIdMatch ? postIdMatch : '';
-              let postUrl = '';
-              if (entry.link) {
-                const alt = entry.link.find(l => l.rel === 'alternate');
-                if (alt) postUrl = secureUrl(alt.href);
-              }
-              let title = entry.title ? entry.title.$t : 'Beitrag';
-              let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
-              let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
-              let imageUrl = '';
-              if (content) {
-                const tempEl = document.createElement('div');
-                tempEl.innerHTML = content;
-                const imgEl = tempEl.querySelector('img');
-                if (imgEl && imgEl.src) imageUrl = imgEl.src;
-              }
-              if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
-              imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : blog.defaultImg);
-
-              allPosts.push({
-                postId, postUrl, title, pubDate, content, imageUrl,
-                defaultImg: blog.defaultImg,
-                blogType: blog.type,
-                blogLabel: blog.label,
-                targetUrl: blog.internalUrl
-              });
-            });
-          }
-          loadedCount++;
-          if (loadedCount === blogs.length) {
-            allPosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-            renderPosts(allPosts.slice(0, 8));
-          }
-          delete window[callbackName];
-        };
-
-        const script = document.createElement('script');
-        script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15&ts=${Date.now()}`;
-        script.onerror = () => {
-          loadedCount++;
-          if (loadedCount === blogs.length) renderPosts(allPosts.slice(0, 8));
-        };
-        document.body.appendChild(script);
-      }
-
-      function createCardHtml(item) {
-        let dateStr = '';
-        if (item.pubDate) {
-          const dateObj = new Date(item.pubDate);
-          if (!isNaN(dateObj)) dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
-        let tempDiv = document.createElement('div');
-        tempDiv.innerHTML = item.content;
-        ['.feed-links', '.post-footer', '.blogger-post-footer', 'a[href*="blogspot.com"]'].forEach(s => {
-          tempDiv.querySelectorAll(s).forEach(el => el.remove());
-        });
-        let plainText = (tempDiv.textContent || tempDiv.innerText || '')
-          .replace(/Abonnieren Kommentare zum Post \(Atom\)/gi, '')
-          .replace(/Post-Feed/gi, '')
-          .trim();
-        if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
-
-        const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
-
-        return `
-          <a href="${finalLink}" class="card blog-${item.blogType}">
-            <div class="card-img-wrapper">
-              <img class="card-img" src="${item.imageUrl}" alt="${item.title}" loading="lazy" onerror="this.src='${item.defaultImg}';">
-            </div>
-            <div class="card-body">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                  <span class="card-date">${dateStr}</span>
-                  <span class="tikaei-tag">${item.blogLabel}</span>
-                </div>
-                <h3 class="card-title">${item.title}</h3>
-                <div class="card-snippet">${plainText}</div>
-              </div>
-              <div>
-                <span class="card-btn">Beitrag lesen &rarr;</span>
-              </div>
-            </div>
-          </a>
-        `;
-      }
-
-      window.handleGlobalSearch = function() {
-        const query = document.getElementById('global-search-input').value.toLowerCase().trim();
-        if (query === '') {
-          renderPosts(allPosts.slice(0, 8));
-          return;
-        }
-        const filtered = allPosts.filter(post => {
-          const titleMatch = post.title.toLowerCase().includes(query);
-          const temp = document.createElement('div');
-          temp.innerHTML = post.content;
-          const text = (temp.textContent || temp.innerText || '').toLowerCase();
-          return titleMatch || text.includes(query);
-        });
-        renderSearchGrid(filtered);
-      };
-
-      function renderPosts(postsToDisplay) {
-        const container = document.getElementById('tikaei-posts');
-        if (postsToDisplay.length === 0) {
-          container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
-          return;
-        }
-        container.innerHTML = postsToDisplay.map(createCardHtml).join('');
-      }
-
-      function renderSearchGrid(postsToDisplay) {
-        const container = document.getElementById('tikaei-posts');
-        if (postsToDisplay.length === 0) {
-          container.innerHTML = '<div style="color:var(--text-muted)">Keine passenden Beiträge gefunden.</div>';
-          return;
-        }
-        container.innerHTML = postsToDisplay.map(createCardHtml).join('');
-      }
-
-      blogs.forEach(blog => loadBloggerFeed(blog));
-    })();
-  </script>
+  <script src="script.js"></script>
+  <script>initHub();</script>
 </body>
 </html>
