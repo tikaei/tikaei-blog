@@ -1,7 +1,13 @@
 // --- 1. GLOBALE FUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT) ---
 
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
+// Wert aus dem HTML-Tag übernehmen, falls vorhanden
+const currentTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+
+// Sofortiges Aktualisieren des UI-Icons beim Laden
+window.addEventListener('DOMContentLoaded', () => {
+  updateThemeUI(currentTheme);
+});
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme');
@@ -17,10 +23,6 @@ function updateThemeUI(theme) {
   if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
   if (text) text.textContent = theme === 'dark' ? 'Light' : 'Dark';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  updateThemeUI(savedTheme);
-});
 
 function secureUrl(url) {
   if (!url) return '';
