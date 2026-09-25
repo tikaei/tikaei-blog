@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[ti:kæı] Musik</title>
+  <title>[ti:kæı] Fotografie</title>
   <link rel="icon" href="https://drive.google.com/thumbnail?id=1vBQTSOzCKA_tfk_JPe9mo2Uyl4aO5of6&width=64" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,9 +24,9 @@
 <body class="theme-music">
 
   <div class="header-banner">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s1600/banner%20musik.png" alt="Musik Header">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s1600/banner%20music.png" alt="Fotografie Header">
     <div class="header-overlay">
-      <h1>Musik</h1>
+      <h1>Fotografie</h1>
     </div>
   </div>
 
@@ -36,8 +36,8 @@
         <img src="https://drive.google.com/thumbnail?id=1PAj2KCymQpuKYoqjM-bTa6a07uaauGUk&width=300" alt="[ti:kæı]" class="site-logo">
       </a>
       <div class="nav-links">
-        <a href="photography.html">Photo</a>
-        <a href="music.html" class="active">Music</a>
+        <a href="photography.html" class="active">Photo</a>
+        <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
         <button class="theme-toggle-btn" onclick="toggleTheme()">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
@@ -46,7 +46,7 @@
     </div>
 
     <div id="search-wrapper" class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="Musik-Beiträge durchsuchen..." oninput="filterPosts()">
+      <input type="text" id="search-input" class="search-input" placeholder="Fotografie-Beiträge durchsuchen..." oninput="filterPosts()">
     </div>
 
     <div id="grid-view" class="grid-layout">
@@ -96,6 +96,16 @@
     }
     updateThemeUI(savedTheme);
 
+    function secureUrl(url) {
+      if (!url) return '';
+      return url.replace(/^http:\/\//i, 'https://');
+    }
+
+    function secureHtmlContent(html) {
+      if (!html) return '';
+      return html.replace(/src="http:\/\//gi, 'src="https://').replace(/href="http:\/\//gi, 'href="https://');
+    }
+
     function initReader() {
       const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
       window[callbackName] = function(data) {
@@ -109,11 +119,11 @@
           let postUrl = '';
           if (entry.link) {
             const alt = entry.link.find(l => l.rel === 'alternate');
-            if (alt) postUrl = alt.href;
+            if (alt) postUrl = secureUrl(alt.href);
           }
           let title = entry.title ? entry.title.$t : 'Ohne Titel';
           let pubDate = entry.published ? entry.published.$t : '';
-          let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
+          let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
           let imageUrl = '';
           if (content) {
             const temp = document.createElement('div');
@@ -122,7 +132,7 @@
             if (img) imageUrl = img.src;
           }
           if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
-          imageUrl = imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : DEFAULT_THUMB;
+          imageUrl = secureUrl(imageUrl ? imageUrl.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, '/s600/') : DEFAULT_THUMB);
           return { postId, postUrl, title, pubDate, content, imageUrl };
         });
 
@@ -203,7 +213,7 @@
       document.getElementById('article-body').innerHTML = post.content;
       loadComments(post.postId);
       if (post.postUrl) {
-        document.getElementById('blogger-comment-link').href = post.postUrl + '#comment-form';
+        document.getElementById('blogger-comment-link').href = secureUrl(post.postUrl) + '#comment-form';
       }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -233,7 +243,7 @@
               const d = new Date(c.published.$t);
               dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
             }
-            const text = c.content ? c.content.$t : (c.summary ? c.summary.$t : '');
+            const text = secureHtmlContent(c.content ? c.content.$t : (c.summary ? c.summary.$t : ''));
             const item = document.createElement('div');
             item.style.cssText = 'background: var(--input-bg); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; border-left: 3px solid var(--accent-color);';
             item.innerHTML = `<div><strong style="font-size: 14px; color: var(--text-main);">${author}</strong> <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">${dateStr}</span></div><div style="font-size: 14px; margin-top: 6px; color: var(--text-muted);">${text}</div>`;
