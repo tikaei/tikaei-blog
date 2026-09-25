@@ -279,3 +279,31 @@ body {
   color: var(--accent-color);
   text-decoration: underline;
 }
+
+/* Skeleton-Loader Animation */
+@keyframes skeleton-pulse {
+  0% { background-color: var(--border-color); opacity: 0.5; }
+  50% { background-color: var(--input-bg); opacity: 0.2; }
+  100% { background-color: var(--border-color); opacity: 0.5; }
+}
+
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 200px;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  animation: skeleton-pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-text.short { width: 35%; }
+.skeleton-text.title { height: 22px; width: 85%; margin: 12px 0; }
+.skeleton-text.snippet { width: 95%; }
