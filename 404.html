@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[ti:kæı] Seite nicht gefunden (404)</title>
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-GNER6HTD1X');
+  </script>
+</head>
+<body class="theme-hub">
+
+  <div class="header-banner">
+    <img src="images/banner-hub.png" alt="[ti:kæı] Header Banner">
+    <div class="header-overlay">
+      <h1>404 - Nicht gefunden</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="top-bar">
+      <a href="index.html" aria-label="Zur Startseite">
+        <img src="images/logo.png" alt="[ti:kæı] Logo" class="site-logo">
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="photography.html">Photo</a>
+        <a href="music.html">Music</a>
+        <a href="moto.html">Moto</a>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+        </button>
+      </nav>
+    </div>
+
+    <main style="background: var(--card-bg); padding: 50px 30px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center; color: var(--text-main);">
+      <h2 style="font-size: 32px; margin-bottom: 15px;">Upps! Hier gibt es keinen Blogpost.</h2>
+      <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 30px;">
+        Die aufgerufene Adresse existiert nicht oder wurde verschoben.
+      </p>
+      <a href="index.html" class="card-btn" style="display: inline-block; background-color: var(--accent-color); color: #ffffff; padding: 12px 24px; border-radius: 20px; text-decoration: none; font-weight: 500;">
+        &larr; Zurück zur Hauptseite
+      </a>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; [ti:kæı] &bull; <a href="index.html">Zurück zur Startseite</a></p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
