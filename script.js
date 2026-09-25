@@ -536,3 +536,14 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
+
+// --- 7. SERVICE WORKER REGISTRIERUNG (PWA) ---
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.log('Service Worker Registrierungsfehler: ', err);
+    });
+  });
+}
