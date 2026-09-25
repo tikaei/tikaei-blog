@@ -1,6 +1,3 @@
-/* ==========================================
-   1. CSS VARIABLEN (Light & Dark Mode)
-   ========================================== */
 :root {
   --bg-color: #fdfdfd;
   --surface-color: #ffffff;
@@ -21,7 +18,6 @@
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Akzentfarben */
 :root, .theme-hub, .theme-photo {
   --accent-color: #4285f4;
   --accent-hover: #3367d6;
@@ -43,9 +39,6 @@
 }
 [data-theme="dark"] .theme-moto { --accent-light: #113822; }
 
-/* ==========================================
-   2. GLOBAL LAYOUT & TYPOGRAPHY
-   ========================================== */
 body {
   margin: 0;
   padding: 0;
@@ -117,9 +110,6 @@ body {
   background: var(--border-color);
 }
 
-/* ==========================================
-   3. HEADER BANNER
-   ========================================== */
 .header-banner {
   width: 100%;
   height: 280px;
@@ -149,9 +139,6 @@ body {
   margin: 0;
 }
 
-/* ==========================================
-   4. SEARCH & CARDS (GRID)
-   ========================================== */
 .search-container {
   margin-bottom: 25px;
 }
@@ -268,9 +255,6 @@ body {
   color: var(--accent-color);
 }
 
-/* ==========================================
-   5. FOOTER
-   ========================================== */
 .site-footer {
   margin-top: 50px;
   padding: 20px 0;
