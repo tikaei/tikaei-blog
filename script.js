@@ -15,7 +15,6 @@ function updateThemeUI(theme) {
   if (text) text.textContent = theme === 'dark' ? 'Light' : 'Dark';
 }
 
-// UI beim Laden der Seite initialisieren
 window.addEventListener('DOMContentLoaded', () => {
   const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
   updateThemeUI(activeTheme);
@@ -185,6 +184,7 @@ function initHub() {
 
 function initBlogReader(feedUrl, defaultThumb) {
   let loadedPosts = [];
+  let currentActivePost = null;
 
   const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
   window[callbackName] = function(data) {
@@ -288,14 +288,14 @@ function initBlogReader(feedUrl, defaultThumb) {
   window.openPost = function(index) {
     const post = loadedPosts[index];
     if (!post) return;
+    currentActivePost = post;
+
     document.getElementById('search-wrapper').style.display = 'none';
     document.getElementById('grid-view').style.display = 'none';
     document.getElementById('detail-view').style.display = 'block';
 
-    if (post.postUrl) {
-      const cleanUrl = window.location.pathname + '?postUrl=' + encodeURIComponent(post.postUrl);
-      window.history.pushState({path: cleanUrl}, '', cleanUrl);
-    }
+    // Adressleiste sofort säubern (entfernt ?postUrl=... vollkommen unsichtbar)
+    window.history.replaceState({}, '', window.location.pathname);
 
     const readingTime = calculateReadingTime(post.content);
 
@@ -313,24 +313,26 @@ function initBlogReader(feedUrl, defaultThumb) {
   };
 
   window.showGrid = function() {
+    currentActivePost = null;
     document.getElementById('search-wrapper').style.display = 'block';
     document.getElementById('detail-view').style.display = 'none';
     const gridView = document.getElementById('grid-view');
     if (gridView) gridView.style.display = 'grid';
-    window.history.pushState({path: window.location.pathname}, '', window.location.pathname);
+    window.history.replaceState({}, '', window.location.pathname);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   window.copyPostLink = function() {
-    const currentPost = loadedPosts.find(p => window.location.search.includes(encodeURIComponent(p.postUrl)));
-    const linkToCopy = currentPost && currentPost.postUrl ? currentPost.postUrl : window.location.href;
+    const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
 
     navigator.clipboard.writeText(linkToCopy).then(() => {
       const btn = document.getElementById('copy-link-btn');
-      btn.textContent = '✓ Link kopiert!';
-      setTimeout(() => {
-        btn.textContent = '🔗 Link kopieren';
-      }, 2000);
+      if (btn) {
+        btn.textContent = '✓ Link kopiert!';
+        setTimeout(() => {
+          btn.textContent = '🔗 Link kopieren';
+        }, 2000);
+      }
     }).catch(err => {
       console.error('Fehler beim Kopieren: ', err);
     });
