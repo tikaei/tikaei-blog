@@ -414,21 +414,27 @@ input, button, select, textarea {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
+
+/* ==========================================================================
+   OPTIMIERTES LIGHTBOX-CSS (MAXIMALE BILDFLÄCHE & MOBILE TOUCH)
+   ========================================================================== */
 .lightbox-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.9);
+  inset: 0; /* Modernes Pendant zu top:0, left:0, width:100vw, height:100vh */
+  height: 100dvh; /* Verhindert Springen der mobilen Browser-Adressleiste */
+  background-color: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(8px); /* Moderner Unscharf-Effekt für den Hintergrund */
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
   cursor: zoom-out;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .lightbox-overlay.active {
@@ -437,13 +443,17 @@ input, button, select, textarea {
 }
 
 .lightbox-img {
-  max-width: 92vw;
-  max-height: 92vh;
+  max-width: 98vw; /* Füllt bis zu 98% der Bildschirmbreite aus */
+  max-height: 96dvh; /* Füllt bis zu 96% der verfeinerten Dynamik-Höhe aus */
+  width: auto;
+  height: auto;
   object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  transform: scale(0.95);
-  transition: transform 0.3s ease;
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+  transform: scale(0.96);
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+  user-select: none; /* Verhindert unabsichtliches Markieren beim Klick */
+  -webkit-user-drag: none;
 }
 
 .lightbox-overlay.active .lightbox-img {
@@ -452,14 +462,25 @@ input, button, select, textarea {
 
 .lightbox-close {
   position: absolute;
-  top: 20px;
-  right: 25px;
+  top: 15px;
+  right: 15px;
+  width: 44px; /* Barrierefreie Touch-Zielgröße für Finger auf Smartphones (44x44px) */
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  font-size: 36px;
-  font-weight: bold;
-  cursor: pointer;
-  background: none;
-  border: none;
+  font-size: 26px;
   line-height: 1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 2001;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
 }
