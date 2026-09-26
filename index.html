@@ -56,7 +56,25 @@
 <body class="theme-hub">
 
   <div class="header-banner">
-    <img src="images/banner-hub.png" alt="[ti:kæı]'s Blog Banner">
+    <picture>
+  <!-- Mobile -->
+  <source media="(max-width: 768px)" 
+          srcset="images/banner-hub-800.webp" 
+          type="image/webp">
+
+  <!-- Desktop & Retina -->
+  <source media="(min-width: 769px)" 
+          srcset="images/banner-hub-2000.webp" 
+          type="image/webp">
+
+  <!-- LCP Haupt-Element -->
+  <img src="images/banner-hub-2000.webp" 
+       alt="[ti:kæı] Blog Banner" 
+       width="2000" 
+       height="600" 
+       fetchpriority="high" 
+       class="hero-banner-img">
+</picture>
     <div class="header-overlay">
       <h1>[ti:kæı]'s Blog</h1>
     </div>
