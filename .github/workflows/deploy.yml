@@ -4,8 +4,8 @@ on:
   push:
     branches: ["main"]
   schedule:
-    # Baut die Seite automatisch alle 6 Stunden neu auf (00:00, 06:00, 12:00, 18:00 UTC)
-    - cron: '0 */6 * * *'
+    # Baut die Seite automatisch alle 12 Stunden neu auf (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '0 */12 * * *'
   workflow_dispatch: # Ermöglicht auch ein manuelles Auslösen per Klick im GitHub-Dashboard
 
 permissions:
