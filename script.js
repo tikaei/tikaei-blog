@@ -51,8 +51,8 @@ function calculateReadingTime(htmlContent) {
 // --- 2. LOGIK FÜR DEN HUB (index.html) ---
 
 function initHub() {
-  const CACHE_KEY = 'tikaei_hub_cache';
-  const CACHE_TIME_KEY = 'tikaei_hub_cache_time';
+  const CACHE_KEY = 'tikaei_hub_cache_v2';
+  const CACHE_TIME_KEY = 'tikaei_hub_cache_time_v2';
   const CACHE_TTL = 15 * 60 * 1000; // 15 Minuten Caching
 
   const blogs = [
@@ -61,16 +61,18 @@ function initHub() {
     { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
   ];
 
-  let freshPosts = []; // Nur frische Beiträge von den Feeds sammeln
+  let freshPosts = [];
   let loadedCount = 0;
 
-  // 1. Sofortiges Anzeigen aus dem Cache (falls vorhanden)
+  // 1. Sofortiges Rendern aus dem Cache
   const cachedData = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
   if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
     try {
       const cachedPosts = JSON.parse(cachedData);
-      renderHubPosts(cachedPosts.slice(0, 8));
+      if (Array.isArray(cachedPosts) && cachedPosts.length > 0) {
+        renderHubPosts(cachedPosts.slice(0, 8));
+      }
     } catch (e) {
       console.error('Cache Read Error:', e);
     }
@@ -82,7 +84,7 @@ function initHub() {
     window[callbackName] = function(data) {
       if (data?.feed?.entry) {
         data.feed.entry.forEach(entry => {
-          const rawId = entry.id.$t;
+          const rawId = entry.id ? entry.id.$t : '';
           const postIdMatch = rawId.match(/post-(\d+)/);
           const postId = postIdMatch ? postIdMatch : '';
           let postUrl = '';
@@ -113,17 +115,7 @@ function initHub() {
         });
       }
       loadedCount++;
-      if (loadedCount === blogs.length) {
-        // Eindeutige Beiträge nach URL filtern
-        const uniquePosts = Array.from(new Map(freshPosts.map(p => [p.postUrl || p.postId, p])).values());
-        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        
-        // Sauber im Speicher ablegen
-        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
-        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-
-        renderHubPosts(uniquePosts.slice(0, 8));
-      }
+      checkAndRender();
       delete window[callbackName];
     };
 
@@ -131,19 +123,35 @@ function initHub() {
     script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
     script.onerror = () => {
       loadedCount++;
-      if (loadedCount === blogs.length && freshPosts.length > 0) {
-        const uniquePosts = Array.from(new Map(freshPosts.map(p => [p.postUrl || p.postId, p])).values());
-        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-        renderHubPosts(uniquePosts.slice(0, 8));
-      }
+      checkAndRender();
     };
     document.body.appendChild(script);
   });
 
+  function checkAndRender() {
+    if (loadedCount === blogs.length && freshPosts.length > 0) {
+      // Striktes Deduplizieren nach (Titel + URL)
+      const map = new Map();
+      freshPosts.forEach(p => {
+        const key = (p.title + '_' + (p.postUrl || p.postId)).toLowerCase().trim();
+        if (!map.has(key)) {
+          map.set(key, p);
+        }
+      });
+      const uniquePosts = Array.from(map.values());
+      uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+      localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+      localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+      renderHubPosts(uniquePosts.slice(0, 8));
+    }
+  }
+
   function renderHubPosts(postsToDisplay) {
     const container = document.getElementById('tikaei-posts');
     if (!container) return;
-    if (postsToDisplay.length === 0) {
+    if (!postsToDisplay || postsToDisplay.length === 0) {
       container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
       return;
     }
@@ -195,7 +203,10 @@ function initHub() {
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       const query = this.value.toLowerCase().trim();
-      const currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+      let currentPosts = [];
+      try {
+        currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+      } catch (e) {}
       if (query === '') {
         renderHubPosts(currentPosts.slice(0, 8));
         return;
