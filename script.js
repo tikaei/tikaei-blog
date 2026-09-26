@@ -80,9 +80,6 @@ function initHub() {
     { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
   ];
 
-  let freshPosts = [];
-  let loadedCount = 0;
-
   // 1. Sofortiges Rendern aus dem Cache
   const cachedData = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
@@ -97,80 +94,104 @@ function initHub() {
     }
   }
 
-  // 2. Feeds abrufen
-  blogs.forEach(blog => {
-    const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
-    
-    window[callbackName] = function(data) {
-      if (data?.feed?.entry) {
-        data.feed.entry.forEach(entry => {
-          const rawId = entry.id ? entry.id.$t : '';
-          const postIdMatch = rawId.match(/post-(\d+)/);
-          const postId = postIdMatch ? postIdMatch : ''; // FIX: Exakter Match-Index
-          let postUrl = '';
-          if (entry.link) {
-            const alt = entry.link.find(l => l.rel === 'alternate');
-            if (alt) postUrl = secureUrl(alt.href);
-          }
-          let title = entry.title ? entry.title.$t : 'Beitrag';
-          let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
-          let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
-          let imageUrl = '';
-          if (content) {
-            const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
-            if (matchImg) imageUrl = matchImg[1];
-          }
-          if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
-          imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
+  // 2. Primär: Vorab generierte posts.json per fetch laden
+  fetch('./posts.json')
+    .then(response => {
+      if (!response.ok) throw new Error('posts.json nicht vorhanden');
+      return response.json();
+    })
+    .then(uniquePosts => {
+      if (Array.isArray(uniquePosts) && uniquePosts.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+        renderHubPosts(uniquePosts.slice(0, 8));
+      } else {
+        throw new Error('posts.json leer');
+      }
+    })
+    .catch(err => {
+      console.warn('Statische posts.json konnte nicht geladen werden, Fallback auf Live-Feeds:', err.message);
+      fetchHubFeedsFallback();
+    });
 
-          const plainSnippet = extractPlainText(content, 90);
-          const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+  // Fallback: Ursprüngliche JSONP-Live-Abruflogik
+  function fetchHubFeedsFallback() {
+    let freshPosts = [];
+    let loadedCount = 0;
 
-          freshPosts.push({
-            postId, postUrl, title, pubDate, content, imageUrl,
-            plainSnippet, searchableText,
-            defaultImg: blog.defaultImg,
-            blogType: blog.type,
-            blogLabel: blog.label,
-            targetUrl: blog.internalUrl
+    blogs.forEach(blog => {
+      const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
+      
+      window[callbackName] = function(data) {
+        if (data?.feed?.entry) {
+          data.feed.entry.forEach(entry => {
+            const rawId = entry.id ? entry.id.$t : '';
+            const postIdMatch = rawId.match(/post-(\d+)/);
+            const postId = postIdMatch ? postIdMatch : '';
+            let postUrl = '';
+            if (entry.link) {
+              const alt = entry.link.find(l => l.rel === 'alternate');
+              if (alt) postUrl = secureUrl(alt.href);
+            }
+            let title = entry.title ? entry.title.$t : 'Beitrag';
+            let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
+            let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
+            let imageUrl = '';
+            if (content) {
+              const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+              if (matchImg) imageUrl = matchImg[1];
+            }
+            if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
+            imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
+
+            const plainSnippet = extractPlainText(content, 90);
+            const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+
+            freshPosts.push({
+              postId, postUrl, title, pubDate, content, imageUrl,
+              plainSnippet, searchableText,
+              defaultImg: blog.defaultImg,
+              blogType: blog.type,
+              blogLabel: blog.label,
+              targetUrl: blog.internalUrl
+            });
           });
+        }
+        loadedCount++;
+        checkAndRender();
+        cleanupScript(callbackName, script);
+      };
+
+      const script = document.createElement('script');
+      script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
+      script.onerror = () => {
+        loadedCount++;
+        checkAndRender();
+        cleanupScript(callbackName, script);
+      };
+      document.body.appendChild(script);
+    });
+
+    function checkAndRender() {
+      if (loadedCount === blogs.length) {
+        if (freshPosts.length === 0) {
+          const container = document.getElementById('tikaei-posts');
+          if (container) container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
+          return;
+        }
+        const map = new Map();
+        freshPosts.forEach(p => {
+          const key = (p.title + '_' + (p.postUrl || p.postId)).toLowerCase().trim();
+          if (!map.has(key)) map.set(key, p);
         });
+        const uniquePosts = Array.from(map.values());
+        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+        renderHubPosts(uniquePosts.slice(0, 8));
       }
-      loadedCount++;
-      checkAndRender();
-      cleanupScript(callbackName, script);
-    };
-
-    const script = document.createElement('script');
-    script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
-    script.onerror = () => {
-      loadedCount++;
-      checkAndRender();
-      cleanupScript(callbackName, script);
-    };
-    document.body.appendChild(script);
-  });
-
-  function checkAndRender() {
-    if (loadedCount === blogs.length) {
-      if (freshPosts.length === 0) {
-        const container = document.getElementById('tikaei-posts');
-        if (container) container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
-        return;
-      }
-      // Striktes Deduplizieren
-      const map = new Map();
-      freshPosts.forEach(p => {
-        const key = (p.title + '_' + (p.postUrl || p.postId)).toLowerCase().trim();
-        if (!map.has(key)) map.set(key, p);
-      });
-      const uniquePosts = Array.from(map.values());
-      uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-      localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
-      localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-
-      renderHubPosts(uniquePosts.slice(0, 8));
     }
   }
 
@@ -225,7 +246,6 @@ function initHub() {
         renderHubPosts(currentPosts.slice(0, 8));
         return;
       }
-      // Performance-optimiertes Filtern ohne DOM-Parsing
       const filtered = currentPosts.filter(post => {
         return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
       });
@@ -271,59 +291,95 @@ function initBlogReader(feedUrl, defaultThumb) {
     }
   }
 
-  const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
-  
-  window[callbackName] = function(data) {
-    const gridView = document.getElementById('grid-view');
-    if (!gridView) return;
-    if (!data?.feed?.entry) { 
-      gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; 
-      cleanupScript(callbackName, script);
-      return; 
-    }
+  // Blog-Typ anhand der Feed-URL ermitteln
+  let blogTypeFilter = 'photo';
+  if (feedUrl.includes('music')) blogTypeFilter = 'music';
+  if (feedUrl.includes('moto')) blogTypeFilter = 'moto';
 
-    loadedPosts = data.feed.entry.map(entry => {
-      const rawId = entry.id ? entry.id.$t : '';
-      const postIdMatch = rawId.match(/post-(\d+)/);
-      const postId = postIdMatch ? postIdMatch : ''; // FIX: Exakter Match-Index
-      let postUrl = '';
-      if (entry.link) {
-        const alt = entry.link.find(l => l.rel === 'alternate');
-        if (alt) postUrl = secureUrl(alt.href);
+  // 1. Primär: posts.json laden und nach Blog-Typ filtern
+  fetch('./posts.json')
+    .then(res => {
+      if (!res.ok) throw new Error('posts.json nicht vorhanden');
+      return res.json();
+    })
+    .then(allPosts => {
+      const filtered = allPosts.filter(p => p.blogType === blogTypeFilter);
+      if (filtered.length > 0) {
+        loadedPosts = filtered;
+        localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+        renderGrid(loadedPosts);
+
+        if (targetPostUrl) {
+          const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+          if (postIndex !== -1) openPost(postIndex);
+        }
+      } else {
+        throw new Error('Keine passenden Posts in posts.json');
       }
-      let title = entry.title ? entry.title.$t : 'Ohne Titel';
-      let pubDate = entry.published ? entry.published.$t : '';
-      let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
-      let imageUrl = '';
-      if (content) {
-        const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
-        if (matchImg) imageUrl = matchImg[1];
-      }
-      if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
-      imageUrl = optimizeBloggerImage(imageUrl || defaultThumb, 's600');
-
-      const plainSnippet = extractPlainText(content, 90);
-      const searchableText = (title + ' ' + plainSnippet).toLowerCase();
-
-      return { postId, postUrl, title, pubDate, content, imageUrl, plainSnippet, searchableText };
+    })
+    .catch(err => {
+      console.warn('Reader Fallback auf Live-Feed:', err.message);
+      fetchBlogReaderFallback();
     });
 
-    localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
-    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+  // Fallback: Ursprüngliche JSONP-Abruflogik für einzelne Blogs
+  function fetchBlogReaderFallback() {
+    const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
+    
+    window[callbackName] = function(data) {
+      const gridView = document.getElementById('grid-view');
+      if (!gridView) return;
+      if (!data?.feed?.entry) { 
+        gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; 
+        cleanupScript(callbackName, script);
+        return; 
+      }
 
-    renderGrid(loadedPosts);
+      loadedPosts = data.feed.entry.map(entry => {
+        const rawId = entry.id ? entry.id.$t : '';
+        const postIdMatch = rawId.match(/post-(\d+)/);
+        const postId = postIdMatch ? postIdMatch : '';
+        let postUrl = '';
+        if (entry.link) {
+          const alt = entry.link.find(l => l.rel === 'alternate');
+          if (alt) postUrl = secureUrl(alt.href);
+        }
+        let title = entry.title ? entry.title.$t : 'Ohne Titel';
+        let pubDate = entry.published ? entry.published.$t : '';
+        let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
+        let imageUrl = '';
+        if (content) {
+          const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+          if (matchImg) imageUrl = matchImg[1];
+        }
+        if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
+        imageUrl = optimizeBloggerImage(imageUrl || defaultThumb, 's600');
 
-    if (targetPostUrl) {
-      const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
-      if (postIndex !== -1) openPost(postIndex);
-    }
-    cleanupScript(callbackName, script);
-  };
+        const plainSnippet = extractPlainText(content, 90);
+        const searchableText = (title + ' ' + plainSnippet).toLowerCase();
 
-  const script = document.createElement('script');
-  script.src = `${feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
-  script.onerror = () => cleanupScript(callbackName, script);
-  document.body.appendChild(script);
+        return { postId, postUrl, title, pubDate, content, imageUrl, plainSnippet, searchableText };
+      });
+
+      localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
+      localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+      renderGrid(loadedPosts);
+
+      if (targetPostUrl) {
+        const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+        if (postIndex !== -1) openPost(postIndex);
+      }
+      cleanupScript(callbackName, script);
+    };
+
+    const script = document.createElement('script');
+    script.src = `${feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
+    script.onerror = () => cleanupScript(callbackName, script);
+    document.body.appendChild(script);
+  }
 
   window.filterPosts = function() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
