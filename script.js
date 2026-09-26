@@ -378,7 +378,7 @@ function initBlogReader(feedUrl, defaultThumb) {
       document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) + ' \u2022 ⏱️ ' + readingTime + ' Min. Lesezeit';
     }
 
-    // Artikelinhalte für hohe Bildauflösung (s1600) optimieren
+    // Artikelinhalte für hohe Bildauflösung (s1600) optimieren & Links klassifizieren
     const tempArticleBody = document.createElement('div');
     tempArticleBody.innerHTML = post.content;
     tempArticleBody.querySelectorAll('img').forEach(img => {
@@ -387,6 +387,29 @@ function initBlogReader(feedUrl, defaultThumb) {
         img.style.maxWidth = '100%';
         img.style.height = 'auto';
         img.style.borderRadius = '8px';
+      }
+
+      const parentLink = img.closest('a');
+      if (parentLink && parentLink.href) {
+        const href = parentLink.href.toLowerCase();
+        // Prüfen, ob der Link direkt auf ein Foto/Bild verweist
+        const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
+                          href.includes('blogger.googleusercontent.com/img/') ||
+                          href.includes('bp.blogspot.com/');
+        
+        if (!isImgFile) {
+          // Externe Webseite: Im neuen Tab öffnen & normalen Zeiger setzen
+          parentLink.classList.add('external-web-link');
+          parentLink.setAttribute('target', '_blank');
+          parentLink.setAttribute('rel', 'noopener noreferrer');
+          img.style.cursor = 'pointer';
+        } else {
+          // Foto-Link: Lightbox-Klasse & Lupe-Zeiger
+          parentLink.classList.add('lightbox-link');
+          img.style.cursor = 'zoom-in';
+        }
+      } else {
+        img.style.cursor = 'zoom-in';
       }
     });
 
@@ -523,20 +546,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
       const parentLink = e.target.closest('a');
 
-      if (parentLink && parentLink.href) {
-        const href = parentLink.href.toLowerCase();
+      // Falls das Bild auf eine externe Webseite verweist: Lightbox überspringen, Link im neuen Tab öffnen!
+      if (parentLink && parentLink.classList.contains('external-web-link')) {
+        return;
+      }
 
-        // Prüfen, ob der Link direkt auf eine Bilddatei verweist
-        const isImageLink = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(href) ||
-                            (href.includes('blogger.googleusercontent.com') && !href.includes('.html')) ||
-                            (href.includes('bp.blogspot.com') && !href.includes('.html'));
-
-        // Wenn der Link auf eine Webseite verweist (nicht auf ein Bild): Normalen Link öffnen!
-        if (!isImageLink) {
-          return;
-        }
-
-        // Wenn der Link auf ein Bild verweist: Standard-Weiterleitung verhindern & Lightbox nutzen
+      // Bei reinen Bildern oder Bild-Links: Standard-Weiterleitung stoppen & Lightbox öffnen
+      if (parentLink) {
         e.preventDefault();
       }
 
