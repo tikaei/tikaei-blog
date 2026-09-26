@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO & Standard Meta -->
   <title>[ti:kæı]'s Blog</title>
+  <meta name="description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
+
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.tonikorb.de/">
@@ -14,21 +18,21 @@
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Preconnect für beschleunigtes Laden -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://blogger.googleusercontent.com">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)">
+
+  <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
-  
+
+  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
@@ -37,44 +41,45 @@
     gtag('js', new Date());
     gtag('config', 'G-GNER6HTD1X');
   </script>
+
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "[ti:kæı]'s Blog",
-  "url": "https://www.tonikorb.de/",
-  "author": {
-    "@type": "Person",
-    "name": "Toni Korb",
-    "url": "https://www.tonikorb.de/"
-  },
-  "description": "Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb."
-}
-</script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "[ti:kæı]'s Blog",
+    "url": "https://www.tonikorb.de/",
+    "author": {
+      "@type": "Person",
+      "name": "Toni Korb",
+      "url": "https://www.tonikorb.de/"
+    },
+    "description": "Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb."
+  }
+  </script>
 </head>
 <body class="theme-hub">
 
   <div class="header-banner">
     <picture>
-  <!-- Mobile -->
-  <source media="(max-width: 768px)" 
-          srcset="images/banner-hub-mobile.webp" 
-          type="image/webp">
+      <!-- Mobile -->
+      <source media="(max-width: 768px)" 
+              srcset="images/banner-hub-mobile.webp" 
+              type="image/webp">
 
-  <!-- Desktop & Retina -->
-  <source media="(min-width: 769px)" 
-          srcset="images/banner-hub-desktop.webp" 
-          type="image/webp">
+      <!-- Desktop & Retina -->
+      <source media="(min-width: 769px)" 
+              srcset="images/banner-hub-desktop.webp" 
+              type="image/webp">
 
-  <!-- LCP Haupt-Element -->
-  <img src="images/banner-hub-desktop.webp" 
-       alt="[ti:kæı] Blog Banner" 
-       width="2000" 
-       height="800" 
-       fetchpriority="high" 
-       class="hero-banner-img">
-</picture>
+      <!-- LCP Haupt-Element -->
+      <img src="images/banner-hub-desktop.webp" 
+           alt="[ti:kæı] Blog Banner" 
+           width="2000" 
+           height="800" 
+           fetchpriority="high" 
+           class="hero-banner-img">
+    </picture>
     <div class="header-overlay">
       <h1>[ti:kæı]'s Blog</h1>
     </div>
