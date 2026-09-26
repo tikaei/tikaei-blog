@@ -1,0 +1,46 @@
+name: Deploy to GitHub Pages with Minification
+
+on:
+  push:
+    branches: ["main"] # Falls dein Haupt-Branch "master" heißt, hier anpassen
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Skripte und Styles minifizieren
+        run: |
+          npx terser script.js -o script.js --compress --mangle
+          npx clean-css-cli style.css -o style.css
+
+      - name: GitHub Pages konfigurieren
+        uses: actions/configure-pages@v5
+
+      - name: Build Artifact hochladen
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Auf GitHub Pages bereitstellen
+        id: deployment
+        uses: actions/deploy-pages@v4
