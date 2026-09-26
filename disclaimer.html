@@ -3,30 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO & Standard Meta -->
   <title>[ti:kæı] Datenschutz & Impressum</title>
+  <meta name="description" content="Rechtliche Hinweise, Impressum und Datenschutzbestimmungen für [ti:kæı]'s Blog.">
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
+
+  <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.tonikorb.de/disclaimer.html">
   <meta property="og:title" content="[ti:kæı] Datenschutz & Impressum">
   <meta property="og:description" content="Rechtliche Hinweise, Impressum und Datenschutzbestimmungen für [ti:kæı]'s Blog.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
+  <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Preconnect für beschleunigtes Laden -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://blogger.googleusercontent.com">
+  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)">
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
-  
+
+  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
@@ -39,7 +45,25 @@
 <body class="theme-hub">
 
   <div class="header-banner">
-    <img src="images/banner-hub.png" alt="[ti:kæı] Header Banner">
+    <picture>
+      <!-- Mobile -->
+      <source media="(max-width: 768px)" 
+              srcset="images/banner-hub-mobile.webp" 
+              type="image/webp">
+
+      <!-- Desktop & Retina -->
+      <source media="(min-width: 769px)" 
+              srcset="images/banner-hub-desktop.webp" 
+              type="image/webp">
+
+      <!-- LCP Haupt-Element -->
+      <img src="images/banner-hub-desktop.webp" 
+           alt="[ti:kæı] Header Banner" 
+           width="2000" 
+           height="800" 
+           fetchpriority="high" 
+           class="hero-banner-img">
+    </picture>
     <div class="header-overlay">
       <h1>Impressum & Datenschutz</h1>
     </div>
@@ -60,14 +84,14 @@
       </nav>
     </div>
 
-    <main style="background: var(--card-bg); padding: 35px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; color: var(--text-main); line-height: 1.7;">
+    <main style="background: var(--surface-color); padding: 35px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; color: var(--text-main); line-height: 1.7;">
       
       <section>
         <h2 style="font-size: 26px; margin-bottom: 15px; color: var(--text-main); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">Impressum</h2>
         <p><strong>Angaben gemäß § 5 DDG:</strong></p>
         <p>
           Toni Korb<br>
-          E-Mail: <a href="&#109;&#097;&#105;&#108;&#116;&#111;&#058;&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;" style="color: var(--accent-color);">&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;</a>
+          E-Mail: <a href="&#109;&#097;&#105;&#108;&#116;&#111;&#058;&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#111;&#114;&#098;&#046;&#100;&#101;" style="color: var(--accent-color);">&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;</a>
         </p>
       </section>
 
