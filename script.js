@@ -521,10 +521,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event-Delegation: Klicks auf Bilder im Artikeltext abfangen
   document.addEventListener('click', (e) => {
     if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
-      // Verhindert Weiterleitung, falls das Bild von einem Blogger-Link umschlossen ist
-      if (e.target.parentElement && e.target.parentElement.tagName === 'A') {
+      const parentLink = e.target.closest('a');
+
+      if (parentLink && parentLink.href) {
+        const href = parentLink.href.toLowerCase();
+
+        // Prüfen, ob der Link direkt auf eine Bilddatei verweist
+        const isImageLink = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(href) ||
+                            (href.includes('blogger.googleusercontent.com') && !href.includes('.html')) ||
+                            (href.includes('bp.blogspot.com') && !href.includes('.html'));
+
+        // Wenn der Link auf eine Webseite verweist (nicht auf ein Bild): Normalen Link öffnen!
+        if (!isImageLink) {
+          return;
+        }
+
+        // Wenn der Link auf ein Bild verweist: Standard-Weiterleitung verhindern & Lightbox nutzen
         e.preventDefault();
       }
+
       openLightbox(e.target.src, e.target.alt);
     }
   });
