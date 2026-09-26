@@ -594,6 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
       const parentLink = e.target.closest('a');
 
+      // Externe Links nicht in der Lightbox öffnen
       if (parentLink && parentLink.classList.contains('external-web-link')) {
         return;
       }
@@ -602,7 +603,16 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
       }
 
-      openLightbox(e.target.src, e.target.alt);
+      // 1. Quell-URL ermitteln (Link des a-Tags bevorzugen, sonst img.src)
+      let fullSizeUrl = e.target.src;
+      if (parentLink && parentLink.href && parentLink.classList.contains('lightbox-link')) {
+        fullSizeUrl = parentLink.href;
+      }
+
+      // 2. Blogger-Größenparameter auf 's0' (Originalauflösung) erzwingen
+      fullSizeUrl = optimizeBloggerImage(fullSizeUrl, 's0');
+
+      openLightbox(fullSizeUrl, e.target.alt);
     }
   });
 
@@ -611,22 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
       closeLightbox();
     }
   });
-});
-
-// Tastatursteuerung (Schließt erst Lightbox, dann Artikel-Detailansicht)
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const lightbox = document.querySelector('.lightbox-overlay');
-    if (lightbox && lightbox.classList.contains('active')) {
-      lightbox.classList.remove('active');
-      document.body.style.overflow = '';
-      return;
-    }
-    const detailView = document.getElementById('detail-view');
-    if (detailView && detailView.style.display === 'block' && typeof window.showGrid === 'function') {
-      window.showGrid();
-    }
-  }
 });
 
 
