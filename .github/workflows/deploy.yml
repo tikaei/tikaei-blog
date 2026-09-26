@@ -1,8 +1,12 @@
-name: Deploy to GitHub Pages with Minification
+name: Deploy to GitHub Pages with Minification and Pre-rendered Feeds
 
 on:
   push:
-    branches: ["main"] # Falls dein Haupt-Branch "master" heißt, hier anpassen
+    branches: ["main"]
+  schedule:
+    # Baut die Seite automatisch alle 6 Stunden neu auf (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Ermöglicht auch ein manuelles Auslösen per Klick im GitHub-Dashboard
 
 permissions:
   contents: read
@@ -27,6 +31,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      # NEU: Blogger Feeds vorab abrufen und als statische posts.json ablegen
+      - name: Blogger Feeds generieren
+        run: node fetch-feeds.js
 
       - name: Skripte und Styles minifizieren
         run: |
