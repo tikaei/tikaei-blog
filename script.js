@@ -1,4 +1,6 @@
-// --- 1. GLOBALE FUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT) ---
+// ==========================================================================
+// 1. GLOBALE FUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT)
+// ==========================================================================
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
@@ -37,18 +39,35 @@ function optimizeBloggerImage(url, targetSize = 's600') {
   return secure.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, `/${targetSize}/`);
 }
 
+// Performance-optimierte Lesezeitberechnung ohne DOM-Reflows
 function calculateReadingTime(htmlContent) {
   if (!htmlContent) return 1;
-  const temp = document.createElement('div');
-  temp.innerHTML = htmlContent;
-  const text = temp.textContent || temp.innerText || '';
-  const wordCount = text.trim().split(/\s+/).length;
+  const plainText = htmlContent.replace(/<[^>]*>/g, ' ');
+  const wordCount = plainText.trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.ceil(wordCount / 200);
   return minutes < 1 ? 1 : minutes;
 }
 
+// Hilfsfunktion zur schnellen Text-Snippeterstellung
+function extractPlainText(htmlContent, maxLength = 90) {
+  if (!htmlContent) return '';
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  ['.feed-links', '.post-footer', '.blogger-post-footer', 'a[href*="blogspot.com"]'].forEach(s => {
+    tempDiv.querySelectorAll(s).forEach(el => el.remove());
+  });
+  let text = (tempDiv.textContent || tempDiv.innerText || '')
+    .replace(/Abonnieren Kommentare zum Post \(Atom\)/gi, '')
+    .replace(/Post-Feed/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+}
 
-// --- 2. LOGIK FÜR DEN HUB (index.html) ---
+
+// ==========================================================================
+// 2. LOGIK FÜR DEN HUB (index.html)
+// ==========================================================================
 
 function initHub() {
   const CACHE_KEY = 'tikaei_hub_cache_v2';
@@ -74,19 +93,20 @@ function initHub() {
         renderHubPosts(cachedPosts.slice(0, 8));
       }
     } catch (e) {
-      console.error('Cache Read Error:', e);
+      console.error('Hub Cache Read Error:', e);
     }
   }
 
   // 2. Feeds abrufen
   blogs.forEach(blog => {
     const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
+    
     window[callbackName] = function(data) {
       if (data?.feed?.entry) {
         data.feed.entry.forEach(entry => {
           const rawId = entry.id ? entry.id.$t : '';
           const postIdMatch = rawId.match(/post-(\d+)/);
-          const postId = postIdMatch ? postIdMatch : '';
+          const postId = postIdMatch ? postIdMatch : ''; // FIX: Exakter Match-Index
           let postUrl = '';
           if (entry.link) {
             const alt = entry.link.find(l => l.rel === 'alternate');
@@ -97,16 +117,18 @@ function initHub() {
           let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
           let imageUrl = '';
           if (content) {
-            const tempEl = document.createElement('div');
-            tempEl.innerHTML = content;
-            const imgEl = tempEl.querySelector('img');
-            if (imgEl && imgEl.src) imageUrl = imgEl.src;
+            const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+            if (matchImg) imageUrl = matchImg[1];
           }
           if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
           imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
 
+          const plainSnippet = extractPlainText(content, 90);
+          const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+
           freshPosts.push({
             postId, postUrl, title, pubDate, content, imageUrl,
+            plainSnippet, searchableText,
             defaultImg: blog.defaultImg,
             blogType: blog.type,
             blogLabel: blog.label,
@@ -116,7 +138,7 @@ function initHub() {
       }
       loadedCount++;
       checkAndRender();
-      delete window[callbackName];
+      cleanupScript(callbackName, script);
     };
 
     const script = document.createElement('script');
@@ -124,19 +146,23 @@ function initHub() {
     script.onerror = () => {
       loadedCount++;
       checkAndRender();
+      cleanupScript(callbackName, script);
     };
     document.body.appendChild(script);
   });
 
   function checkAndRender() {
-    if (loadedCount === blogs.length && freshPosts.length > 0) {
-      // Striktes Deduplizieren nach (Titel + URL)
+    if (loadedCount === blogs.length) {
+      if (freshPosts.length === 0) {
+        const container = document.getElementById('tikaei-posts');
+        if (container) container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
+        return;
+      }
+      // Striktes Deduplizieren
       const map = new Map();
       freshPosts.forEach(p => {
         const key = (p.title + '_' + (p.postUrl || p.postId)).toLowerCase().trim();
-        if (!map.has(key)) {
-          map.set(key, p);
-        }
+        if (!map.has(key)) map.set(key, p);
       });
       const uniquePosts = Array.from(map.values());
       uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -152,7 +178,7 @@ function initHub() {
     const container = document.getElementById('tikaei-posts');
     if (!container) return;
     if (!postsToDisplay || postsToDisplay.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
+      container.innerHTML = '<div style="color:var(--text-muted)">Keine passenden Beiträge gefunden.</div>';
       return;
     }
     container.innerHTML = postsToDisplay.map(item => {
@@ -162,18 +188,6 @@ function initHub() {
         if (!isNaN(dateObj)) dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       }
       const readingTime = calculateReadingTime(item.content);
-
-      let tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.content;
-      ['.feed-links', '.post-footer', '.blogger-post-footer', 'a[href*="blogspot.com"]'].forEach(s => {
-        tempDiv.querySelectorAll(s).forEach(el => el.remove());
-      });
-      let plainText = (tempDiv.textContent || tempDiv.innerText || '')
-        .replace(/Abonnieren Kommentare zum Post \(Atom\)/gi, '')
-        .replace(/Post-Feed/gi, '')
-        .trim();
-      if (plainText.length > 90) plainText = plainText.substring(0, 90) + '...';
-
       const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
 
       return `
@@ -188,7 +202,7 @@ function initHub() {
                 <span class="tikaei-tag">${item.blogLabel}</span>
               </div>
               <h3 class="card-title">${item.title}</h3>
-              <div class="card-snippet">${plainText}</div>
+              <div class="card-snippet">${item.plainSnippet || extractPlainText(item.content, 90)}</div>
             </div>
             <div>
               <span class="card-btn">Beitrag lesen &rarr;</span>
@@ -211,12 +225,9 @@ function initHub() {
         renderHubPosts(currentPosts.slice(0, 8));
         return;
       }
+      // Performance-optimiertes Filtern ohne DOM-Parsing
       const filtered = currentPosts.filter(post => {
-        const titleMatch = post.title.toLowerCase().includes(query);
-        const temp = document.createElement('div');
-        temp.innerHTML = post.content;
-        const text = (temp.textContent || temp.innerText || '').toLowerCase();
-        return titleMatch || text.includes(query);
+        return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
       });
       renderHubPosts(filtered);
     });
@@ -224,7 +235,9 @@ function initHub() {
 }
 
 
-// --- 3. LOGIK FÜR DIE EINZELNEN BLOG-SEITEN (photography, music, moto) ---
+// ==========================================================================
+// 3. LOGIK FÜR DIE EINZELNEN BLOG-SEITEN (photography, music, moto)
+// ==========================================================================
 
 function initBlogReader(feedUrl, defaultThumb) {
   let loadedPosts = [];
@@ -259,15 +272,20 @@ function initBlogReader(feedUrl, defaultThumb) {
   }
 
   const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
+  
   window[callbackName] = function(data) {
     const gridView = document.getElementById('grid-view');
     if (!gridView) return;
-    if (!data?.feed?.entry) { gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; return; }
+    if (!data?.feed?.entry) { 
+      gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; 
+      cleanupScript(callbackName, script);
+      return; 
+    }
 
     loadedPosts = data.feed.entry.map(entry => {
-      const rawId = entry.id.$t;
+      const rawId = entry.id ? entry.id.$t : '';
       const postIdMatch = rawId.match(/post-(\d+)/);
-      const postId = postIdMatch ? postIdMatch : '';
+      const postId = postIdMatch ? postIdMatch : ''; // FIX: Exakter Match-Index
       let postUrl = '';
       if (entry.link) {
         const alt = entry.link.find(l => l.rel === 'alternate');
@@ -278,15 +296,16 @@ function initBlogReader(feedUrl, defaultThumb) {
       let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
       let imageUrl = '';
       if (content) {
-        const temp = document.createElement('div');
-        temp.innerHTML = content;
-        const img = temp.querySelector('img');
-        if (img) imageUrl = img.src;
+        const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+        if (matchImg) imageUrl = matchImg[1];
       }
       if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
       imageUrl = optimizeBloggerImage(imageUrl || defaultThumb, 's600');
 
-      return { postId, postUrl, title, pubDate, content, imageUrl };
+      const plainSnippet = extractPlainText(content, 90);
+      const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+
+      return { postId, postUrl, title, pubDate, content, imageUrl, plainSnippet, searchableText };
     });
 
     localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
@@ -298,21 +317,22 @@ function initBlogReader(feedUrl, defaultThumb) {
       const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
       if (postIndex !== -1) openPost(postIndex);
     }
-    delete window[callbackName];
+    cleanupScript(callbackName, script);
   };
 
   const script = document.createElement('script');
   script.src = `${feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
+  script.onerror = () => cleanupScript(callbackName, script);
   document.body.appendChild(script);
 
   window.filterPosts = function() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
+    if (query === '') {
+      renderGrid(loadedPosts);
+      return;
+    }
     const filtered = loadedPosts.filter(post => {
-      const titleMatch = post.title.toLowerCase().includes(query);
-      const temp = document.createElement('div');
-      temp.innerHTML = post.content;
-      const text = (temp.textContent || temp.innerText || '').toLowerCase();
-      return titleMatch || text.includes(query);
+      return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
     });
     renderGrid(filtered);
   };
@@ -321,7 +341,10 @@ function initBlogReader(feedUrl, defaultThumb) {
     const gridView = document.getElementById('grid-view');
     if (!gridView) return;
     gridView.innerHTML = '';
-    if (postsToRender.length === 0) { gridView.innerHTML = '<div>Keine passenden Beiträge gefunden.</div>'; return; }
+    if (postsToRender.length === 0) { 
+      gridView.innerHTML = '<div>Keine passenden Beiträge gefunden.</div>'; 
+      return; 
+    }
 
     postsToRender.forEach(post => {
       const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
@@ -332,11 +355,6 @@ function initBlogReader(feedUrl, defaultThumb) {
       }
 
       const readingTime = calculateReadingTime(post.content);
-
-      const temp = document.createElement('div');
-      temp.innerHTML = post.content;
-      let text = temp.textContent || temp.innerText || '';
-      if (text.length > 90) text = text.substring(0, 90) + '...';
 
       const card = document.createElement('div');
       card.className = 'card';
@@ -350,7 +368,7 @@ function initBlogReader(feedUrl, defaultThumb) {
               <span class="card-date">⏱️ ${readingTime} Min.</span>
             </div>
             <h3 class="card-title">${post.title}</h3>
-            <div class="card-snippet">${text}</div>
+            <div class="card-snippet">${post.plainSnippet || extractPlainText(post.content, 90)}</div>
           </div>
           <div class="card-btn">Beitrag lesen &rarr;</div>
         </div>
@@ -364,7 +382,9 @@ function initBlogReader(feedUrl, defaultThumb) {
     if (!post) return;
     currentActivePost = post;
 
-    document.getElementById('search-wrapper').style.display = 'none';
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) searchWrapper.style.display = 'none';
+    
     document.getElementById('grid-view').style.display = 'none';
     document.getElementById('detail-view').style.display = 'block';
 
@@ -392,19 +412,16 @@ function initBlogReader(feedUrl, defaultThumb) {
       const parentLink = img.closest('a');
       if (parentLink && parentLink.href) {
         const href = parentLink.href.toLowerCase();
-        // Prüfen, ob der Link direkt auf ein Foto/Bild verweist
         const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
                           href.includes('blogger.googleusercontent.com/img/') ||
                           href.includes('bp.blogspot.com/');
         
         if (!isImgFile) {
-          // Externe Webseite: Im neuen Tab öffnen & normalen Zeiger setzen
           parentLink.classList.add('external-web-link');
           parentLink.setAttribute('target', '_blank');
           parentLink.setAttribute('rel', 'noopener noreferrer');
           img.style.cursor = 'pointer';
         } else {
-          // Foto-Link: Lightbox-Klasse & Lupe-Zeiger
           parentLink.classList.add('lightbox-link');
           img.style.cursor = 'zoom-in';
         }
@@ -424,7 +441,9 @@ function initBlogReader(feedUrl, defaultThumb) {
 
   window.showGrid = function() {
     currentActivePost = null;
-    document.getElementById('search-wrapper').style.display = 'block';
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) searchWrapper.style.display = 'block';
+
     document.getElementById('detail-view').style.display = 'none';
     const gridView = document.getElementById('grid-view');
     if (gridView) gridView.style.display = 'grid';
@@ -459,13 +478,20 @@ function initBlogReader(feedUrl, defaultThumb) {
     const commentCount = document.getElementById('comment-count');
     if (!commentsList) return;
     commentsList.innerHTML = '<div>Lade Kommentare...</div>';
+    
+    if (!postId) {
+      if (commentCount) commentCount.textContent = '0';
+      commentsList.innerHTML = '<p style="color: var(--text-muted);">Keine Kommentare vorhanden.</p>';
+      return;
+    }
+
     const callbackName = 'comment_cb_' + Math.floor(Math.random() * 1000000);
 
     window[callbackName] = function(data) {
       commentsList.innerHTML = '';
       if (data?.feed?.entry) {
         const comments = data.feed.entry;
-        commentCount.textContent = comments.length;
+        if (commentCount) commentCount.textContent = comments.length;
         comments.forEach(c => {
           const author = c.author ? c.author[0].name.$t : 'Anonym';
           let dateStr = '';
@@ -480,20 +506,39 @@ function initBlogReader(feedUrl, defaultThumb) {
           commentsList.appendChild(item);
         });
       } else {
-        commentCount.textContent = '0';
+        if (commentCount) commentCount.textContent = '0';
         commentsList.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Noch keine Kommentare vorhanden.</p>';
       }
-      delete window[callbackName];
+      cleanupScript(callbackName, script);
     };
+
     const script = document.createElement('script');
     script.src = `${blogFeedUrl}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
-    script.onerror = () => { commentCount.textContent = '0'; commentsList.innerHTML = '<p style="color: var(--text-muted);">Kommentare konnten nicht geladen werden.</p>'; };
+    script.onerror = () => { 
+      if (commentCount) commentCount.textContent = '0'; 
+      commentsList.innerHTML = '<p style="color: var(--text-muted);">Kommentare konnten nicht geladen werden.</p>'; 
+      cleanupScript(callbackName, script);
+    };
     document.body.appendChild(script);
   }
 }
 
+// Speicher-Bereinigungsfunktion für JSONP-Skripte
+function cleanupScript(callbackName, scriptElement) {
+  try {
+    delete window[callbackName];
+  } catch (e) {
+    window[callbackName] = undefined;
+  }
+  if (scriptElement && scriptElement.parentNode) {
+    scriptElement.parentNode.removeChild(scriptElement);
+  }
+}
 
-// --- 5. SCROLL-TO-TOP BUTTON LOGIK ---
+
+// ==========================================================================
+// 4. SCROLL-TO-TOP BUTTON LOGIK
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
   const scrollTopBtn = document.createElement('button');
@@ -516,10 +561,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// --- 6. BILDER-LIGHTBOX LOGIK ---
+// ==========================================================================
+// 5. BILDER-LIGHTBOX LOGIK
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Lightbox-Element dynamisch im DOM erzeugen
   const lightbox = document.createElement('div');
   lightbox.className = 'lightbox-overlay';
   lightbox.innerHTML = `
@@ -535,10 +581,12 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxImg.src = src;
     lightboxImg.alt = alt || 'Vergrößertes Bild';
     lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Verhindert Scrollen im Hintergrund
   }
 
   function closeLightbox() {
     lightbox.classList.remove('active');
+    document.body.style.overflow = '';
   }
 
   // Event-Delegation: Klicks auf Bilder im Artikeltext abfangen
@@ -546,12 +594,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
       const parentLink = e.target.closest('a');
 
-      // Falls das Bild auf eine externe Webseite verweist: Lightbox überspringen, Link im neuen Tab öffnen!
       if (parentLink && parentLink.classList.contains('external-web-link')) {
         return;
       }
 
-      // Bei reinen Bildern oder Bild-Links: Standard-Weiterleitung stoppen & Lightbox öffnen
       if (parentLink) {
         e.preventDefault();
       }
@@ -560,7 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Schließen bei Klick auf den Hintergrund oder das 'X'
   lightbox.addEventListener('click', (e) => {
     if (e.target === lightbox || e.target === closeBtn) {
       closeLightbox();
@@ -568,12 +613,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Aktualisierte Escape-Steuerung (Schließt erst Lightbox, dann Artikel)
+// Tastatursteuerung (Schließt erst Lightbox, dann Artikel-Detailansicht)
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const lightbox = document.querySelector('.lightbox-overlay');
     if (lightbox && lightbox.classList.contains('active')) {
       lightbox.classList.remove('active');
+      document.body.style.overflow = '';
       return;
     }
     const detailView = document.getElementById('detail-view');
@@ -584,7 +630,9 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-// --- 7. SERVICE WORKER REGISTRIERUNG (PWA) ---
+// ==========================================================================
+// 6. SERVICE WORKER REGISTRIERUNG (PWA)
+// ==========================================================================
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
