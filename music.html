@@ -56,7 +56,25 @@
 <body class="theme-music">
 
   <div class="header-banner">
-    <img src="images/banner-music.png" alt="Musik Header Banner">
+    <picture>
+  <!-- Mobile -->
+  <source media="(max-width: 768px)" 
+          srcset="images/banner-music-800.webp" 
+          type="image/webp">
+
+  <!-- Desktop & Retina -->
+  <source media="(min-width: 769px)" 
+          srcset="images/banner-music-2000.webp" 
+          type="image/webp">
+
+  <!-- LCP Haupt-Element -->
+  <img src="images/banner-music-2000.webp" 
+       alt="[ti:kæı] Music Banner" 
+       width="2000" 
+       height="600" 
+       fetchpriority="high" 
+       class="hero-banner-img">
+</picture>
     <div class="header-overlay">
       <h1>Musik</h1>
     </div>
