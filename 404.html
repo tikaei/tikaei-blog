@@ -3,21 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+
+  <!-- SEO & Standard Meta -->
   <title>[ti:kæı] Seite nicht gefunden (404)</title>
+  <meta name="description" content="Die angeforderte Seite konnte leider nicht gefunden werden. Zurück zur Hauptseite von [ti:kæı]'s Blog.">
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Open Graph / Social Media Vorschau -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="[ti:kæı] Seite nicht gefunden (404)">
+  <meta property="og:description" content="Die angeforderte Seite konnte leider nicht gefunden werden.">
+  <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
+
+  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)">
+
+  <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
-  
+
+  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
@@ -30,7 +44,25 @@
 <body class="theme-hub">
 
   <div class="header-banner">
-    <img src="images/banner-hub.png" alt="[ti:kæı] Header Banner">
+    <picture>
+      <!-- Mobile -->
+      <source media="(max-width: 768px)" 
+              srcset="images/banner-hub-mobile.webp" 
+              type="image/webp">
+
+      <!-- Desktop & Retina -->
+      <source media="(min-width: 769px)" 
+              srcset="images/banner-hub-desktop.webp" 
+              type="image/webp">
+
+      <!-- LCP Haupt-Element -->
+      <img src="images/banner-hub-desktop.webp" 
+           alt="[ti:kæı] Header Banner" 
+           width="2000" 
+           height="800" 
+           fetchpriority="high" 
+           class="hero-banner-img">
+    </picture>
     <div class="header-overlay">
       <h1>404 - Nicht gefunden</h1>
     </div>
@@ -51,7 +83,7 @@
       </nav>
     </div>
 
-    <main style="background: var(--card-bg); padding: 50px 30px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center; color: var(--text-main);">
+    <main style="background: var(--surface-color); padding: 50px 30px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px; text-align: center; color: var(--text-main);">
       <h2 style="font-size: 32px; margin-bottom: 15px;">Upps! Hier gibt es keinen Blogpost.</h2>
       <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 30px;">
         Die aufgerufene Adresse existiert nicht oder wurde verschoben.
