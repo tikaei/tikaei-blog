@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO & Standard Meta -->
   <title>[ti:kæı] Fotografie</title>
+  <meta name="description" content="Visuelle Eindrücke, Kamera-Momente und Fotoprojekte von Toni Korb.">
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
+
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.tonikorb.de/photography.html">
@@ -14,21 +18,21 @@
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-photo.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Preconnect für beschleunigtes Laden -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://blogger.googleusercontent.com">
+  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-foto-desktop.webp" type="image/webp" media="(min-width: 769px)">
 
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
-  
+
+  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
   <script>
     (function() {
       const savedTheme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
@@ -37,44 +41,45 @@
     gtag('js', new Date());
     gtag('config', 'G-GNER6HTD1X');
   </script>
+
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "[ti:kæı] Photo",
-  "url": "https://www.tonikorb.de/",
-  "author": {
-    "@type": "Person",
-    "name": "Toni Korb",
-    "url": "https://www.tonikorb.de/"
-  },
-  "description": "Das private Blog-Netzwerk für Fotografie von Toni Korb."
-}
-</script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "[ti:kæı] Photo",
+    "url": "https://www.tonikorb.de/",
+    "author": {
+      "@type": "Person",
+      "name": "Toni Korb",
+      "url": "https://www.tonikorb.de/"
+    },
+    "description": "Das private Blog-Netzwerk für Fotografie von Toni Korb."
+  }
+  </script>
 </head>
 <body class="theme-photo">
 
   <div class="header-banner">
     <picture>
-  <!-- Mobile -->
-  <source media="(max-width: 768px)" 
-          srcset="images/banner-foto-mobile.webp" 
-          type="image/webp">
+      <!-- Mobile -->
+      <source media="(max-width: 768px)" 
+              srcset="images/banner-foto-mobile.webp" 
+              type="image/webp">
 
-  <!-- Desktop & Retina -->
-  <source media="(min-width: 769px)" 
-          srcset="images/banner-foto-desktop.webp" 
-          type="image/webp">
+      <!-- Desktop & Retina -->
+      <source media="(min-width: 769px)" 
+              srcset="images/banner-foto-desktop.webp" 
+              type="image/webp">
 
-  <!-- LCP Haupt-Element -->
-  <img src="images/banner-foto-desktop.webp" 
-       alt="[ti:kæı] Photo Banner" 
-       width="2000" 
-       height="800" 
-       fetchpriority="high" 
-       class="hero-banner-img">
-</picture>
+      <!-- LCP Haupt-Element -->
+      <img src="images/banner-foto-desktop.webp" 
+           alt="[ti:kæı] Photo Banner" 
+           width="2000" 
+           height="800" 
+           fetchpriority="high" 
+           class="hero-banner-img">
+    </picture>
     <div class="header-overlay">
       <h1>Fotografie</h1>
     </div>
@@ -126,13 +131,13 @@
       <article>
         <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
           <span id="article-date" class="card-date"></span>
-          <h1 id="article-title" style="font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 28px; margin: 5px 0 0 0; color: var(--text-main);"></h1>
+          <h1 id="article-title" style="font-weight: 700; font-size: 28px; margin: 5px 0 0 0; color: var(--text-main);"></h1>
         </div>
         <div id="article-body" style="font-size: 16px; line-height: 1.8; color: var(--text-main);"></div>
       </article>
 
       <section style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--border-color);" aria-label="Kommentare">
-        <h3 style="font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
+        <h3 style="font-weight: 700; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
         <div id="comments-list"></div>
         <div style="margin-top: 25px; background: var(--input-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
           <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted);">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
