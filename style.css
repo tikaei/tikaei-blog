@@ -1,11 +1,23 @@
+/* ==========================================================================
+   1. SYSTEM DESIGN TOKENS & THEMING
+   ========================================================================== */
 :root {
+  /* Nativer System-Font-Stack (0 KB Ladezeit, kein Google Fonts) */
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+  /* Farbpalette Hellmodus (Optimierte Kontraste für WCAG AA / Lighthouse) */
   --bg-color: #fdfdfd;
   --surface-color: #ffffff;
   --text-main: #202124;
-  --text-muted: #5f6368;
+  --text-muted: #54595e; /* Auf >5.0:1 Kontrast für kleine Texte verstärkt */
   --border-color: #e0e0e0;
   --input-bg: #f8f9fa;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Standard Accent (Hub / Photo) - Barrierefreies Blauschema */
+  --accent-color: #1a73e8; /* Passiert WCAG AA (4.5+:1 auf Weiß) */
+  --accent-hover: #1557b0;
+  --accent-light: #e8f0fe;
 }
 
 [data-theme="dark"] {
@@ -16,33 +28,52 @@
   --border-color: #3c4043;
   --input-bg: #2d2d2d;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --accent-color: #8ab4f8;
+  --accent-hover: #aecbfa;
+  --accent-light: #1f3762;
 }
 
-:root, .theme-hub, .theme-photo {
-  --accent-color: #4285f4;
-  --accent-hover: #3367d6;
+/* Theme Varianten: Photo, Hub, Music, Moto */
+.theme-hub, .theme-photo {
+  --accent-color: #1a73e8;
+  --accent-hover: #1557b0;
   --accent-light: #e8f0fe;
 }
-[data-theme="dark"] .theme-photo { --accent-light: #1f3762; }
+[data-theme="dark"] .theme-hub, 
+[data-theme="dark"] .theme-photo { 
+  --accent-color: #8ab4f8;
+  --accent-hover: #aecbfa;
+  --accent-light: #1f3762; 
+}
 
 .theme-music {
   --accent-color: #b51200;
   --accent-hover: #900e00;
   --accent-light: #fce8e6;
 }
-[data-theme="dark"] .theme-music { --accent-light: #521814; }
+[data-theme="dark"] .theme-music { 
+  --accent-color: #f28b82;
+  --accent-light: #521814; 
+}
 
 .theme-moto {
   --accent-color: #0b8043;
   --accent-hover: #096a37;
   --accent-light: #e6f4ea;
 }
-[data-theme="dark"] .theme-moto { --accent-light: #113822; }
+[data-theme="dark"] .theme-moto { 
+  --accent-color: #81c995;
+  --accent-light: #113822; 
+}
 
+/* ==========================================================================
+   2. GLOBAL BASE STYLES
+   ========================================================================== */
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--font-main);
   background-color: var(--bg-color);
   color: var(--text-main);
   transition: background-color 0.3s, color 0.3s;
@@ -51,6 +82,14 @@ body {
   min-height: 100vh;
 }
 
+/* Formularelemente und Buttons erben die System-Schriftart */
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+/* ==========================================================================
+   3. LAYOUT & HEADER
+   ========================================================================== */
 .container {
   max-width: 1000px;
   margin: 0 auto;
@@ -87,7 +126,8 @@ body {
   transition: color 0.2s;
 }
 
-.nav-links a:hover, .nav-links a.active {
+.nav-links a:hover, 
+.nav-links a.active {
   color: var(--accent-color);
 }
 
@@ -99,7 +139,6 @@ body {
   border-radius: 20px;
   cursor: pointer;
   font-size: 13px;
-  font-family: 'Roboto', sans-serif;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -118,27 +157,38 @@ body {
   background-color: var(--border-color);
 }
 
-.header-banner img {
+.header-banner img,
+.hero-banner-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.hero-banner-img {
+  max-height: 600px;
+  object-position: center;
+  display: block;
+}
+
 .header-overlay {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0; 
+  left: 0; 
+  right: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
   padding: 30px 20px;
   color: #ffffff;
 }
 
 .header-overlay h1 {
-  font-family: 'Roboto', sans-serif;
   font-weight: 700;
   font-size: 32px;
   margin: 0;
 }
 
+/* ==========================================================================
+   4. SEARCH & CARDS / GRID LAYOUT
+   ========================================================================== */
 .search-container {
   margin-bottom: 25px;
 }
@@ -147,7 +197,6 @@ body {
   width: 100%;
   padding: 12px 18px;
   font-size: 15px;
-  font-family: 'Roboto', sans-serif;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-sizing: border-box;
@@ -162,14 +211,16 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.grid-layout, .tikaei-row {
+.grid-layout, 
+.tikaei-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   margin-bottom: 25px;
 }
 
-.card, .tikaei-card {
+.card, 
+.tikaei-card {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 12px;
@@ -185,19 +236,22 @@ body {
   color: inherit;
 }
 
-.card:hover, .tikaei-card:hover {
+.card:hover, 
+.tikaei-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.card-img-wrapper, .tikaei-img-wrapper {
+.card-img-wrapper, 
+.tikaei-img-wrapper {
   width: 100%;
   height: 180px;
   overflow: hidden;
   background-color: var(--input-bg);
 }
 
-.card-img, .tikaei-img {
+.card-img, 
+.tikaei-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -205,15 +259,18 @@ body {
   transition: opacity 0.5s ease, transform 0.3s ease;
 }
 
-.card-img.loaded, .tikaei-img.loaded {
+.card-img.loaded, 
+.tikaei-img.loaded {
   opacity: 1;
 }
 
-.card:hover .card-img, .tikaei-card:hover .tikaei-img {
+.card:hover .card-img, 
+.tikaei-card:hover .tikaei-img {
   transform: scale(1.05);
 }
 
-.card-body, .tikaei-card-body {
+.card-body, 
+.tikaei-card-body {
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -221,14 +278,15 @@ body {
   justify-content: space-between;
 }
 
-.card-date, .tikaei-meta {
+.card-date, 
+.tikaei-meta {
   font-size: 12px;
   color: var(--text-muted);
   margin-bottom: 6px;
 }
 
-.card-title, .tikaei-title {
-  font-family: 'Roboto', sans-serif;
+.card-title, 
+.tikaei-title {
   font-weight: 700;
   font-size: 18px;
   margin: 0 0 8px 0;
@@ -236,13 +294,15 @@ body {
   line-height: 1.3;
 }
 
-.card-snippet, .tikaei-snippet {
+.card-snippet, 
+.tikaei-snippet {
   font-size: 14px;
   color: var(--text-muted);
   margin-bottom: 12px;
 }
 
-.card-btn, .tikaei-readmore {
+.card-btn, 
+.tikaei-readmore {
   font-weight: 700;
   font-size: 13px;
   color: var(--accent-color);
@@ -260,6 +320,9 @@ body {
   color: var(--accent-color);
 }
 
+/* ==========================================================================
+   5. FOOTER & UTILITIES
+   ========================================================================== */
 .site-footer {
   margin-top: 50px;
   padding: 20px 0;
@@ -336,7 +399,11 @@ body {
   visibility: visible;
 }
 
-/* Bilder im Artikeltext interaktiv gestalten */
+.scroll-top-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* Interaktive Artikelbilder & Lightbox */
 #article-body img {
   cursor: zoom-in;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -347,7 +414,6 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Lightbox Vollbild-Overlay */
 .lightbox-overlay {
   position: fixed;
   top: 0;
@@ -396,17 +462,4 @@ body {
   border: none;
   line-height: 1;
   z-index: 2001;
-}
-
-.scroll-top-btn:hover {
-  transform: translateY(-3px);
-}
-
-.hero-banner-img {
-  width: 100%;
-  height: auto;
-  max-height: 600px;
-  object-fit: cover;
-  object-position: center;
-  display: block;
 }
