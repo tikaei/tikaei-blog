@@ -487,21 +487,71 @@ input, button, select, textarea {
 
 
 /* ==========================================================================
-   LOGO STYLING FOR LIGHT & DARK MODE
+   DYNAMIC LOGO GLOW / SHADOW (MIT CSS-VARIABLEN)
    ========================================================================== */
 
-/* 1. Helles Theme (Standard): Sanfter Schatten & dezent feine Kontur */
+/* 1. Grundstyling & Hover-Animation für alle Seiten */
 .site-logo {
-  border-radius: 50%; /* Erzwingt runde Form, falls nötigenfalls rechteckiges Bild */
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.12),    /* Weicher Tiefenschatten */
-    0 0 0 1px rgba(0, 0, 0, 0.08);     /* Haardünne feine Trennlinie nach außen */
-  transition: box-shadow 0.3s ease, filter 0.3s ease;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
-/* 2. Dunkles Theme: Weicher weißer Lichtschein (Glow) */
-[data-theme="dark"] .site-logo {
+.site-logo:hover {
+  transform: scale(1.06);
+}
+
+
+/* --------------------------------------------------------------------------
+   A) STARTSEITE (.theme-hub): Neutral (Schatten / Weißer Glow)
+   -------------------------------------------------------------------------- */
+
+/* Helles Theme: Dunkler Tiefenschatten */
+.theme-hub .site-logo {
   box-shadow: 
-    0 0 15px rgba(255, 255, 255, 0.2),  /* Dezenter weißer Schein */
-    0 0 0 1px rgba(255, 255, 255, 0.15); /* Feine helle Kontur */
+    0 4px 14px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.theme-hub .site-logo:hover {
+  box-shadow: 
+    0 8px 22px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+/* Dunkles Theme: Strahlend weißer Lichtschein */
+[data-theme="dark"].theme-hub .site-logo,
+[data-theme="dark"] .theme-hub .site-logo {
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.45),
+    0 0 0 1.5px rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="dark"].theme-hub .site-logo:hover,
+[data-theme="dark"] .theme-hub .site-logo:hover {
+  box-shadow: 
+    0 0 30px rgba(255, 255, 255, 0.75),
+    0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+
+/* --------------------------------------------------------------------------
+   B) UNTERSEITEN (.theme-photo, .theme-music, .theme-moto):
+      Nutzen automatisch deine definierte --accent-color
+   -------------------------------------------------------------------------- */
+
+.theme-photo .site-logo,
+.theme-music .site-logo,
+.theme-moto .site-logo {
+  box-shadow: 
+    0 0 18px var(--accent-color),
+    0 0 0 1.5px var(--accent-color) !important;
+}
+
+.theme-photo .site-logo:hover,
+.theme-music .site-logo:hover,
+.theme-moto .site-logo:hover {
+  box-shadow: 
+    0 0 28px var(--accent-color),
+    0 0 0 2px var(--accent-color) !important;
 }
