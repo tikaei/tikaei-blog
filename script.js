@@ -8,6 +8,11 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
   updateThemeUI(next);
+
+  // Falls wir uns auf dem Hub befinden, Kacheln mit den passenden Theme-Farben neu rendern
+  if (typeof window.reRenderHub === 'function') {
+    window.reRenderHub();
+  }
 }
 
 function updateThemeUI(theme) {
@@ -79,6 +84,22 @@ function initHub() {
     { type: 'music', label: 'Music', feedUrl: 'https://tikaeimusic.blogspot.com', internalUrl: 'music.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015' },
     { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
   ];
+
+  // Farbschema für die Kacheln der einzelnen Blogs
+  const blogColorMap = {
+    photo: {
+      light: { accent: '#1a73e8', bg: '#e8f0fe' },
+      dark:  { accent: '#8ab4f8', bg: '#1f3762' }
+    },
+    music: {
+      light: { accent: '#b51200', bg: '#fce8e6' },
+      dark:  { accent: '#f28b82', bg: '#521814' }
+    },
+    moto: {
+      light: { accent: '#0b8043', bg: '#e6f4ea' },
+      dark:  { accent: '#81c995', bg: '#113822' }
+    }
+  };
 
   // 1. Sofortiges Rendern aus dem Cache
   const cachedData = localStorage.getItem(CACHE_KEY);
@@ -202,6 +223,9 @@ function initHub() {
       container.innerHTML = '<div style="color:var(--text-muted)">Keine passenden Beiträge gefunden.</div>';
       return;
     }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
     container.innerHTML = postsToDisplay.map(item => {
       let dateStr = '';
       if (item.pubDate) {
@@ -211,8 +235,11 @@ function initHub() {
       const readingTime = calculateReadingTime(item.content);
       const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
 
+      // Farben anhand von blogType und Theme ermitteln
+      const colors = (blogColorMap[item.blogType] || blogColorMap.photo)[isDark ? 'dark' : 'light'];
+
       return `
-        <a href="${finalLink}" class="card blog-${item.blogType}">
+        <a href="${finalLink}" class="card blog-${item.blogType}" style="--accent-color: ${colors.accent}; --accent-light: ${colors.bg}; border-top: 3px solid ${colors.accent};">
           <div class="card-img-wrapper">
             <img class="card-img" src="${item.imageUrl}" alt="${item.title}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='${item.defaultImg}'; this.classList.add('loaded');">
           </div>
@@ -220,19 +247,39 @@ function initHub() {
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span class="card-date">${dateStr} &bull; ⏱️ ${readingTime} Min.</span>
-                <span class="tikaei-tag">${item.blogLabel}</span>
+                <span class="tikaei-tag" style="background-color: ${colors.bg}; color: ${colors.accent};">${item.blogLabel}</span>
               </div>
               <h3 class="card-title">${item.title}</h3>
               <div class="card-snippet">${item.plainSnippet || extractPlainText(item.content, 90)}</div>
             </div>
             <div>
-              <span class="card-btn">Beitrag lesen &rarr;</span>
+              <span class="card-btn" style="color: ${colors.accent};">Beitrag lesen &rarr;</span>
             </div>
           </div>
         </a>
       `;
     }).join('');
   }
+
+  // Funktion zum erneuten Rendern bei Theme-Wechsel global verfügbar machen
+  window.reRenderHub = function() {
+    let currentPosts = [];
+    try {
+      currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+    } catch (e) {}
+    if (currentPosts.length > 0) {
+      const searchInput = document.getElementById('global-search-input');
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      if (query === '') {
+        renderHubPosts(currentPosts.slice(0, 8));
+      } else {
+        const filtered = currentPosts.filter(post => {
+          return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
+        });
+        renderHubPosts(filtered);
+      }
+    }
+  };
 
   const searchInput = document.getElementById('global-search-input');
   if (searchInput) {
