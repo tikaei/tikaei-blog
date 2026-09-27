@@ -249,7 +249,7 @@ function initHub() {
                 <span class="card-date">${dateStr} &bull; ⏱️ ${readingTime} Min.</span>
                 <span class="tikaei-tag" style="background-color: ${colors.bg}; color: ${colors.accent};">${item.blogLabel}</span>
               </div>
-              <h3 class="card-title">${item.title}</h3>
+              <h2 class="card-title">${item.title}</h2>
               <div class="card-snippet">${item.plainSnippet || extractPlainText(item.content, 90)}</div>
             </div>
             <div>
@@ -470,7 +470,7 @@ function initBlogReader(feedUrl, defaultThumb) {
               <span class="card-date">${dateStr}</span>
               <span class="card-date">⏱️ ${readingTime} Min.</span>
             </div>
-            <h3 class="card-title">${post.title}</h3>
+            <h2 class="card-title">${post.title}</h2>
             <div class="card-snippet">${post.plainSnippet || extractPlainText(post.content, 90)}</div>
           </div>
           <div class="card-btn">Beitrag lesen &rarr;</div>
