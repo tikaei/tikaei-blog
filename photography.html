@@ -20,7 +20,7 @@
 
   <!-- Performance: Direct Preconnect & Hero Image Preload -->
   <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-  <link rel="preload" as="image" href="images/banner-foto-desktop.webp" type="image/webp" media="(min-width: 769px)">
+  <link rel="preload" as="image" href="images/banner-foto-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
 
   <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
@@ -88,7 +88,7 @@
   <div class="container">
     <div class="top-bar">
       <a href="index.html" aria-label="Zur Startseite">
-        <img src="images/logo.png" alt="[ti:kæı] Logo" class="site-logo">
+        <img src="images/logo.png" alt="[ti:kæı] Logo" width="36" height="36" class="site-logo">
       </a>
       <nav class="nav-links" aria-label="Hauptnavigation">
         <a href="photography.html" class="active" aria-current="page">Photo</a>
