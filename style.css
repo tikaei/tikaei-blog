@@ -279,7 +279,7 @@ input:focus-visible {
 }
 .card.blog-photo .tikaei-tag {
   background-color: #e8f0fe !important;
-  color: #1a73e8 !important;
+  color: #1557b0 !important;
 }
 [data-theme="dark"] .card.blog-photo .tikaei-tag {
   background-color: #1f3762 !important;
@@ -290,6 +290,27 @@ input:focus-visible {
 }
 [data-theme="dark"] .card.blog-photo .card-btn {
   color: #8ab4f8 !important;
+}
+
+.card.blog-moto, .tikaei-card.blog-moto {
+  border-top-color: #0b8043 !important;
+}
+[data-theme="dark"] .card.blog-moto, [data-theme="dark"] .tikaei-card.blog-moto {
+  border-top-color: #81c995 !important;
+}
+.card.blog-moto .tikaei-tag {
+  background-color: #e6f4ea !important;
+  color: #096a37 !important; /* Abgedunkelt für perfekten Kontrast */
+}
+[data-theme="dark"] .card.blog-moto .tikaei-tag {
+  background-color: #113822 !important;
+  color: #81c995 !important;
+}
+.card.blog-moto .card-btn {
+  color: #0b8043 !important;
+}
+[data-theme="dark"] .card.blog-moto .card-btn {
+  color: #81c995 !important;
 }
 
 .card.blog-music, .tikaei-card.blog-music {
@@ -311,27 +332,6 @@ input:focus-visible {
 }
 [data-theme="dark"] .card.blog-music .card-btn {
   color: #f28b82 !important;
-}
-
-.card.blog-moto, .tikaei-card.blog-moto {
-  border-top-color: #0b8043 !important;
-}
-[data-theme="dark"] .card.blog-moto, [data-theme="dark"] .tikaei-card.blog-moto {
-  border-top-color: #81c995 !important;
-}
-.card.blog-moto .tikaei-tag {
-  background-color: #e6f4ea !important;
-  color: #0b8043 !important;
-}
-[data-theme="dark"] .card.blog-moto .tikaei-tag {
-  background-color: #113822 !important;
-  color: #81c995 !important;
-}
-.card.blog-moto .card-btn {
-  color: #0b8043 !important;
-}
-[data-theme="dark"] .card.blog-moto .card-btn {
-  color: #81c995 !important;
 }
 
 .card-img-wrapper, 
