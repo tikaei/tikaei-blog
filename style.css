@@ -9,15 +9,15 @@
   --bg-color: #fdfdfd;
   --surface-color: #ffffff;
   --text-main: #202124;
-  --text-muted: #54595e; /* Auf >5.0:1 Kontrast für kleine Texte verstärkt */
+  --text-muted: #54595e;
   --border-color: #e0e0e0;
   --input-bg: #f8f9fa;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
-  /* Standard Accent (Hub / Photo) - Barrierefreies Blauschema */
-  --accent-color: #1a73e8; /* Passiert WCAG AA (4.5+:1 auf Weiß) */
-  --accent-hover: #1557b0;
-  --accent-light: #e8f0fe;
+  /* Standard Accent Fallback */
+  --accent-color: #d96b00;
+  --accent-hover: #b35600;
+  --accent-light: #fff3e0;
 }
 
 [data-theme="dark"] {
@@ -29,24 +29,38 @@
   --input-bg: #2d2d2d;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
-  --accent-color: #8ab4f8;
-  --accent-hover: #aecbfa;
-  --accent-light: #1f3762;
+  --accent-color: #ff9d3b;
+  --accent-hover: #ffb76b;
+  --accent-light: #4d2600;
 }
 
-/* Theme Varianten: Photo, Hub, Music, Moto */
-.theme-hub, .theme-photo {
+/* --- THEME VARIANTEN PRO SEITE --- */
+
+/* 1. HUB / STARTSEITE (Kräftiges Dunkel-Orange) */
+.theme-hub {
+  --accent-color: #d96b00;
+  --accent-hover: #b35600;
+  --accent-light: #fff3e0;
+}
+[data-theme="dark"] .theme-hub { 
+  --accent-color: #ff9d3b;
+  --accent-hover: #ffb76b;
+  --accent-light: #4d2600; 
+}
+
+/* 2. PHOTO-BLOG (Blau) */
+.theme-photo {
   --accent-color: #1a73e8;
   --accent-hover: #1557b0;
   --accent-light: #e8f0fe;
 }
-[data-theme="dark"] .theme-hub, 
 [data-theme="dark"] .theme-photo { 
   --accent-color: #8ab4f8;
   --accent-hover: #aecbfa;
   --accent-light: #1f3762; 
 }
 
+/* 3. MUSIC-BLOG (Rot) */
 .theme-music {
   --accent-color: #b51200;
   --accent-hover: #900e00;
@@ -54,9 +68,11 @@
 }
 [data-theme="dark"] .theme-music { 
   --accent-color: #f28b82;
+  --accent-hover: #f6aea9;
   --accent-light: #521814; 
 }
 
+/* 4. MOTO-BLOG (Grün) */
 .theme-moto {
   --accent-color: #0b8043;
   --accent-hover: #096a37;
@@ -64,8 +80,10 @@
 }
 [data-theme="dark"] .theme-moto { 
   --accent-color: #81c995;
+  --accent-hover: #a8dab5;
   --accent-light: #113822; 
 }
+
 
 /* ==========================================================================
    2. GLOBAL BASE STYLES
@@ -82,10 +100,10 @@ body {
   min-height: 100vh;
 }
 
-/* Formularelemente und Buttons erben die System-Schriftart */
 input, button, select, textarea {
   font-family: inherit;
 }
+
 
 /* ==========================================================================
    3. LAYOUT & HEADER
@@ -186,6 +204,7 @@ input, button, select, textarea {
   margin: 0;
 }
 
+
 /* ==========================================================================
    4. SEARCH & CARDS / GRID LAYOUT
    ========================================================================== */
@@ -219,6 +238,7 @@ input, button, select, textarea {
   margin-bottom: 25px;
 }
 
+/* Allgemeine Kachel-Basis */
 .card, 
 .tikaei-card {
   background-color: var(--surface-color);
@@ -240,6 +260,70 @@ input, button, select, textarea {
 .tikaei-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* --- BLOG-SPEZIFISCHE FARB-OVERRIDES FÜR KACHELN AUF DEM HUB --- */
+.card.blog-photo, .tikaei-card.blog-photo {
+  border-top-color: #1a73e8 !important;
+}
+[data-theme="dark"] .card.blog-photo, [data-theme="dark"] .tikaei-card.blog-photo {
+  border-top-color: #8ab4f8 !important;
+}
+.card.blog-photo .tikaei-tag {
+  background-color: #e8f0fe !important;
+  color: #1a73e8 !important;
+}
+[data-theme="dark"] .card.blog-photo .tikaei-tag {
+  background-color: #1f3762 !important;
+  color: #8ab4f8 !important;
+}
+.card.blog-photo .card-btn {
+  color: #1a73e8 !important;
+}
+[data-theme="dark"] .card.blog-photo .card-btn {
+  color: #8ab4f8 !important;
+}
+
+.card.blog-music, .tikaei-card.blog-music {
+  border-top-color: #b51200 !important;
+}
+[data-theme="dark"] .card.blog-music, [data-theme="dark"] .tikaei-card.blog-music {
+  border-top-color: #f28b82 !important;
+}
+.card.blog-music .tikaei-tag {
+  background-color: #fce8e6 !important;
+  color: #b51200 !important;
+}
+[data-theme="dark"] .card.blog-music .tikaei-tag {
+  background-color: #521814 !important;
+  color: #f28b82 !important;
+}
+.card.blog-music .card-btn {
+  color: #b51200 !important;
+}
+[data-theme="dark"] .card.blog-music .card-btn {
+  color: #f28b82 !important;
+}
+
+.card.blog-moto, .tikaei-card.blog-moto {
+  border-top-color: #0b8043 !important;
+}
+[data-theme="dark"] .card.blog-moto, [data-theme="dark"] .tikaei-card.blog-moto {
+  border-top-color: #81c995 !important;
+}
+.card.blog-moto .tikaei-tag {
+  background-color: #e6f4ea !important;
+  color: #0b8043 !important;
+}
+[data-theme="dark"] .card.blog-moto .tikaei-tag {
+  background-color: #113822 !important;
+  color: #81c995 !important;
+}
+.card.blog-moto .card-btn {
+  color: #0b8043 !important;
+}
+[data-theme="dark"] .card.blog-moto .card-btn {
+  color: #81c995 !important;
 }
 
 .card-img-wrapper, 
@@ -319,6 +403,7 @@ input, button, select, textarea {
   background-color: var(--accent-light);
   color: var(--accent-color);
 }
+
 
 /* ==========================================================================
    5. FOOTER & UTILITIES
@@ -416,14 +501,14 @@ input, button, select, textarea {
 
 
 /* ==========================================================================
-   OPTIMIERTES LIGHTBOX-CSS (MAXIMALE BILDFLÄCHE & MOBILE TOUCH)
+   6. OPTIMIERTES LIGHTBOX-CSS
    ========================================================================== */
 .lightbox-overlay {
   position: fixed;
-  inset: 0; /* Modernes Pendant zu top:0, left:0, width:100vw, height:100vh */
-  height: 100dvh; /* Verhindert Springen der mobilen Browser-Adressleiste */
+  inset: 0;
+  height: 100dvh;
   background-color: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(8px); /* Moderner Unscharf-Effekt für den Hintergrund */
+  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -443,8 +528,8 @@ input, button, select, textarea {
 }
 
 .lightbox-img {
-  max-width: 98vw; /* Füllt bis zu 98% der Bildschirmbreite aus */
-  max-height: 96dvh; /* Füllt bis zu 96% der verfeinerten Dynamik-Höhe aus */
+  max-width: 98vw;
+  max-height: 96dvh;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -452,7 +537,7 @@ input, button, select, textarea {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
   transform: scale(0.96);
   transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1);
-  user-select: none; /* Verhindert unabsichtliches Markieren beim Klick */
+  user-select: none;
   -webkit-user-drag: none;
 }
 
@@ -464,7 +549,7 @@ input, button, select, textarea {
   position: absolute;
   top: 15px;
   right: 15px;
-  width: 44px; /* Barrierefreie Touch-Zielgröße für Finger auf Smartphones (44x44px) */
+  width: 44px;
   height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
@@ -487,10 +572,9 @@ input, button, select, textarea {
 
 
 /* ==========================================================================
-   DYNAMIC LOGO GLOW / SHADOW (INTENSIV)
+   7. DYNAMIC LOGO GLOW / SHADOW
    ========================================================================== */
 
-/* Grund-Animation für das Logo */
 .site-logo {
   border-radius: 50%;
   cursor: pointer;
@@ -501,12 +585,7 @@ input, button, select, textarea {
   transform: scale(1.08);
 }
 
-
-/* --------------------------------------------------------------------------
-   1. STARTSEITE (.theme-hub): Neutral
-   -------------------------------------------------------------------------- */
-
-/* Helles Theme: Kräftiger dunkler Schatten & Kontur */
+/* --- STARTSEITE (.theme-hub): Neutral (Dunkler Schatten / Weißer Glow) --- */
 .theme-hub .site-logo {
   box-shadow: 
     0 6px 20px rgba(0, 0, 0, 0.25),
@@ -519,7 +598,6 @@ input, button, select, textarea {
     0 0 0 2px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Dunkles Theme: Mehrstufiger intensiver weißer Glow */
 [data-theme="dark"].theme-hub .site-logo,
 [data-theme="dark"] .theme-hub .site-logo {
   box-shadow: 
@@ -538,12 +616,7 @@ input, button, select, textarea {
     0 0 0 2.5px #ffffff !important;
 }
 
-
-/* --------------------------------------------------------------------------
-   2. UNTERSEITEN (.theme-photo, .theme-music, .theme-moto):
-      Intensiver mehrstufiger Glow in der jeweiligen Blog-Akzentfarbe
-   -------------------------------------------------------------------------- */
-
+/* --- UNTERSEITEN (.theme-photo, .theme-music, .theme-moto): Farblicher Glow --- */
 .theme-photo .site-logo,
 .theme-music .site-logo,
 .theme-moto .site-logo {
