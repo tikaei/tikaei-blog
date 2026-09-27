@@ -50,8 +50,8 @@
 
 /* 2. PHOTO-BLOG (Blau) */
 .theme-photo {
-  --accent-color: #1a73e8;
-  --accent-hover: #1557b0;
+  --accent-color: #1557b0;
+  --accent-hover: #0d47a1;
   --accent-light: #e8f0fe;
 }
 [data-theme="dark"] .theme-photo { 
