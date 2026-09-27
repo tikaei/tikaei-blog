@@ -461,7 +461,20 @@ function initBlogReader(feedUrl, defaultThumb) {
 
       const card = document.createElement('div');
       card.className = 'card';
+      
+      /* Barrierefreiheit & Tastatur-Navigation (Tab & Enter/Space) */
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `${post.title} - Beitrag lesen`);
+
       card.onclick = () => openPost(originalIndex);
+      card.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); // Verhindert ungewolltes Seite-Scrollen bei Leertaste
+          openPost(originalIndex);
+        }
+      };
+
       card.innerHTML = `
         <div class="card-img-wrapper"><img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='${defaultThumb}'; this.classList.add('loaded');"></div>
         <div class="card-body">
