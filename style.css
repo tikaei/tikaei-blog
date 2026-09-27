@@ -104,6 +104,14 @@ input, button, select, textarea {
   font-family: inherit;
 }
 
+/* Tastatur-Fokus für Barrierefreiheit (WCAG AA) */
+a:focus-visible, 
+button:focus-visible, 
+input:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 
 /* ==========================================================================
    3. LAYOUT & HEADER
