@@ -36,11 +36,11 @@
 
 /* --- THEME VARIANTEN PRO SEITE --- */
 
-/* 1. HUB / STARTSEITE (Kräftiges Dunkel-Orange) */
+/* 1. HUB / STARTSEITE (Kräftiges Dunkel-Orange - WCAG AA konform) */
 .theme-hub {
-  --accent-color: #d96b00;
-  --accent-hover: #b35600;
-  --accent-light: #fff3e0;
+  --accent-color: #c45100;
+  --accent-hover: #a04200;
+  --accent-light: #fff0e0;
 }
 [data-theme="dark"] .theme-hub { 
   --accent-color: #ff9d3b;
