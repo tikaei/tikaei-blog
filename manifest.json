@@ -1,21 +1,25 @@
 {
   "short_name": "[ti:kæı]",
-  "name": "[ti:kæı]'s Blog",
+  "name": "[ti:kæı] Blog Network",
+  "description": "Fotos, Musik und Motorrad-Abenteuer von Toni Korb.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "background_color": "#fdfdfd",
+  "theme_color": "#c45100",
+  "display": "standalone",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "images/favicon.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "images/favicon.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": "/index.html",
-  "background_color": "#121212",
-  "theme_color": "#121212",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }
