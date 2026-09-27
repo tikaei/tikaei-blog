@@ -484,3 +484,24 @@ input, button, select, textarea {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.08);
 }
+
+
+/* ==========================================================================
+   LOGO STYLING FOR LIGHT & DARK MODE
+   ========================================================================== */
+
+/* 1. Helles Theme (Standard): Sanfter Schatten & dezent feine Kontur */
+.site-logo {
+  border-radius: 50%; /* Erzwingt runde Form, falls nötigenfalls rechteckiges Bild */
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.12),    /* Weicher Tiefenschatten */
+    0 0 0 1px rgba(0, 0, 0, 0.08);     /* Haardünne feine Trennlinie nach außen */
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+
+/* 2. Dunkles Theme: Weicher weißer Lichtschein (Glow) */
+[data-theme="dark"] .site-logo {
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 0.2),  /* Dezenter weißer Schein */
+    0 0 0 1px rgba(255, 255, 255, 0.15); /* Feine helle Kontur */
+}
