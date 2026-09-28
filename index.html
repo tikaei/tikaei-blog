@@ -19,6 +19,8 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preload" href="./posts.json" as="fetch" crossorigin="anonymous">
+  <script src="./script.js" defer></script>
   <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
   <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
 
@@ -128,7 +130,6 @@
     </footer>
   </div>
 
-  <script src="script.js"></script>
   <script>initHub();</script>
 </body>
 </html>
