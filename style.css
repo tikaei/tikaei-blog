@@ -372,8 +372,8 @@ input:focus-visible {
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 4px;
-  background-color: var(--accent-light);
-  color: var(--accent-color);
+  background-color: var(--accent-color);
+  color: var(--accent-light);
 }
 
 
