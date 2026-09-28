@@ -375,7 +375,10 @@ input:focus-visible {
   background-color: var(--accent-color);
   color: var(--accent-light);
 }
-
+[data-theme="dark"] .tikaei-tag {
+  background-color: var(--accent-light);
+  color: var(--accent-color);
+}
 
 /* ==========================================================================
    5. FOOTER & UTILITIES
