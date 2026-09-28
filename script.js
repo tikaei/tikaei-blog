@@ -116,7 +116,7 @@ function initHub() {
   }
 
   // 2. Primär: Vorab generierte posts.json per fetch laden
-  fetch('./posts.json')
+  fetch('./posts.json', { credentials: 'omit' })
     .then(response => {
       if (!response.ok) throw new Error('posts.json nicht vorhanden');
       return response.json();
