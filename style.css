@@ -34,7 +34,7 @@
   --accent-light: #4d2600;
 }
 
-/* --- THEME VARIANTEN PRO SEITE (Kontraste im Bereich 5,0:1 - 5,8:1) --- */
+/* --- THEME VARIANTEN PRO SEITE --- */
 
 /* 1. HUB / STARTSEITE (Dunkel-Orange) */
 .theme-hub {
@@ -48,10 +48,10 @@
   --accent-light: #4d2600; 
 }
 
-/* 2. PHOTO-BLOG (Blau) */
+/* 2. PHOTO-BLOG (Kräftigeres Dunkelblau - 6:1 Kontrast-Ratio) */
 .theme-photo {
-  --accent-color: #185abc;
-  --accent-hover: #103f8a;
+  --accent-color: #1255ba;
+  --accent-hover: #0d4294;
   --accent-light: #e8f0fe;
 }
 [data-theme="dark"] .theme-photo { 
@@ -270,9 +270,9 @@ input:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* --- ELEGANTE, VARIABLE-BASIERTE SCOPING-REGELN FÜR HUB-KACHELN --- */
+/* --- VARIABLEN-BASIERTES SCOPING FÜR HUB-KACHELN --- */
 .card.blog-photo, .tikaei-card.blog-photo {
-  --accent-color: #185abc;
+  --accent-color: #1255ba;
   --accent-light: #e8f0fe;
 }
 [data-theme="dark"] .card.blog-photo, [data-theme="dark"] .tikaei-card.blog-photo {
