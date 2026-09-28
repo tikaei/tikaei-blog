@@ -2,10 +2,10 @@
    1. SYSTEM DESIGN TOKENS & THEMING
    ========================================================================== */
 :root {
-  /* Nativer System-Font-Stack (0 KB Ladezeit, kein Google Fonts) */
+  /* Nativer System-Font-Stack (0 KB Ladezeit) */
   --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
-  /* Farbpalette Hellmodus (Optimierte Kontraste für WCAG AA / Lighthouse) */
+  /* Farbpalette Hellmodus */
   --bg-color: #fdfdfd;
   --surface-color: #ffffff;
   --text-main: #202124;
@@ -15,9 +15,9 @@
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
   /* Standard Accent Fallback */
-  --accent-color: #d96b00;
-  --accent-hover: #b35600;
-  --accent-light: #fff3e0;
+  --accent-color: #b84700;
+  --accent-hover: #963a00;
+  --accent-light: #fff0e0;
 }
 
 [data-theme="dark"] {
@@ -29,41 +29,41 @@
   --input-bg: #2d2d2d;
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
-  --accent-color: #ff9d3b;
-  --accent-hover: #ffb76b;
+  --accent-color: #df8428;
+  --accent-hover: #f09638;
   --accent-light: #4d2600;
 }
 
-/* --- THEME VARIANTEN PRO SEITE --- */
+/* --- THEME VARIANTEN PRO SEITE (Kontraste im Bereich 5,0:1 - 5,8:1) --- */
 
-/* 1. HUB / STARTSEITE (Kräftiges Dunkel-Orange - WCAG AA konform) */
+/* 1. HUB / STARTSEITE (Dunkel-Orange) */
 .theme-hub {
-  --accent-color: #c45100;
-  --accent-hover: #a04200;
+  --accent-color: #b84700;
+  --accent-hover: #963a00;
   --accent-light: #fff0e0;
 }
 [data-theme="dark"] .theme-hub { 
-  --accent-color: #ff9d3b;
-  --accent-hover: #ffb76b;
+  --accent-color: #df8428;
+  --accent-hover: #f09638;
   --accent-light: #4d2600; 
 }
 
 /* 2. PHOTO-BLOG (Blau) */
 .theme-photo {
-  --accent-color: #1557b0;
-  --accent-hover: #0d47a1;
+  --accent-color: #185abc;
+  --accent-hover: #103f8a;
   --accent-light: #e8f0fe;
 }
 [data-theme="dark"] .theme-photo { 
-  --accent-color: #8ab4f8;
-  --accent-hover: #aecbfa;
+  --accent-color: #5a98f5;
+  --accent-hover: #7eb0fb;
   --accent-light: #1f3762; 
 }
 
 /* 3. MUSIC-BLOG (Rot) */
 .theme-music {
-  --accent-color: #b51200;
-  --accent-hover: #900e00;
+  --accent-color: #c5221f;
+  --accent-hover: #9a1b18;
   --accent-light: #fce8e6;
 }
 [data-theme="dark"] .theme-music { 
@@ -74,13 +74,13 @@
 
 /* 4. MOTO-BLOG (Grün) */
 .theme-moto {
-  --accent-color: #0b8043;
-  --accent-hover: #096a37;
+  --accent-color: #0d652d;
+  --accent-hover: #084820;
   --accent-light: #e6f4ea;
 }
 [data-theme="dark"] .theme-moto { 
-  --accent-color: #81c995;
-  --accent-hover: #a8dab5;
+  --accent-color: #60c480;
+  --accent-hover: #81d49b;
   --accent-light: #113822; 
 }
 
@@ -270,68 +270,32 @@ input:focus-visible {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* --- BLOG-SPEZIFISCHE FARB-OVERRIDES FÜR KACHELN AUF DEM HUB --- */
+/* --- ELEGANTE, VARIABLE-BASIERTE SCOPING-REGELN FÜR HUB-KACHELN --- */
 .card.blog-photo, .tikaei-card.blog-photo {
-  border-top-color: #1a73e8 !important;
+  --accent-color: #185abc;
+  --accent-light: #e8f0fe;
 }
 [data-theme="dark"] .card.blog-photo, [data-theme="dark"] .tikaei-card.blog-photo {
-  border-top-color: #8ab4f8 !important;
-}
-.card.blog-photo .tikaei-tag {
-  background-color: #e8f0fe !important;
-  color: #1557b0 !important;
-}
-[data-theme="dark"] .card.blog-photo .tikaei-tag {
-  background-color: #1f3762 !important;
-  color: #8ab4f8 !important;
-}
-.card.blog-photo .card-btn {
-  color: #1a73e8 !important;
-}
-[data-theme="dark"] .card.blog-photo .card-btn {
-  color: #8ab4f8 !important;
-}
-
-.card.blog-moto, .tikaei-card.blog-moto {
-  border-top-color: #0b8043 !important;
-}
-[data-theme="dark"] .card.blog-moto, [data-theme="dark"] .tikaei-card.blog-moto {
-  border-top-color: #81c995 !important;
-}
-.card.blog-moto .tikaei-tag {
-  background-color: #e6f4ea !important;
-  color: #096a37 !important; /* Abgedunkelt für perfekten Kontrast */
-}
-[data-theme="dark"] .card.blog-moto .tikaei-tag {
-  background-color: #113822 !important;
-  color: #81c995 !important;
-}
-.card.blog-moto .card-btn {
-  color: #0b8043 !important;
-}
-[data-theme="dark"] .card.blog-moto .card-btn {
-  color: #81c995 !important;
+  --accent-color: #5a98f5;
+  --accent-light: #1f3762;
 }
 
 .card.blog-music, .tikaei-card.blog-music {
-  border-top-color: #b51200 !important;
+  --accent-color: #c5221f;
+  --accent-light: #fce8e6;
 }
 [data-theme="dark"] .card.blog-music, [data-theme="dark"] .tikaei-card.blog-music {
-  border-top-color: #f28b82 !important;
+  --accent-color: #f28b82;
+  --accent-light: #521814;
 }
-.card.blog-music .tikaei-tag {
-  background-color: #fce8e6 !important;
-  color: #b51200 !important;
+
+.card.blog-moto, .tikaei-card.blog-moto {
+  --accent-color: #0d652d;
+  --accent-light: #e6f4ea;
 }
-[data-theme="dark"] .card.blog-music .tikaei-tag {
-  background-color: #521814 !important;
-  color: #f28b82 !important;
-}
-.card.blog-music .card-btn {
-  color: #b51200 !important;
-}
-[data-theme="dark"] .card.blog-music .card-btn {
-  color: #f28b82 !important;
+[data-theme="dark"] .card.blog-moto, [data-theme="dark"] .tikaei-card.blog-moto {
+  --accent-color: #60c480;
+  --accent-light: #113822;
 }
 
 .card-img-wrapper, 
@@ -583,7 +547,6 @@ input:focus-visible {
    7. DYNAMIC LOGO GLOW / SHADOW (KOMPAKT & AKZENTFARBIG)
    ========================================================================== */
 
-/* Grund-Animation & dezent gestalteter Glow in der jeweiligen Seiten-Akzentfarbe */
 .site-logo {
   border-radius: 50%;
   cursor: pointer;
@@ -594,7 +557,6 @@ input:focus-visible {
     0 0 0 1.5px var(--accent-color) !important;
 }
 
-/* Dezent verkleinerter Hover-Effekt ohne Überstrahlen benachbarter Elemente */
 .site-logo:hover {
   transform: scale(1.05);
   box-shadow: 
