@@ -48,7 +48,7 @@
   --accent-light: #4d2600; 
 }
 
-/* 2. PHOTO-BLOG (Kräftigeres Dunkelblau - 6:1 Kontrast-Ratio) */
+/* 2. PHOTO-BLOG (Dunkelblau) */
 .theme-photo {
   --accent-color: #1255ba;
   --accent-hover: #0d4294;
@@ -372,13 +372,10 @@ input:focus-visible {
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 4px;
-  background-color: var(--accent-color);
-  color: var(--accent-light);
-}
-[data-theme="dark"] .tikaei-tag {
   background-color: var(--accent-light);
   color: var(--accent-color);
 }
+
 
 /* ==========================================================================
    5. FOOTER & UTILITIES
