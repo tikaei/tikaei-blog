@@ -751,3 +751,9 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHub);
+} else {
+  initHub();
+}
