@@ -3,12 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- SEO & Standard Meta -->
   <title>[ti:kæı]'s Blog</title>
   <meta name="description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
+
+  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <link rel="preload" href="./posts.json" as="fetch" crossorigin="anonymous">
+  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+  <link rel="stylesheet" href="style.css">
+  <script src="./script.js" defer></script>
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+   
+  <!-- SEO & Standard Meta -->
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
+
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -17,24 +31,7 @@
   <meta property="og:description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
   <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Performance: Direct Preconnect & Hero Image Preload -->
-  <link rel="preload" href="./posts.json" as="fetch" crossorigin="anonymous">
-  <script src="./script.js" defer></script>
-  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
-
-  <!-- Local Stylesheet (System-Fonts) -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
-
+  
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
   <script>
