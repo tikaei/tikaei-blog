@@ -247,7 +247,7 @@ function initHub() {
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span class="card-date">${dateStr} &bull; ⏱️ ${readingTime} Min.</span>
-                <span class="tikaei-tag" style="background-color: ${colors.bg}; color: ${colors.accent};">${item.blogLabel}</span>
+                <span class="tikaei-tag">${item.blogLabel}</span>
               </div>
               <h2 class="card-title">${item.title}</h2>
               <div class="card-snippet">${item.plainSnippet || extractPlainText(item.content, 90)}</div>
