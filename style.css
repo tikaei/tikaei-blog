@@ -34,54 +34,54 @@
   --accent-light: #4d2600;
 }
 
-/* --- THEME VARIANTEN PRO SEITE --- */
+/* --- THEME VARIANTEN PRO SEITE (KONTRAST-OPTIMIERT) --- */
 
-/* 1. HUB / STARTSEITE (Dunkel-Orange) */
+/* 1. HUB / STARTSEITE */
 .theme-hub {
   --accent-color: #b84700;
   --accent-hover: #963a00;
-  --accent-light: #fff0e0;
+  --accent-light: #fff8f0;
 }
 [data-theme="dark"] .theme-hub { 
-  --accent-color: #df8428;
+  --accent-color: #e58e33;
   --accent-hover: #f09638;
-  --accent-light: #4d2600; 
+  --accent-light: #3d1f00; 
 }
 
-/* 2. PHOTO-BLOG (Dunkelblau) */
+/* 2. PHOTO-BLOG */
 .theme-photo {
   --accent-color: #1255ba;
   --accent-hover: #0d4294;
-  --accent-light: #e8f0fe;
+  --accent-light: #f0f5fe;
 }
 [data-theme="dark"] .theme-photo { 
-  --accent-color: #5a98f5;
+  --accent-color: #72a8ff;
   --accent-hover: #7eb0fb;
-  --accent-light: #1f3762; 
+  --accent-light: #182e54; 
 }
 
-/* 3. MUSIC-BLOG (Rot) */
+/* 3. MUSIC-BLOG */
 .theme-music {
   --accent-color: #c5221f;
   --accent-hover: #9a1b18;
-  --accent-light: #fce8e6;
+  --accent-light: #fff0f0;
 }
 [data-theme="dark"] .theme-music { 
-  --accent-color: #f28b82;
+  --accent-color: #f59890;
   --accent-hover: #f6aea9;
-  --accent-light: #521814; 
+  --accent-light: #481410; 
 }
 
-/* 4. MOTO-BLOG (Grün) */
+/* 4. MOTO-BLOG */
 .theme-moto {
   --accent-color: #0d652d;
   --accent-hover: #084820;
-  --accent-light: #e6f4ea;
+  --accent-light: #f0f9f3;
 }
 [data-theme="dark"] .theme-moto { 
-  --accent-color: #60c480;
+  --accent-color: #6ed18e;
   --accent-hover: #81d49b;
-  --accent-light: #113822; 
+  --accent-light: #0d2e1b; 
 }
 
 
