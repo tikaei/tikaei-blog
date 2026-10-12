@@ -6,16 +6,23 @@
   <title>[ti:kæı]'s Blog</title>
   <meta name="description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
 
-  <!-- Performance: Direct Preconnect & Hero Image Preload -->
+  <!-- 1. Content Security Policy (Sicherheit) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+
+  <!-- 2. Performance & Kritische Pfade (LCP & CSS) -->
   <link rel="preload" href="./posts.json" as="fetch" crossorigin="anonymous">
   <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
   <link rel="stylesheet" href="style.css">
-  <script src="./script.js" defer></script>
   <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-   
-  <!-- Icon & Theme -->
-  <link rel="icon" href="images/favicon.png" type="image/png">
+
+  <!-- 3. Skripte (Theme-Init vor Rendern, Hauptlogik & GTM verzögert) -->
   <script src="theme-init.js"></script>
+  <script src="./script.js" defer></script>
+  <script src="gtm-init.js" defer></script>
+
+  <!-- 4. Metadaten, Favicon & Manifest (Ans Ende verschoben, da nicht renderrelevant) -->
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  <link rel="manifest" href="manifest.json">
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -24,10 +31,6 @@
   <meta property="og:description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
   <meta name="twitter:card" content="summary_large_image">
-  
-  <!-- Google Analytics -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';"> 
-  <script src="gtm-init.js" defer></script>
 
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
   <script type="application/ld+json">
@@ -44,8 +47,6 @@
     "description": "Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb."
   }
   </script>
-  
-  <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-hub">
 
