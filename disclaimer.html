@@ -4,11 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO & Standard Meta -->
+  <!-- 1. Content Security Policy (Sicherheit) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+
+  <!-- SEO & Meta -->
   <title>[ti:kæı] Datenschutz & Impressum</title>
   <meta name="description" content="Rechtliche Hinweise, Impressum und Datenschutzbestimmungen für [ti:kæı]'s Blog.">
+
+  <!-- 2. Performance & Stylesheets -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- 3. Skripte & Inline Theme-Init -->
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
+  <script src="script.js" defer></script>
+  <script src="gtm-init.js" defer></script>
+
+  <!-- 4. Favicon & Metadaten -->
   <link rel="icon" href="images/favicon.png" type="image/png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -17,23 +31,7 @@
   <meta property="og:description" content="Rechtliche Hinweise, Impressum und Datenschutzbestimmungen für [ti:kæı]'s Blog.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-hub.png">
   <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Performance: Direct Preconnect & Hero Image Preload -->
-  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-  <link rel="preload" as="image" href="images/banner-hub-desktop.webp" type="image/webp" media="(min-width: 769px)">
-
-  <!-- Local Stylesheet (System-Fonts) -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Content Security Policy (Sicherheit & CSP-Hash für Inline-Theme-Skript) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
-
-  <!-- Exaktes Inline-Theme-Skript (passend zum CSP-Hash oben) -->
-  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
-
-  <!-- Google Analytics / GTM Init (zentral gesteuert) -->
-  <script src="gtm-init.js" defer></script>
-  
+</head>
 <body class="theme-hub">
 
   <div class="header-banner">
@@ -64,13 +62,13 @@
   <div class="container">
     <div class="top-bar">
       <a href="index.html" aria-label="Zur Startseite">
-        <img src="images/logo.png" alt="[ti:kæı] Logo" class="site-logo">
+        <img src="images/logo.png" alt="[ti:kæı] Logo" width="36" height="36" class="site-logo">
       </a>
       <nav class="nav-links" aria-label="Hauptnavigation">
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
       </nav>
@@ -96,7 +94,7 @@
         <p><strong>Allgemeine Hinweise:</strong> Diese Website wird rein privat und ohne kommerzielles Interesse betrieben.</p>
         <p><strong>Verantwortliche Stelle:</strong> Verantwortlich für die Bereitstellung dieser privaten Inhalte ist:<br>
         Toni Korb<br>
-        E-Mail: <a href="&#109;&#097;&#105;&#108;&#116;&#111;&#058;&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;" style="color: var(--accent-color);">&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;</a></p>
+        E-Mail: <a href="&#109;&#097;&#105;&#108;&#116;&#111;&#058;&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#111;&#114;&#098;&#046;&#100;&#101;" style="color: var(--accent-color);">&#109;&#097;&#105;&#108;&#064;&#116;&#111;&#110;&#105;&#107;&#111;&#114;&#098;&#046;&#100;&#101;</a></p>
 
         <h3 style="font-size: 18px; margin-top: 25px; margin-bottom: 8px;">2. Technische Datenverarbeitung durch Hosting & Infrastruktur</h3>
         <p>Diese Website wird über <strong>GitHub Pages</strong> gehostet und bindet Inhalte von Blogger (Google) ein. Anbieter der Hosting-Infrastruktur ist GitHub, Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA.</p>
@@ -118,6 +116,5 @@
     </footer>
   </div>
 
-  <script src="script.js"></script>
 </body>
 </html>
