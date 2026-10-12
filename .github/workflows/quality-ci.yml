@@ -15,21 +15,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Minify (HTML, CSS, JS komprimieren)
-      - name: Minify Assets
-        uses: samuelmeuli/action-minify@v1
+      # 2. Ruby installieren & HTMLProofer (Link- & HTML-Check)
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          ruby-version: '3.2'
 
-      # 3. HTMLProofer (Tote Links & HTML-Syntax prüfen)
-      - name: Check HTML & Links (HTMLProofer)
-        uses: wjdp/htmlproofer-action@v2
+      - name: Install & Run HTMLProofer
+        run: |
+          gem install html-proofer
+          htmlproofer ./index.html --ignore-status-codes "403,429,999" --allow-hash-href
+
+      # 3. Minify (CSS, JS und HTML komprimieren)
+      - name: Auto Minify
+        uses: nizarmah/auto-minify@v3
         with:
-          arguments: >-
-            --allow-hash-href
-            --check-html
-            --ignore-missing-alt
-            --ignore-status-codes 403,429,999
+          directory: '.'
+          overwrite: true
 
       # 4. Lighthouse CI Audit
       - name: Audit with Lighthouse CI
