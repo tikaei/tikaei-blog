@@ -1,6 +1,32 @@
 // ==========================================================================
-// 1. GLOBALE FUNKTIONEN (THEMING, SICHERHEIT & LESEZEIT)
+// 1. GLOBALE TOP-LEVEL FUNKTIONEN (THEMING, ROUTING & HELFER)
 // ==========================================================================
+
+// Globale Platzhalter / Top-Level Funktionen gegen ReferenceError
+function showGrid() {
+  const detailView = document.getElementById('detail-view');
+  const gridView = document.getElementById('grid-view');
+  const searchWrapper = document.getElementById('search-wrapper');
+
+  if (searchWrapper) searchWrapper.style.display = 'block';
+  if (detailView) detailView.style.display = 'none';
+  if (gridView) gridView.style.display = 'grid';
+
+  window.history.replaceState({}, '', window.location.pathname);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyPostLink() {
+  if (typeof window.execCopyPostLink === 'function') {
+    window.execCopyPostLink();
+  }
+}
+
+function filterPosts() {
+  if (typeof window.execFilterPosts === 'function') {
+    window.execFilterPosts();
+  }
+}
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
@@ -9,7 +35,6 @@ function toggleTheme() {
   localStorage.setItem('theme', next);
   updateThemeUI(next);
 
-  // Falls wir uns auf dem Hub befinden, Kacheln mit den passenden Theme-Farben neu rendern
   if (typeof window.reRenderHub === 'function') {
     window.reRenderHub();
   }
@@ -32,14 +57,12 @@ function secureHtmlContent(html) {
   return html.replace(/src="http:\/\//gi, 'src="https://').replace(/href="http:\/\//gi, 'href="https://');
 }
 
-// Bildgrößen-Steuerung für Blogger (s600 = Thumbnails, s1600 = Detailansicht)
 function optimizeBloggerImage(url, targetSize = 's600') {
   if (!url) return '';
   const secure = secureUrl(url);
   return secure.replace(/\/(s\d+([a-z0-9\-]+)?|w\d+-h\d+([a-z0-9\-]+)?)\//gi, `/${targetSize}/`);
 }
 
-// Performance-optimierte Lesezeitberechnung ohne DOM-Reflows
 function calculateReadingTime(htmlContent) {
   if (!htmlContent) return 1;
   const plainText = htmlContent.replace(/<[^>]*>/g, ' ');
@@ -48,7 +71,6 @@ function calculateReadingTime(htmlContent) {
   return minutes < 1 ? 1 : minutes;
 }
 
-// Hilfsfunktion zur schnellen Text-Snippeterstellung
 function extractPlainText(htmlContent, maxLength = 90) {
   if (!htmlContent) return '';
   const tempDiv = document.createElement('div');
@@ -72,7 +94,7 @@ function extractPlainText(htmlContent, maxLength = 90) {
 function initHub() {
   const CACHE_KEY = 'tikaei_hub_cache_v2';
   const CACHE_TIME_KEY = 'tikaei_hub_cache_time_v2';
-  const CACHE_TTL = 15 * 60 * 1000; // 15 Minuten Caching
+  const CACHE_TTL = 15 * 60 * 1000;
 
   const blogs = [
     { type: 'photo', label: 'Photo', feedUrl: 'https://tikaeiphoto.blogspot.com', internalUrl: 'photography.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224' },
@@ -80,23 +102,12 @@ function initHub() {
     { type: 'moto', label: 'Moto', feedUrl: 'https://tikaeimoto.blogspot.com', internalUrl: 'moto.html', defaultImg: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289' }
   ];
 
-  // Farbschema für die Kacheln der einzelnen Blogs
   const blogColorMap = {
-    photo: {
-      light: { accent: '#1a73e8', bg: '#e8f0fe' },
-      dark:  { accent: '#8ab4f8', bg: '#1f3762' }
-    },
-    music: {
-      light: { accent: '#b51200', bg: '#fce8e6' },
-      dark:  { accent: '#f28b82', bg: '#521814' }
-    },
-    moto: {
-      light: { accent: '#0b8043', bg: '#e6f4ea' },
-      dark:  { accent: '#81c995', bg: '#113822' }
-    }
+    photo: { light: { accent: '#1a73e8', bg: '#e8f0fe' }, dark: { accent: '#8ab4f8', bg: '#1f3762' } },
+    music: { light: { accent: '#b51200', bg: '#fce8e6' }, dark: { accent: '#f28b82', bg: '#521814' } },
+    moto:  { light: { accent: '#0b8043', bg: '#e6f4ea' }, dark: { accent: '#81c995', bg: '#113822' } }
   };
 
-  // 1. Sofortiges Rendern aus dem Cache
   const cachedData = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
   if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
@@ -110,7 +121,6 @@ function initHub() {
     }
   }
 
-  // 2. Primär: Vorab generierte posts.json per fetch laden
   fetch('./posts.json')
     .then(response => {
       if (!response.ok) throw new Error('posts.json nicht vorhanden');
@@ -130,7 +140,6 @@ function initHub() {
       fetchHubFeedsFallback();
     });
 
-  // Fallback: Ursprüngliche JSONP-Live-Abruflogik
   function fetchHubFeedsFallback() {
     let freshPosts = [];
     let loadedCount = 0;
@@ -230,7 +239,6 @@ function initHub() {
       const readingTime = calculateReadingTime(item.content);
       const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
 
-      // Farben anhand von blogType und Theme ermitteln
       const colors = (blogColorMap[item.blogType] || blogColorMap.photo)[isDark ? 'dark' : 'light'];
 
       return `
@@ -256,7 +264,6 @@ function initHub() {
     }).join('');
   }
 
-  // Funktion zum erneuten Rendern bei Theme-Wechsel global verfügbar machen
   window.reRenderHub = function() {
     let currentPosts = [];
     try {
@@ -317,6 +324,113 @@ function initBlogReader(feedUrl, defaultThumb) {
     window.history.replaceState({}, '', window.location.pathname);
   }
 
+  // Registrieren der seitenbezogenen Logik für die globalen Steuerungsfunktionen
+  window.openPost = function(index) {
+    const post = loadedPosts[index];
+    if (!post) return;
+    currentActivePost = post;
+
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) searchWrapper.style.display = 'none';
+    
+    const gridView = document.getElementById('grid-view');
+    if (gridView) gridView.style.display = 'none';
+    
+    const detailView = document.getElementById('detail-view');
+    if (detailView) detailView.style.display = 'block';
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    const readingTime = calculateReadingTime(post.content);
+
+    const titleEl = document.getElementById('article-title');
+    if (titleEl) titleEl.textContent = post.title;
+
+    const dateEl = document.getElementById('article-date');
+    if (dateEl && post.pubDate) {
+      const d = new Date(post.pubDate);
+      dateEl.textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) + ' \u2022 ⏱️ ' + readingTime + ' Min. Lesezeit';
+    }
+
+    const tempArticleBody = document.createElement('div');
+    tempArticleBody.innerHTML = post.content;
+    tempArticleBody.querySelectorAll('img').forEach(img => {
+      if (img.src) {
+        img.src = optimizeBloggerImage(img.src, 's1600');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.borderRadius = '8px';
+      }
+
+      const parentLink = img.closest('a');
+      if (parentLink && parentLink.href) {
+        const href = parentLink.href.toLowerCase();
+        const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
+                          href.includes('blogger.googleusercontent.com/img/') ||
+                          href.includes('bp.blogspot.com/');
+        
+        if (!isImgFile) {
+          parentLink.classList.add('external-web-link');
+          parentLink.setAttribute('target', '_blank');
+          parentLink.setAttribute('rel', 'noopener noreferrer');
+          img.style.cursor = 'pointer';
+        } else {
+          parentLink.classList.add('lightbox-link');
+          img.style.cursor = 'zoom-in';
+        }
+      } else {
+        img.style.cursor = 'zoom-in';
+      }
+    });
+
+    const bodyEl = document.getElementById('article-body');
+    if (bodyEl) bodyEl.innerHTML = tempArticleBody.innerHTML;
+
+    loadComments(feedUrl, post.postId);
+    
+    const commentLink = document.getElementById('blogger-comment-link');
+    if (commentLink && post.postUrl) {
+      commentLink.href = secureUrl(post.postUrl) + '#comment-form';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.execCopyPostLink = function() {
+    const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
+    const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
+
+    if (navigator.share) {
+      navigator.share({
+        title: shareTitle,
+        url: linkToCopy
+      }).catch(err => {
+        if (err.name !== 'AbortError') console.error('Fehler beim Teilen:', err);
+      });
+    } else {
+      navigator.clipboard.writeText(linkToCopy).then(() => {
+        const btn = document.getElementById('copy-link-btn');
+        if (btn) {
+          btn.textContent = '✓ Link kopiert!';
+          setTimeout(() => { btn.textContent = '🔗 Link kopieren'; }, 2000);
+        }
+      }).catch(err => console.error('Fehler beim Kopieren: ', err));
+    }
+  };
+
+  window.execFilterPosts = function() {
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+    const query = searchInput.value.toLowerCase().trim();
+    if (query === '') {
+      renderGrid(loadedPosts);
+      return;
+    }
+    const filtered = loadedPosts.filter(post => {
+      return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
+    });
+    renderGrid(filtered);
+  };
+
   // Instant-Loading aus Cache
   const cachedData = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
@@ -326,26 +440,31 @@ function initBlogReader(feedUrl, defaultThumb) {
       renderGrid(loadedPosts);
       if (targetPostUrl) {
         const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
-        if (postIndex !== -1) openPost(postIndex);
+        if (postIndex !== -1) window.openPost(postIndex);
       }
     } catch (e) {
       console.error('Reader Cache Error:', e);
     }
   }
 
-  // Blog-Typ anhand der Feed-URL ermitteln
+  // Blog-Typ ermitteln
   let blogTypeFilter = 'photo';
   if (feedUrl.includes('music')) blogTypeFilter = 'music';
   if (feedUrl.includes('moto')) blogTypeFilter = 'moto';
 
-  // 1. Primär: posts.json laden und nach Blog-Typ filtern
+  // Primär: posts.json laden
   fetch('./posts.json')
     .then(res => {
       if (!res.ok) throw new Error('posts.json nicht vorhanden');
       return res.json();
     })
     .then(allPosts => {
-      const filtered = allPosts.filter(p => p.blogType === blogTypeFilter);
+      const filtered = allPosts.filter(p => {
+        if (p.blogType) return p.blogType === blogTypeFilter;
+        if (p.targetUrl) return p.targetUrl.includes(blogTypeFilter) || p.targetUrl.includes(feedUrl);
+        return false;
+      });
+
       if (filtered.length > 0) {
         loadedPosts = filtered;
         localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
@@ -355,7 +474,7 @@ function initBlogReader(feedUrl, defaultThumb) {
 
         if (targetPostUrl) {
           const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
-          if (postIndex !== -1) openPost(postIndex);
+          if (postIndex !== -1) window.openPost(postIndex);
         }
       } else {
         throw new Error('Keine passenden Posts in posts.json');
@@ -366,7 +485,7 @@ function initBlogReader(feedUrl, defaultThumb) {
       fetchBlogReaderFallback();
     });
 
-  // Fallback: Ursprüngliche JSONP-Abruflogik für einzelne Blogs
+  // Fallback: Live-Feed über JSONP
   function fetchBlogReaderFallback() {
     const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
     
@@ -412,7 +531,7 @@ function initBlogReader(feedUrl, defaultThumb) {
 
       if (targetPostUrl) {
         const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
-        if (postIndex !== -1) openPost(postIndex);
+        if (postIndex !== -1) window.openPost(postIndex);
       }
       cleanupScript(callbackName, script);
     };
@@ -422,20 +541,6 @@ function initBlogReader(feedUrl, defaultThumb) {
     script.onerror = () => cleanupScript(callbackName, script);
     document.body.appendChild(script);
   }
-
-  window.filterPosts = function() {
-    const searchInput = document.getElementById('search-input');
-    if (!searchInput) return;
-    const query = searchInput.value.toLowerCase().trim();
-    if (query === '') {
-      renderGrid(loadedPosts);
-      return;
-    }
-    const filtered = loadedPosts.filter(post => {
-      return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
-    });
-    renderGrid(filtered);
-  };
 
   function renderGrid(postsToRender) {
     const gridView = document.getElementById('grid-view');
@@ -458,17 +563,17 @@ function initBlogReader(feedUrl, defaultThumb) {
 
       const card = document.createElement('div');
       card.className = 'card';
-      
-      /* Barrierefreiheit & Tastatur-Navigation (Tab & Enter/Space) */
       card.setAttribute('tabindex', '0');
       card.setAttribute('role', 'button');
       card.setAttribute('aria-label', `${post.title} - Beitrag lesen`);
 
-      card.addEventListener('click', () => openPost(originalIndex));
+      card.addEventListener('click', () => {
+        if (typeof window.openPost === 'function') window.openPost(originalIndex);
+      });
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openPost(originalIndex);
+          if (typeof window.openPost === 'function') window.openPost(originalIndex);
         }
       });
 
@@ -489,102 +594,6 @@ function initBlogReader(feedUrl, defaultThumb) {
       gridView.appendChild(card);
     });
   }
-
-  window.openPost = function(index) {
-    const post = loadedPosts[index];
-    if (!post) return;
-    currentActivePost = post;
-
-    const searchWrapper = document.getElementById('search-wrapper');
-    if (searchWrapper) searchWrapper.style.display = 'none';
-    
-    document.getElementById('grid-view').style.display = 'none';
-    document.getElementById('detail-view').style.display = 'block';
-
-    window.history.replaceState({}, '', window.location.pathname);
-
-    const readingTime = calculateReadingTime(post.content);
-
-    document.getElementById('article-title').textContent = post.title;
-    if (post.pubDate) {
-      const d = new Date(post.pubDate);
-      document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) + ' \u2022 ⏱️ ' + readingTime + ' Min. Lesezeit';
-    }
-
-    // Artikelinhalte für hohe Bildauflösung (s1600) optimieren & Links klassifizieren
-    const tempArticleBody = document.createElement('div');
-    tempArticleBody.innerHTML = post.content;
-    tempArticleBody.querySelectorAll('img').forEach(img => {
-      if (img.src) {
-        img.src = optimizeBloggerImage(img.src, 's1600');
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.borderRadius = '8px';
-      }
-
-      const parentLink = img.closest('a');
-      if (parentLink && parentLink.href) {
-        const href = parentLink.href.toLowerCase();
-        const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
-                          href.includes('blogger.googleusercontent.com/img/') ||
-                          href.includes('bp.blogspot.com/');
-        
-        if (!isImgFile) {
-          parentLink.classList.add('external-web-link');
-          parentLink.setAttribute('target', '_blank');
-          parentLink.setAttribute('rel', 'noopener noreferrer');
-          img.style.cursor = 'pointer';
-        } else {
-          parentLink.classList.add('lightbox-link');
-          img.style.cursor = 'zoom-in';
-        }
-      } else {
-        img.style.cursor = 'zoom-in';
-      }
-    });
-
-    document.getElementById('article-body').innerHTML = tempArticleBody.innerHTML;
-
-    loadComments(feedUrl, post.postId);
-    if (post.postUrl) {
-      document.getElementById('blogger-comment-link').href = secureUrl(post.postUrl) + '#comment-form';
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  window.showGrid = function() {
-    currentActivePost = null;
-    const searchWrapper = document.getElementById('search-wrapper');
-    if (searchWrapper) searchWrapper.style.display = 'block';
-
-    document.getElementById('detail-view').style.display = 'none';
-    const gridView = document.getElementById('grid-view');
-    if (gridView) gridView.style.display = 'grid';
-    window.history.replaceState({}, '', window.location.pathname);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  window.copyPostLink = function() {
-    const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
-    const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
-
-    if (navigator.share) {
-      navigator.share({
-        title: shareTitle,
-        url: linkToCopy
-      }).catch(err => {
-        if (err.name !== 'AbortError') console.error('Fehler beim Teilen:', err);
-      });
-    } else {
-      navigator.clipboard.writeText(linkToCopy).then(() => {
-        const btn = document.getElementById('copy-link-btn');
-        if (btn) {
-          btn.textContent = '✓ Link kopiert!';
-          setTimeout(() => { btn.textContent = '🔗 Link kopieren'; }, 2000);
-        }
-      }).catch(err => console.error('Fehler beim Kopieren: ', err));
-    }
-  };
 
   function loadComments(blogFeedUrl, postId) {
     const commentsList = document.getElementById('comments-list');
@@ -636,7 +645,6 @@ function initBlogReader(feedUrl, defaultThumb) {
   }
 }
 
-// Speicher-Bereinigungsfunktion für JSONP-Skripte
 function cleanupScript(callbackName, scriptElement) {
   try {
     delete window[callbackName];
@@ -680,7 +688,6 @@ function initScrollTopButton() {
 // 5. BILDER-LIGHTBOX & ZENTRALE BILDER-LADE-LOGIK (CSP-KONFORM)
 // ==========================================================================
 
-// Zentrale Bild-Lade- & Fehlerbehandlung ohne Inline-Event-Handler
 document.addEventListener('load', (e) => {
   if (e.target.tagName === 'IMG' && e.target.classList.contains('card-img')) {
     e.target.classList.add('loaded');
@@ -754,15 +761,14 @@ function initLightbox() {
 
 
 // ==========================================================================
-// 6. INITIALISIERUNG & DYNAMISCHES LADELOG (PWA & SEITEN-ROUTING)
+// 6. INITIALISIERUNG & SEITEN-ROUTING
 // ==========================================================================
 
 function initPage() {
-  // A) Theme-Umschaltzustand aktualisieren
   const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
   updateThemeUI(activeTheme);
 
-  // B) Event-Listener für UI-Buttons registrieren (verhindert inline onclicks im HTML)
+  // Event-Listener an die Top-Level Funktionen binden
   const themeBtn = document.getElementById('theme-toggle-btn');
   if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
@@ -773,15 +779,11 @@ function initPage() {
   if (copyBtn) copyBtn.addEventListener('click', copyPostLink);
 
   const searchInput = document.getElementById('search-input');
-  if (searchInput && typeof window.filterPosts === 'function') {
-    searchInput.addEventListener('input', window.filterPosts);
-  }
+  if (searchInput) searchInput.addEventListener('input', filterPosts);
 
-  // C) Weitere UI-Komponenten starten
   initScrollTopButton();
   initLightbox();
 
-  // D) Seitenabhängige Blog-Initialisierung
   const bodyClasses = document.body.classList;
 
   if (bodyClasses.contains('theme-hub') || document.getElementById('tikaei-posts')) {
@@ -804,14 +806,12 @@ function initPage() {
   }
 }
 
-// Start der Anwendung
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPage);
 } else {
   initPage();
 }
 
-// Service Worker Registrierung (PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
@@ -820,7 +820,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Web-App-Manifest nach dem ersten Rendern dynamisch nachladen (verhindert Critical Request Chain)
 window.addEventListener('load', () => {
   if (!document.querySelector('link[rel="manifest"]')) {
     const link = document.createElement('link');
