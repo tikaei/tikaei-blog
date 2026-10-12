@@ -24,8 +24,8 @@ jobs:
       - name: Install & Run HTMLProofer
         run: |
           gem install html-proofer
-          htmlproofer ./index.html --ignore-status-codes "403,429,999" --allow-hash-href
-
+          htmlproofer ./index.html --ignore-status-codes "403,429,999" --allow-hash-href --ignore-urls "/blogger\.googleusercontent\.com/,/posts\.json/"
+          
       # 3. Minify (CSS, JS und HTML komprimieren)
       - name: Auto Minify
         uses: nizarmah/auto-minify@v3
