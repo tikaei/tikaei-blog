@@ -7,7 +7,7 @@
   <meta name="description" content="Das private Blog-Netzwerk für Fotografie, Musik und Motorrad-Abenteuer von Toni Korb.">
 
   <!-- 1. Content Security Policy (Sicherheit) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
 
   <!-- 2. Performance & Kritische Pfade (LCP & CSS) -->
   <link rel="preload" href="./posts.json" as="fetch" crossorigin="anonymous">
@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
 
   <!-- 3. Skripte (Theme-Init vor Rendern, Hauptlogik & GTM verzögert) -->
-  <script src="theme-init.js"></script>
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
   <script src="script.js" defer></script>
   <script src="gtm-init.js" defer></script>
 
