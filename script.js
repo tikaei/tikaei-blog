@@ -344,7 +344,7 @@ function initBlogReader(feedUrl, defaultThumb) {
   if (feedUrl.includes('moto')) blogTypeFilter = 'moto';
 
   // 1. Primär: posts.json laden und nach Blog-Typ filtern
-  fetch('./posts.json')
+  fetch('./posts.json', { credentials: 'omit' })
     .then(res => {
       if (!res.ok) throw new Error('posts.json nicht vorhanden');
       return res.json();
