@@ -4,11 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- 1. Content Security Policy (Sicherheit) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+
   <!-- SEO & Standard Meta -->
   <title>[ti:kæı] Musik</title>
   <meta name="description" content="Klänge, Aufnahmen und musikalische Einblicke von Toni Korb.">
+
+  <!-- 2. Performance: Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-musik-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+
+  <!-- Local Stylesheet (System-Fonts) -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- 3. Skripte & Inline Theme-Init -->
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
+  <script src="script.js" defer></script>
+  <script src="gtm-init.js" defer></script>
+
+  <!-- 4. Favicon & Metadaten (ohne manifest.json) -->
   <link rel="icon" href="images/favicon.png" type="image/png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -17,22 +33,6 @@
   <meta property="og:description" content="Klänge, Aufnahmen und musikalische Einblicke von Toni Korb.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-music.png">
   <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Performance: Direct Preconnect & Hero Image Preload -->
-  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-  <link rel="preload" as="image" href="images/banner-musik-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
-
-  <!-- Local Stylesheet (System-Fonts) -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Content Security Policy (Sicherheit & CSP-Hash für Inline-Theme-Skript) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
-
-  <!-- Exaktes Inline-Theme-Skript (passend zum CSP-Hash oben) -->
-  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
-
-  <!-- Google Analytics / GTM Init (zentral gesteuert) -->
-  <script src="gtm-init.js" defer></script>
 
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
   <script type="application/ld+json">
@@ -72,83 +72,4 @@
            fetchpriority="high" 
            class="hero-banner-img">
     </picture>
-    <div class="header-overlay">
-      <h1>Musik</h1>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="top-bar">
-      <a href="index.html" aria-label="Zur Startseite">
-        <img src="images/logo.png" alt="[ti:kæı] Logo" width="36" height="36" class="site-logo">
-      </a>
-      <nav class="nav-links" aria-label="Hauptnavigation">
-        <a href="photography.html">Photo</a>
-        <a href="music.html" class="active" aria-current="page">Music</a>
-        <a href="moto.html">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
-          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
-        </button>
-      </nav>
-    </div>
-
-    <div id="search-wrapper" class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="Musik-Beiträge durchsuchen..." oninput="filterPosts()" aria-label="Musik-Beiträge durchsuchen" autocomplete="off">
-    </div>
-
-    <main id="grid-view" class="grid-layout" aria-live="polite">
-      <div class="card skeleton-card">
-        <div class="skeleton-img"></div>
-        <div class="card-body">
-          <div class="skeleton-text short"></div>
-          <div class="skeleton-text title"></div>
-          <div class="skeleton-text snippet"></div>
-        </div>
-      </div>
-      <div class="card skeleton-card">
-        <div class="skeleton-img"></div>
-        <div class="card-body">
-          <div class="skeleton-text short"></div>
-          <div class="skeleton-text title"></div>
-          <div class="skeleton-text snippet"></div>
-        </div>
-      </div>
-    </main>
-
-    <div id="detail-view" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <button class="theme-toggle-btn" onclick="showGrid()" aria-label="Zurück zur Beitragsübersicht">&larr; Zurück zur Übersicht</button>
-        <button id="copy-link-btn" class="theme-toggle-btn" onclick="copyPostLink()" aria-label="Link zu diesem Beitrag kopieren">🔗 Link kopieren</button>
-      </div>
-      <article>
-        <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-          <span id="article-date" class="card-date"></span>
-          <h2 id="article-title" style="font-weight: 700; font-size: 28px; margin: 5px 0 0 0; color: var(--text-main);"></h2>
-        </div>
-        <div id="article-body" style="font-size: 16px; line-height: 1.8; color: var(--text-main);"></div>
-      </article>
-
-      <section style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--border-color);" aria-label="Kommentare">
-        <h3 style="font-weight: 700; font-size: 20px; margin-bottom: 15px;">Kommentare (<span id="comment-count">0</span>)</h3>
-        <div id="comments-list"></div>
-        <div style="margin-top: 25px; background: var(--input-bg); padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
-          <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted);">Möchtest du etwas zu diesem Beitrag sagen? Diskutiere direkt im Original-Blog mit:</p>
-          <a id="blogger-comment-link" href="" target="_blank" rel="noopener" class="card-btn" style="display: inline-block; background-color: var(--accent-color); color: #fff; padding: 10px 20px; border-radius: 20px; text-decoration: none;">Auf Blogger kommentieren &rarr;</a>
-        </div>
-      </section>
-    </div>
-
-    <footer class="site-footer">
-      <p>&copy; [ti:kæı] &bull; <a href="https://tikaeimusic.blogspot.com/feeds/posts/default" target="_blank" rel="noopener">RSS-Feed</a> &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
-    </footer>
-  </div>
-
-  <script src="script.js"></script>
-  <script>
-    initBlogReader(
-      'https://tikaeimusic.blogspot.com', 
-      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015'
-    );
-  </script>
-</body>
-</html>
+    <div class="
