@@ -648,6 +648,17 @@ function initBlogReader(feedUrl, defaultThumb) {
   }
 }
 
+function cleanupScript(callbackName, scriptElement) {
+  try {
+    delete window[callbackName];
+  } catch (e) {
+    window[callbackName] = undefined;
+  }
+  if (scriptElement && scriptElement.parentNode) {
+    scriptElement.parentNode.removeChild(scriptElement);
+  }
+}
+
 
 // ==========================================================================
 // 4. SCROLL-TO-TOP BUTTON LOGIK
