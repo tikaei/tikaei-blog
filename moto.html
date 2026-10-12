@@ -4,11 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- 1. Content Security Policy (Sicherheit) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+
   <!-- SEO & Standard Meta -->
   <title>[ti:kæı] Moto</title>
   <meta name="description" content="Motorrad-Reisen, Camping-Setups und Tourenberichte von Toni Korb.">
+
+  <!-- 2. Performance: Preconnect & Hero Image Preload -->
+  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
+  <link rel="preload" as="image" href="images/banner-moto-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+
+  <!-- Local Stylesheet (System-Fonts) -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- 3. Skripte & Inline Theme-Init -->
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
+  <script src="script.js" defer></script>
+  <script src="gtm-init.js" defer></script>
+
+  <!-- 4. Favicon & Metadaten (ohne manifest.json) -->
   <link rel="icon" href="images/favicon.png" type="image/png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -17,22 +33,6 @@
   <meta property="og:description" content="Motorrad-Reisen, Camping-Setups und Tourenberichte von Toni Korb.">
   <meta property="og:image" content="https://www.tonikorb.de/images/banner-moto.png">
   <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Performance: Direct Preconnect & Hero Image Preload -->
-  <link rel="preconnect" href="https://blogger.googleusercontent.com" crossorigin>
-  <link rel="preload" as="image" href="images/banner-moto-desktop.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
-
-  <!-- Local Stylesheet (System-Fonts) -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Content Security Policy (Sicherheit & CSP-Hash für Inline-Theme-Skript) -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
-
-  <!-- Exaktes Inline-Theme-Skript (passend zum CSP-Hash oben) -->
-  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
-
-  <!-- Google Analytics / GTM Init (zentral gesteuert) -->
-  <script src="gtm-init.js" defer></script>
 
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
   <script type="application/ld+json">
@@ -86,14 +86,14 @@
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html" class="active" aria-current="page">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
       </nav>
     </div>
 
     <div id="search-wrapper" class="search-container">
-      <input type="text" id="search-input" class="search-input" placeholder="Motorrad-Beiträge durchsuchen..." oninput="filterPosts()" aria-label="Motorrad-Beiträge durchsuchen" autocomplete="off">
+      <input type="text" id="search-input" class="search-input" placeholder="Motorrad-Beiträge durchsuchen..." aria-label="Motorrad-Beiträge durchsuchen" autocomplete="off">
     </div>
 
     <main id="grid-view" class="grid-layout" aria-live="polite">
@@ -117,8 +117,8 @@
 
     <div id="detail-view" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <button class="theme-toggle-btn" onclick="showGrid()" aria-label="Zurück zur Beitragsübersicht">&larr; Zurück zur Übersicht</button>
-        <button id="copy-link-btn" class="theme-toggle-btn" onclick="copyPostLink()" aria-label="Link zu diesem Beitrag kopieren">🔗 Link kopieren</button>
+        <button id="back-to-grid-btn" class="theme-toggle-btn" aria-label="Zurück zur Beitragsübersicht">&larr; Zurück zur Übersicht</button>
+        <button id="copy-link-btn" class="theme-toggle-btn" aria-label="Link zu diesem Beitrag kopieren">🔗 Link kopieren</button>
       </div>
       <article>
         <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
@@ -143,12 +143,5 @@
     </footer>
   </div>
 
-  <script src="script.js"></script>
-  <script>
-    initBlogReader(
-      'https://tikaeimoto.blogspot.com', 
-      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289'
-    );
-  </script>
 </body>
 </html>
