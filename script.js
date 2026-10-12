@@ -121,4 +121,670 @@ function initHub() {
     }
   }
 
-  // 2
+  // 2. Primär: Vorab generierte posts.json per fetch laden
+  fetch('./posts.json')
+    .then(response => {
+      if (!response.ok) throw new Error('posts.json nicht vorhanden');
+      return response.json();
+    })
+    .then(uniquePosts => {
+      if (Array.isArray(uniquePosts) && uniquePosts.length > 0) {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+        renderHubPosts(uniquePosts.slice(0, 8));
+      } else {
+        throw new Error('posts.json leer');
+      }
+    })
+    .catch(err => {
+      console.warn('Statische posts.json konnte nicht geladen werden, Fallback auf Live-Feeds:', err.message);
+      fetchHubFeedsFallback();
+    });
+
+  // Fallback: Ursprüngliche JSONP-Live-Abruflogik
+  function fetchHubFeedsFallback() {
+    let freshPosts = [];
+    let loadedCount = 0;
+
+    blogs.forEach(blog => {
+      const callbackName = 'blogger_cb_' + blog.type + '_' + Math.floor(Math.random() * 1000000);
+      
+      window[callbackName] = function(data) {
+        if (data?.feed?.entry) {
+          data.feed.entry.forEach(entry => {
+            const rawId = entry.id ? entry.id.$t : '';
+            const postIdMatch = rawId.match(/post-(\d+)/);
+            const postId = postIdMatch ? postIdMatch : '';
+            let postUrl = '';
+            if (entry.link) {
+              const alt = entry.link.find(l => l.rel === 'alternate');
+              if (alt) postUrl = secureUrl(alt.href);
+            }
+            let title = entry.title ? entry.title.$t : 'Beitrag';
+            let pubDate = entry.published ? entry.published.$t : (entry.updated ? entry.updated.$t : '');
+            let content = entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : '');
+            let imageUrl = '';
+            if (content) {
+              const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+              if (matchImg) imageUrl = matchImg[1];
+            }
+            if (!imageUrl && entry.media$thumbnail?.url) imageUrl = entry.media$thumbnail.url;
+            imageUrl = optimizeBloggerImage(imageUrl || blog.defaultImg, 's600');
+
+            const plainSnippet = extractPlainText(content, 90);
+            const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+
+            freshPosts.push({
+              postId, postUrl, title, pubDate, content, imageUrl,
+              plainSnippet, searchableText,
+              defaultImg: blog.defaultImg,
+              blogType: blog.type,
+              blogLabel: blog.label,
+              targetUrl: blog.internalUrl
+            });
+          });
+        }
+        loadedCount++;
+        checkAndRender();
+        cleanupScript(callbackName, script);
+      };
+
+      const script = document.createElement('script');
+      script.src = `${blog.feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=15`;
+      script.onerror = () => {
+        loadedCount++;
+        checkAndRender();
+        cleanupScript(callbackName, script);
+      };
+      document.body.appendChild(script);
+    });
+
+    function checkAndRender() {
+      if (loadedCount === blogs.length) {
+        if (freshPosts.length === 0) {
+          const container = document.getElementById('tikaei-posts');
+          if (container) container.innerHTML = '<div style="color:var(--text-muted)">Keine Beiträge gefunden.</div>';
+          return;
+        }
+        const map = new Map();
+        freshPosts.forEach(p => {
+          const key = (p.title + '_' + (p.postUrl || p.postId)).toLowerCase().trim();
+          if (!map.has(key)) map.set(key, p);
+        });
+        const uniquePosts = Array.from(map.values());
+        uniquePosts.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        localStorage.setItem(CACHE_KEY, JSON.stringify(uniquePosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+        renderHubPosts(uniquePosts.slice(0, 8));
+      }
+    }
+  }
+
+  function renderHubPosts(postsToDisplay) {
+    const container = document.getElementById('tikaei-posts');
+    if (!container) return;
+    if (!postsToDisplay || postsToDisplay.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted)">Keine passenden Beiträge gefunden.</div>';
+      return;
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    container.innerHTML = postsToDisplay.map(item => {
+      let dateStr = '';
+      if (item.pubDate) {
+        const dateObj = new Date(item.pubDate);
+        if (!isNaN(dateObj)) dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+      const readingTime = calculateReadingTime(item.content);
+      const finalLink = item.postUrl ? `${item.targetUrl}?postUrl=${encodeURIComponent(item.postUrl)}` : item.targetUrl;
+
+      // Farben anhand von blogType und Theme ermitteln
+      const colors = (blogColorMap[item.blogType] || blogColorMap.photo)[isDark ? 'dark' : 'light'];
+
+      return `
+        <a href="${finalLink}" class="card blog-${item.blogType}" style="--accent-color: ${colors.accent}; --accent-light: ${colors.bg}; border-top: 3px solid ${colors.accent};">
+          <div class="card-img-wrapper">
+            <img class="card-img" src="${item.imageUrl}" alt="${item.title}" loading="lazy" data-default-img="${item.defaultImg}">
+          </div>
+          <div class="card-body">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="card-date">${dateStr} &bull; ⏱️ ${readingTime} Min.</span>
+                <span class="tikaei-tag">${item.blogLabel}</span>
+              </div>
+              <h2 class="card-title">${item.title}</h2>
+              <div class="card-snippet">${item.plainSnippet || extractPlainText(item.content, 90)}</div>
+            </div>
+            <div>
+              <span class="card-btn" style="color: ${colors.accent};">Beitrag lesen &rarr;</span>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join('');
+  }
+
+  // Funktion zum erneuten Rendern bei Theme-Wechsel global verfügbar machen
+  window.reRenderHub = function() {
+    let currentPosts = [];
+    try {
+      currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+    } catch (e) {}
+    if (currentPosts.length > 0) {
+      const searchInput = document.getElementById('global-search-input');
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      if (query === '') {
+        renderHubPosts(currentPosts.slice(0, 8));
+      } else {
+        const filtered = currentPosts.filter(post => {
+          return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
+        });
+        renderHubPosts(filtered);
+      }
+    }
+  };
+
+  const searchInput = document.getElementById('global-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      let currentPosts = [];
+      try {
+        currentPosts = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+      } catch (e) {}
+      if (query === '') {
+        renderHubPosts(currentPosts.slice(0, 8));
+        return;
+      }
+      const filtered = currentPosts.filter(post => {
+        return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
+      });
+      renderHubPosts(filtered);
+    });
+  }
+}
+
+
+// ==========================================================================
+// 3. LOGIK FÜR DIE EINZELNEN BLOG-SEITEN (photography, music, moto)
+// ==========================================================================
+
+function initBlogReader(feedUrl, defaultThumb) {
+  let loadedPosts = [];
+  let currentActivePost = null;
+
+  const CACHE_KEY = 'tikaei_reader_' + feedUrl;
+  const CACHE_TIME_KEY = 'tikaei_reader_time_' + feedUrl;
+  const CACHE_TTL = 15 * 60 * 1000;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const autoOpenUrlParam = urlParams.get('postUrl');
+  const targetPostUrl = autoOpenUrlParam ? decodeURIComponent(autoOpenUrlParam) : null;
+
+  if (autoOpenUrlParam) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  // Instant-Loading aus Cache
+  const cachedData = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+  if (cachedData && cachedTime && (Date.now() - parseInt(cachedTime, 10) < CACHE_TTL)) {
+    try {
+      loadedPosts = JSON.parse(cachedData);
+      renderGrid(loadedPosts);
+      if (targetPostUrl) {
+        const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+        if (postIndex !== -1) openPost(postIndex);
+      }
+    } catch (e) {
+      console.error('Reader Cache Error:', e);
+    }
+  }
+
+  // Blog-Typ anhand der Feed-URL ermitteln
+  let blogTypeFilter = 'photo';
+  if (feedUrl.includes('music')) blogTypeFilter = 'music';
+  if (feedUrl.includes('moto')) blogTypeFilter = 'moto';
+
+  // 1. Primär: posts.json laden und nach Blog-Typ filtern
+  fetch('./posts.json')
+    .then(res => {
+      if (!res.ok) throw new Error('posts.json nicht vorhanden');
+      return res.json();
+    })
+    .then(allPosts => {
+      const filtered = allPosts.filter(p => p.blogType === blogTypeFilter);
+      if (filtered.length > 0) {
+        loadedPosts = filtered;
+        localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
+        localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+        renderGrid(loadedPosts);
+
+        if (targetPostUrl) {
+          const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+          if (postIndex !== -1) openPost(postIndex);
+        }
+      } else {
+        throw new Error('Keine passenden Posts in posts.json');
+      }
+    })
+    .catch(err => {
+      console.warn('Reader Fallback auf Live-Feed:', err.message);
+      fetchBlogReaderFallback();
+    });
+
+  // Fallback: Ursprüngliche JSONP-Abruflogik für einzelne Blogs
+  function fetchBlogReaderFallback() {
+    const callbackName = 'reader_cb_' + Math.floor(Math.random() * 1000000);
+    
+    window[callbackName] = function(data) {
+      const gridView = document.getElementById('grid-view');
+      if (!gridView) return;
+      if (!data?.feed?.entry) { 
+        gridView.innerHTML = '<div>Keine Beiträge gefunden.</div>'; 
+        cleanupScript(callbackName, script);
+        return; 
+      }
+
+      loadedPosts = data.feed.entry.map(entry => {
+        const rawId = entry.id ? entry.id.$t : '';
+        const postIdMatch = rawId.match(/post-(\d+)/);
+        const postId = postIdMatch ? postIdMatch : '';
+        let postUrl = '';
+        if (entry.link) {
+          const alt = entry.link.find(l => l.rel === 'alternate');
+          if (alt) postUrl = secureUrl(alt.href);
+        }
+        let title = entry.title ? entry.title.$t : 'Ohne Titel';
+        let pubDate = entry.published ? entry.published.$t : '';
+        let content = secureHtmlContent(entry.content ? entry.content.$t : (entry.summary ? entry.summary.$t : ''));
+        let imageUrl = '';
+        if (content) {
+          const matchImg = content.match(/<img[^>]+src="([^">]+)"/i);
+          if (matchImg) imageUrl = matchImg[1];
+        }
+        if (!imageUrl && entry.media$thumbnail) imageUrl = entry.media$thumbnail.url;
+        imageUrl = optimizeBloggerImage(imageUrl || defaultThumb, 's600');
+
+        const plainSnippet = extractPlainText(content, 90);
+        const searchableText = (title + ' ' + plainSnippet).toLowerCase();
+
+        return { postId, postUrl, title, pubDate, content, imageUrl, plainSnippet, searchableText };
+      });
+
+      localStorage.setItem(CACHE_KEY, JSON.stringify(loadedPosts));
+      localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+
+      renderGrid(loadedPosts);
+
+      if (targetPostUrl) {
+        const postIndex = loadedPosts.findIndex(p => p.postUrl === targetPostUrl);
+        if (postIndex !== -1) openPost(postIndex);
+      }
+      cleanupScript(callbackName, script);
+    };
+
+    const script = document.createElement('script');
+    script.src = `${feedUrl}/feeds/posts/default?alt=json-in-script&callback=${callbackName}&max-results=20`;
+    script.onerror = () => cleanupScript(callbackName, script);
+    document.body.appendChild(script);
+  }
+
+  window.filterPosts = function() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    if (query === '') {
+      renderGrid(loadedPosts);
+      return;
+    }
+    const filtered = loadedPosts.filter(post => {
+      return post.searchableText ? post.searchableText.includes(query) : post.title.toLowerCase().includes(query);
+    });
+    renderGrid(filtered);
+  };
+
+  function renderGrid(postsToRender) {
+    const gridView = document.getElementById('grid-view');
+    if (!gridView) return;
+    gridView.innerHTML = '';
+    if (postsToRender.length === 0) { 
+      gridView.innerHTML = '<div>Keine passenden Beiträge gefunden.</div>'; 
+      return; 
+    }
+
+    postsToRender.forEach(post => {
+      const originalIndex = loadedPosts.findIndex(p => p.postId === post.postId);
+      let dateStr = '';
+      if (post.pubDate) {
+        const d = new Date(post.pubDate);
+        if (!isNaN(d)) dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      const readingTime = calculateReadingTime(post.content);
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      /* Barrierefreiheit & Tastatur-Navigation (Tab & Enter/Space) */
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `${post.title} - Beitrag lesen`);
+
+      card.onclick = () => openPost(originalIndex);
+      card.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault(); // Verhindert ungewolltes Seite-Scrollen bei Leertaste
+          openPost(originalIndex);
+        }
+      };
+
+      card.innerHTML = `
+        <div class="card-img-wrapper"><img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" data-default-img="${defaultThumb}"></div>
+        <div class="card-body">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="card-date">${dateStr}</span>
+              <span class="card-date">⏱️ ${readingTime} Min.</span>
+            </div>
+            <h2 class="card-title">${post.title}</h2>
+            <div class="card-snippet">${post.plainSnippet || extractPlainText(post.content, 90)}</div>
+          </div>
+          <div class="card-btn">Beitrag lesen &rarr;</div>
+        </div>
+      `;
+      gridView.appendChild(card);
+    });
+  }
+
+  window.openPost = function(index) {
+    const post = loadedPosts[index];
+    if (!post) return;
+    currentActivePost = post;
+
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) searchWrapper.style.display = 'none';
+    
+    document.getElementById('grid-view').style.display = 'none';
+    document.getElementById('detail-view').style.display = 'block';
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    const readingTime = calculateReadingTime(post.content);
+
+    document.getElementById('article-title').textContent = post.title;
+    if (post.pubDate) {
+      const d = new Date(post.pubDate);
+      document.getElementById('article-date').textContent = d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }) + ' \u2022 ⏱️ ' + readingTime + ' Min. Lesezeit';
+    }
+
+    // Artikelinhalte für hohe Bildauflösung (s1600) optimieren & Links klassifizieren
+    const tempArticleBody = document.createElement('div');
+    tempArticleBody.innerHTML = post.content;
+    tempArticleBody.querySelectorAll('img').forEach(img => {
+      if (img.src) {
+        img.src = optimizeBloggerImage(img.src, 's1600');
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.borderRadius = '8px';
+      }
+
+      const parentLink = img.closest('a');
+      if (parentLink && parentLink.href) {
+        const href = parentLink.href.toLowerCase();
+        const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
+                          href.includes('blogger.googleusercontent.com/img/') ||
+                          href.includes('bp.blogspot.com/');
+        
+        if (!isImgFile) {
+          parentLink.classList.add('external-web-link');
+          parentLink.setAttribute('target', '_blank');
+          parentLink.setAttribute('rel', 'noopener noreferrer');
+          img.style.cursor = 'pointer';
+        } else {
+          parentLink.classList.add('lightbox-link');
+          img.style.cursor = 'zoom-in';
+        }
+      } else {
+        img.style.cursor = 'zoom-in';
+      }
+    });
+
+    document.getElementById('article-body').innerHTML = tempArticleBody.innerHTML;
+
+    loadComments(feedUrl, post.postId);
+    if (post.postUrl) {
+      document.getElementById('blogger-comment-link').href = secureUrl(post.postUrl) + '#comment-form';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.showGrid = function() {
+    currentActivePost = null;
+    const searchWrapper = document.getElementById('search-wrapper');
+    if (searchWrapper) searchWrapper.style.display = 'block';
+
+    document.getElementById('detail-view').style.display = 'none';
+    const gridView = document.getElementById('grid-view');
+    if (gridView) gridView.style.display = 'grid';
+    window.history.replaceState({}, '', window.location.pathname);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.copyPostLink = function() {
+    const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
+    const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
+
+    if (navigator.share) {
+      navigator.share({
+        title: shareTitle,
+        url: linkToCopy
+      }).catch(err => {
+        if (err.name !== 'AbortError') console.error('Fehler beim Teilen:', err);
+      });
+    } else {
+      navigator.clipboard.writeText(linkToCopy).then(() => {
+        const btn = document.getElementById('copy-link-btn');
+        if (btn) {
+          btn.textContent = '✓ Link kopiert!';
+          setTimeout(() => { btn.textContent = '🔗 Link kopieren'; }, 2000);
+        }
+      }).catch(err => console.error('Fehler beim Kopieren: ', err));
+    }
+  };
+
+  function loadComments(blogFeedUrl, postId) {
+    const commentsList = document.getElementById('comments-list');
+    const commentCount = document.getElementById('comment-count');
+    if (!commentsList) return;
+    commentsList.innerHTML = '<div>Lade Kommentare...</div>';
+    
+    if (!postId) {
+      if (commentCount) commentCount.textContent = '0';
+      commentsList.innerHTML = '<p style="color: var(--text-muted);">Keine Kommentare vorhanden.</p>';
+      return;
+    }
+
+    const callbackName = 'comment_cb_' + Math.floor(Math.random() * 1000000);
+
+    window[callbackName] = function(data) {
+      commentsList.innerHTML = '';
+      if (data?.feed?.entry) {
+        const comments = data.feed.entry;
+        if (commentCount) commentCount.textContent = comments.length;
+        comments.forEach(c => {
+          const author = c.author ? c.author[0].name.$t : 'Anonym';
+          let dateStr = '';
+          if (c.published) {
+            const d = new Date(c.published.$t);
+            dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          }
+          const text = secureHtmlContent(c.content ? c.content.$t : (c.summary ? c.summary.$t : ''));
+          const item = document.createElement('div');
+          item.style.cssText = 'background: var(--input-bg); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; border-left: 3px solid var(--accent-color);';
+          item.innerHTML = `<div><strong style="font-size: 14px; color: var(--text-main);">${author}</strong> <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">${dateStr}</span></div><div style="font-size: 14px; margin-top: 6px; color: var(--text-muted);">${text}</div>`;
+          commentsList.appendChild(item);
+        });
+      } else {
+        if (commentCount) commentCount.textContent = '0';
+        commentsList.innerHTML = '<p style="color: var(--text-muted); font-size: 14px;">Noch keine Kommentare vorhanden.</p>';
+      }
+      cleanupScript(callbackName, script);
+    };
+
+    const script = document.createElement('script');
+    script.src = `${blogFeedUrl}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
+    script.onerror = () => { 
+      if (commentCount) commentCount.textContent = '0'; 
+      commentsList.innerHTML = '<p style="color: var(--text-muted);">Kommentare konnten nicht geladen werden.</p>'; 
+      cleanupScript(callbackName, script);
+    };
+    document.body.appendChild(script);
+  }
+}
+
+// Speicher-Bereinigungsfunktion für JSONP-Skripte
+function cleanupScript(callbackName, scriptElement) {
+  try {
+    delete window[callbackName];
+  } catch (e) {
+    window[callbackName] = undefined;
+  }
+  if (scriptElement && scriptElement.parentNode) {
+    scriptElement.parentNode.removeChild(scriptElement);
+  }
+}
+
+
+// ==========================================================================
+// 4. SCROLL-TO-TOP BUTTON LOGIK
+// ==========================================================================
+
+function initScrollTopButton() {
+  if (document.querySelector('.scroll-top-btn')) return;
+
+  const scrollTopBtn = document.createElement('button');
+  scrollTopBtn.className = 'scroll-top-btn';
+  scrollTopBtn.setAttribute('aria-label', 'Nach oben scrollen');
+  scrollTopBtn.textContent = '↑';
+  document.body.appendChild(scrollTopBtn);
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollTopBtn.classList.add('visible');
+    } else {
+      scrollTopBtn.classList.remove('visible');
+    }
+  }, { passive: true });
+
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initScrollTopButton);
+} else {
+  initScrollTopButton();
+}
+
+
+// ==========================================================================
+// 5. BILDER-LIGHTBOX & ZENTRALE BILDER-LADE-LOGIK (CSP-KONFORM)
+// ==========================================================================
+
+// Zentrale Bild-Lade- & Fehlerbehandlung ohne Inline-Event-Handler
+document.addEventListener('load', (e) => {
+  if (e.target.tagName === 'IMG' && e.target.classList.contains('card-img')) {
+    e.target.classList.add('loaded');
+  }
+}, true);
+
+document.addEventListener('error', (e) => {
+  if (e.target.tagName === 'IMG' && e.target.classList.contains('card-img')) {
+    const defaultImg = e.target.getAttribute('data-default-img');
+    if (defaultImg && e.target.src !== defaultImg) {
+      e.target.src = defaultImg;
+    }
+    e.target.classList.add('loaded');
+  }
+}, true);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox-overlay';
+  lightbox.innerHTML = `
+    <button class="lightbox-close" aria-label="Schließen">&times;</button>
+    <img class="lightbox-img" src="" alt="">
+  `;
+  document.body.appendChild(lightbox);
+
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const closeBtn = lightbox.querySelector('.lightbox-close');
+
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || 'Vergrößertes Bild';
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Verhindert Scrollen im Hintergrund
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Event-Delegation: Klicks auf Bilder im Artikeltext abfangen
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
+      const parentLink = e.target.closest('a');
+
+      // Externe Links nicht in der Lightbox öffnen
+      if (parentLink && parentLink.classList.contains('external-web-link')) {
+        return;
+      }
+
+      if (parentLink) {
+        e.preventDefault();
+      }
+
+      // 1. Quell-URL ermitteln (Link des a-Tags bevorzugen, sonst img.src)
+      let fullSizeUrl = e.target.src;
+      if (parentLink && parentLink.href && parentLink.classList.contains('lightbox-link')) {
+        fullSizeUrl = parentLink.href;
+      }
+
+      // 2. Blogger-Größenparameter auf 's0' (Originalauflösung) erzwingen
+      fullSizeUrl = optimizeBloggerImage(fullSizeUrl, 's0');
+
+      openLightbox(fullSizeUrl, e.target.alt);
+    }
+  });
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || e.target === closeBtn) {
+      closeLightbox();
+    }
+  });
+});
+
+
+// ==========================================================================
+// 6. SERVICE WORKER REGISTRIERUNG (PWA)
+// ==========================================================================
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.log('Service Worker Registrierungsfehler: ', err);
+    });
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHub);
+} else {
+  initHub();
+}
