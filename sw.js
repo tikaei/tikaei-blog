@@ -48,6 +48,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Google Analytics & Tag Manager ignorieren und direkt vom Browser verarbeiten lassen
+  if (url.hostname.includes('google-analytics.com') || url.hostname.includes('googletagmanager.com')) {
+    return;
+  }
+
   // A) Navigationsseiten, Skripte & Stylesheets -> Network First (aktuelle Updates vorziehen)
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     event.respondWith(
@@ -64,7 +69,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // B) Externe Bilder & Feeds von Blogger/Google -> Stale-While-Revalidate (schnelles Laden aus Cache + Aktualisierung im Hintergrund)
+  // B) Externe Bilder & Feeds von Blogger/Google -> Stale-While-Revalidate
   if (url.hostname.includes('blogspot.com') || url.hostname.includes('googleusercontent.com')) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
