@@ -152,7 +152,7 @@ function initHub() {
           data.feed.entry.forEach(entry => {
             const rawId = entry.id ? entry.id.$t : '';
             const postIdMatch = rawId.match(/post-(\d+)/);
-            const postId = postIdMatch ? postIdMatch : '';
+            const postId = postIdMatch ? postIdMatch[1] : '';
             let postUrl = '';
             if (entry.link) {
               const alt = entry.link.find(l => l.rel === 'alternate');
@@ -601,7 +601,10 @@ function initBlogReader(feedUrl, defaultThumb) {
     if (!commentsList) return;
     commentsList.innerHTML = '<div>Lade Kommentare...</div>';
     
-    if (!postId) {
+    // Extrahieren der reinen Zahlen-ID (bereinigt "post-123,123" oder Arrays zu "123")
+    const cleanPostId = postId ? String(postId).match(/\d+/g)?.pop() || '' : '';
+
+    if (!cleanPostId) {
       if (commentCount) commentCount.textContent = '0';
       commentsList.innerHTML = '<p style="color: var(--text-muted);">Keine Kommentare vorhanden.</p>';
       return;
@@ -635,24 +638,13 @@ function initBlogReader(feedUrl, defaultThumb) {
     };
 
     const script = document.createElement('script');
-    script.src = `${blogFeedUrl}/feeds/${postId}/comments/default?alt=json-in-script&callback=${callbackName}`;
+    script.src = `${blogFeedUrl}/feeds/${cleanPostId}/comments/default?alt=json-in-script&callback=${callbackName}`;
     script.onerror = () => { 
       if (commentCount) commentCount.textContent = '0'; 
       commentsList.innerHTML = '<p style="color: var(--text-muted);">Kommentare konnten nicht geladen werden.</p>'; 
       cleanupScript(callbackName, script);
     };
     document.body.appendChild(script);
-  }
-}
-
-function cleanupScript(callbackName, scriptElement) {
-  try {
-    delete window[callbackName];
-  } catch (e) {
-    window[callbackName] = undefined;
-  }
-  if (scriptElement && scriptElement.parentNode) {
-    scriptElement.parentNode.removeChild(scriptElement);
   }
 }
 
