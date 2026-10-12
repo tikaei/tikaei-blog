@@ -17,12 +17,7 @@
   <link rel="icon" href="images/favicon.png" type="image/png">
   <link rel="manifest" href="manifest.json">
 
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+  <script src="theme-init.js"></script>
 
   <!-- Open Graph / Social Media Vorschau -->
   <meta property="og:type" content="website">
@@ -33,14 +28,9 @@
   <meta name="twitter:card" content="summary_large_image">
   
   <!-- Google Analytics -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';"> 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GNER6HTD1X');
-  </script>
+  <script src="gtm-init.js" defer></script>
 
   <!-- Strukturierte Daten für Suchmaschinen (JSON-LD) -->
   <script type="application/ld+json">
