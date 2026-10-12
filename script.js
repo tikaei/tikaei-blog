@@ -116,7 +116,7 @@ function initHub() {
   }
 
   // 2. Primär: Vorab generierte posts.json per fetch laden
-  fetch('./posts.json', { credentials: 'omit' })
+  fetch('./posts.json')
     .then(response => {
       if (!response.ok) throw new Error('posts.json nicht vorhanden');
       return response.json();
@@ -344,7 +344,7 @@ function initBlogReader(feedUrl, defaultThumb) {
   if (feedUrl.includes('moto')) blogTypeFilter = 'moto';
 
   // 1. Primär: posts.json laden und nach Blog-Typ filtern
-  fetch('./posts.json', { credentials: 'omit' })
+  fetch('./posts.json')
     .then(res => {
       if (!res.ok) throw new Error('posts.json nicht vorhanden');
       return res.json();
