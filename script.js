@@ -22,17 +22,6 @@ function updateThemeUI(theme) {
   if (text) text.textContent = theme === 'dark' ? 'Light' : 'Dark';
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
-  updateThemeUI(activeTheme);
-
-  // Event-Listener für Theme-Toggle Button (erhöht CSP-Sicherheit, da kein inline onclick im HTML nötig)
-  const themeBtn = document.getElementById('theme-toggle-btn');
-  if (themeBtn) {
-    themeBtn.addEventListener('click', toggleTheme);
-  }
-});
-
 function secureUrl(url) {
   if (!url) return '';
   return url.replace(/^http:\/\//i, 'https://');
@@ -435,7 +424,9 @@ function initBlogReader(feedUrl, defaultThumb) {
   }
 
   window.filterPosts = function() {
-    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+    const query = searchInput.value.toLowerCase().trim();
     if (query === '') {
       renderGrid(loadedPosts);
       return;
@@ -473,13 +464,13 @@ function initBlogReader(feedUrl, defaultThumb) {
       card.setAttribute('role', 'button');
       card.setAttribute('aria-label', `${post.title} - Beitrag lesen`);
 
-      card.onclick = () => openPost(originalIndex);
-      card.onkeydown = (e) => {
+      card.addEventListener('click', () => openPost(originalIndex));
+      card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault(); // Verhindert ungewolltes Seite-Scrollen bei Leertaste
+          e.preventDefault();
           openPost(originalIndex);
         }
-      };
+      });
 
       card.innerHTML = `
         <div class="card-img-wrapper"><img class="card-img" src="${post.imageUrl}" alt="${post.title}" loading="lazy" data-default-img="${defaultThumb}"></div>
@@ -684,12 +675,6 @@ function initScrollTopButton() {
   });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initScrollTopButton);
-} else {
-  initScrollTopButton();
-}
-
 
 // ==========================================================================
 // 5. BILDER-LIGHTBOX & ZENTRALE BILDER-LADE-LOGIK (CSP-KONFORM)
@@ -712,7 +697,9 @@ document.addEventListener('error', (e) => {
   }
 }, true);
 
-document.addEventListener('DOMContentLoaded', () => {
+function initLightbox() {
+  if (document.querySelector('.lightbox-overlay')) return;
+
   const lightbox = document.createElement('div');
   lightbox.className = 'lightbox-overlay';
   lightbox.innerHTML = `
@@ -728,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxImg.src = src;
     lightboxImg.alt = alt || 'Vergrößertes Bild';
     lightbox.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Verhindert Scrollen im Hintergrund
+    document.body.style.overflow = 'hidden';
   }
 
   function closeLightbox() {
@@ -736,12 +723,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = '';
   }
 
-  // Event-Delegation: Klicks auf Bilder im Artikeltext abfangen
   document.addEventListener('click', (e) => {
     if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
       const parentLink = e.target.closest('a');
 
-      // Externe Links nicht in der Lightbox öffnen
       if (parentLink && parentLink.classList.contains('external-web-link')) {
         return;
       }
@@ -750,15 +735,12 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
       }
 
-      // 1. Quell-URL ermitteln (Link des a-Tags bevorzugen, sonst img.src)
       let fullSizeUrl = e.target.src;
       if (parentLink && parentLink.href && parentLink.classList.contains('lightbox-link')) {
         fullSizeUrl = parentLink.href;
       }
 
-      // 2. Blogger-Größenparameter auf 's0' (Originalauflösung) erzwingen
       fullSizeUrl = optimizeBloggerImage(fullSizeUrl, 's0');
-
       openLightbox(fullSizeUrl, e.target.alt);
     }
   });
@@ -768,13 +750,68 @@ document.addEventListener('DOMContentLoaded', () => {
       closeLightbox();
     }
   });
-});
+}
 
 
 // ==========================================================================
-// 6. SERVICE WORKER REGISTRIERUNG (PWA)
+// 6. INITIALISIERUNG & DYNAMISCHES LADELOG (PWA & SEITEN-ROUTING)
 // ==========================================================================
 
+function initPage() {
+  // A) Theme-Umschaltzustand aktualisieren
+  const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+  updateThemeUI(activeTheme);
+
+  // B) Event-Listener für UI-Buttons registrieren (verhindert inline onclicks im HTML)
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+  const backBtn = document.getElementById('back-to-grid-btn');
+  if (backBtn) backBtn.addEventListener('click', showGrid);
+
+  const copyBtn = document.getElementById('copy-link-btn');
+  if (copyBtn) copyBtn.addEventListener('click', copyPostLink);
+
+  const searchInput = document.getElementById('search-input');
+  if (searchInput && typeof window.filterPosts === 'function') {
+    searchInput.addEventListener('input', window.filterPosts);
+  }
+
+  // C) Weitere UI-Komponenten starten
+  initScrollTopButton();
+  initLightbox();
+
+  // D) Seitenabhängige Blog-Initialisierung
+  const bodyClasses = document.body.classList;
+
+  if (bodyClasses.contains('theme-hub') || document.getElementById('tikaei-posts')) {
+    initHub();
+  } else if (bodyClasses.contains('theme-photo')) {
+    initBlogReader(
+      'https://tikaeiphoto.blogspot.com',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7YFm6gWkAe3q0Z895Lz-duCnSNC57BDfjyGuqmE9h1IY1-61cIIv8_oqJ4qQAO9VOh9W4UYWkWUMHKAWJ2mJBce9rmR-hoOx4PD62oEvwtcVY0ZiMm-FFwHtpuq2v1_mYXbSTbOP4pUDibVVSDJ_BUR0YBaySY0nOvGZ3FLssyFkiGg/s600/image1786059224'
+    );
+  } else if (bodyClasses.contains('theme-music')) {
+    initBlogReader(
+      'https://tikaeimusic.blogspot.com',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgrkKhFBsgAfmbq7niitl-mGWCHmHvdbH3WDiVs8eT4C51RQRSc7oqW3uozNqxPzpVPIy_C0Nqshtjm7nOE_5u3BOV61jUtMZunh9fh3L5rodv_T578JiuCBUiqvdi0fPRgUzWQFSNHCJzAaXZRWD7h7spltZmDr7pBuCeiDSVf73GLkT8/s600/image1786059015'
+    );
+  } else if (bodyClasses.contains('theme-moto')) {
+    initBlogReader(
+      'https://tikaeimoto.blogspot.com',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMpwX-Tqpp7W1ThEJjoZHxgUKZ7101jTeV-ToefUyiENYt8BJKhjbBpPKTNJmakhrMJLqw9nmCG0AKLK4LH8TE5vg-PoSbRO6ZGU7Ab7aiOeTFSyzyKVDCYSlormvcbBOeGh3m-GTSemYGCAXTWWukpo7KvgQkl7esgFHcf7-WnuUEyg/s600/image1786059289'
+    );
+  }
+}
+
+// Start der Anwendung
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPage);
+} else {
+  initPage();
+}
+
+// Service Worker Registrierung (PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
@@ -783,16 +820,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initHub);
-} else {
-  initHub();
-}
-
-// Web-App-Manifest nach dem ersten Rendern dynamisch nachladen
+// Web-App-Manifest nach dem ersten Rendern dynamisch nachladen (verhindert Critical Request Chain)
 window.addEventListener('load', () => {
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = 'manifest.json';
-  document.head.appendChild(link);
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'manifest.json';
+    document.head.appendChild(link);
+  }
 });
