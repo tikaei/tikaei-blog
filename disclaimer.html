@@ -25,23 +25,15 @@
   <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+  <!-- Content Security Policy (Sicherheit & CSP-Hash für Inline-Theme-Skript) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GNER6HTD1X');
-  </script>
-</head>
+  <!-- Exaktes Inline-Theme-Skript (passend zum CSP-Hash oben) -->
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
+
+  <!-- Google Analytics / GTM Init (zentral gesteuert) -->
+  <script src="gtm-init.js" defer></script>
+  
 <body class="theme-hub">
 
   <div class="header-banner">
