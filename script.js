@@ -355,7 +355,12 @@ function initBlogReader(feedUrl, defaultThumb) {
     const tempArticleBody = document.createElement('div');
     tempArticleBody.innerHTML = post.content;
 
-    // 1. ALLE Links im Beitrag durchsuchen und verarbeiten (auch Piktogramme/Icons ohne <img>-Tag)
+    // A) ALLE srcset-Attribute entfernen (verhindert Retina-Hover-Fetches von Blogger)
+    tempArticleBody.querySelectorAll('[srcset]').forEach(el => {
+      el.removeAttribute('srcset');
+    });
+
+    // B) ALLE Links im Beitrag bereinigen (auch Piktogramme/Icons ohne <img>-Tag)
     tempArticleBody.querySelectorAll('a').forEach(a => {
       const rawHref = a.getAttribute('href') || '';
       const href = rawHref.toLowerCase();
@@ -377,7 +382,7 @@ function initBlogReader(feedUrl, defaultThumb) {
       }
     });
 
-    // 2. Bilder für die Anzeige optimieren
+    // C) Alle <img>-Tags optimieren
     tempArticleBody.querySelectorAll('img').forEach(img => {
       if (img.src) {
         img.src = optimizeBloggerImage(img.src, 's1600');
@@ -400,7 +405,7 @@ function initBlogReader(feedUrl, defaultThumb) {
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
+  
   window.execCopyPostLink = function() {
     const linkToCopy = currentActivePost && currentActivePost.postUrl ? currentActivePost.postUrl : window.location.href;
     const shareTitle = currentActivePost && currentActivePost.title ? currentActivePost.title : document.title;
