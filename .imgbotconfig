@@ -1,0 +1,10 @@
+{
+  "schedule": "weekly",
+  "minCompression": 5,
+  "aggressive": false,
+  "ignoredFiles": [
+    "*.svg",
+    "images/favicon.png",
+    "*.webp"
+  ]
+}
