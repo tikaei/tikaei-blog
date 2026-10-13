@@ -376,14 +376,15 @@ function initBlogReader(feedUrl, defaultThumb) {
           img.style.cursor = 'pointer';
         } else {
           parentLink.classList.add('lightbox-link');
-          parentLink.setAttribute('rel', 'nofollow'); // Verhindert aggressives Prefetching beim Mouseover
+          // URL in Data-Attribut auslagern und href neutralisieren (stoppt Chrome Hover-Prefetch):
+          parentLink.setAttribute('data-lightbox-src', parentLink.href);
+          parentLink.setAttribute('href', 'javascript:void(0);');
           img.style.cursor = 'zoom-in';
         }
       } else {
         img.style.cursor = 'zoom-in';
       }
     });
-
     const bodyEl = document.getElementById('article-body');
     if (bodyEl) bodyEl.innerHTML = tempArticleBody.innerHTML;
 
@@ -747,8 +748,8 @@ function initLightbox() {
       }
 
       let fullSizeUrl = e.target.src;
-      if (parentLink && parentLink.href && parentLink.classList.contains('lightbox-link')) {
-        fullSizeUrl = parentLink.href;
+      if (parentLink && parentLink.classList.contains('lightbox-link')) {
+        fullSizeUrl = parentLink.getAttribute('data-lightbox-src') || parentLink.href || e.target.src;
       }
 
       fullSizeUrl = optimizeBloggerImage(fullSizeUrl, 's0');
