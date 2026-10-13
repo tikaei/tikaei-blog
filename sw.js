@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tikaei-pwa-v4';
-const DYNAMIC_CACHE = 'tikaei-dynamic-v4';
+const CACHE_NAME = 'tikaei-pwa-v5';
+const DYNAMIC_CACHE = 'tikaei-dynamic-v5';
 
 const ASSETS_TO_CACHE = [
   './',
