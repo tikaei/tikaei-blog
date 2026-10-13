@@ -354,6 +354,30 @@ function initBlogReader(feedUrl, defaultThumb) {
 
     const tempArticleBody = document.createElement('div');
     tempArticleBody.innerHTML = post.content;
+
+    // 1. ALLE Links im Beitrag durchsuchen und verarbeiten (auch Piktogramme/Icons ohne <img>-Tag)
+    tempArticleBody.querySelectorAll('a').forEach(a => {
+      const rawHref = a.getAttribute('href') || '';
+      const href = rawHref.toLowerCase();
+
+      if (!href || href.startsWith('javascript:') || href.startsWith('#')) return;
+
+      const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
+                        href.includes('blogger.googleusercontent.com/img/') ||
+                        href.includes('bp.blogspot.com/');
+
+      if (isImgFile) {
+        a.classList.add('lightbox-link');
+        a.setAttribute('data-lightbox-src', rawHref);
+        a.setAttribute('href', 'javascript:void(0);');
+      } else {
+        a.classList.add('external-web-link');
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+
+    // 2. Bilder für die Anzeige optimieren
     tempArticleBody.querySelectorAll('img').forEach(img => {
       if (img.src) {
         img.src = optimizeBloggerImage(img.src, 's1600');
@@ -361,30 +385,10 @@ function initBlogReader(feedUrl, defaultThumb) {
         img.style.height = 'auto';
         img.style.borderRadius = '8px';
       }
-
       const parentLink = img.closest('a');
-      if (parentLink && parentLink.href) {
-        const href = parentLink.href.toLowerCase();
-        const isImgFile = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href) ||
-                          href.includes('blogger.googleusercontent.com/img/') ||
-                          href.includes('bp.blogspot.com/');
-        
-        if (!isImgFile) {
-          parentLink.classList.add('external-web-link');
-          parentLink.setAttribute('target', '_blank');
-          parentLink.setAttribute('rel', 'noopener noreferrer');
-          img.style.cursor = 'pointer';
-        } else {
-          parentLink.classList.add('lightbox-link');
-          // URL in Data-Attribut auslagern und href neutralisieren (stoppt Chrome Hover-Prefetch):
-          parentLink.setAttribute('data-lightbox-src', parentLink.href);
-          parentLink.setAttribute('href', 'javascript:void(0);');
-          img.style.cursor = 'zoom-in';
-        }
-      } else {
-        img.style.cursor = 'zoom-in';
-      }
+      img.style.cursor = parentLink && parentLink.classList.contains('external-web-link') ? 'pointer' : 'zoom-in';
     });
+
     const bodyEl = document.getElementById('article-body');
     if (bodyEl) bodyEl.innerHTML = tempArticleBody.innerHTML;
 
@@ -736,24 +740,31 @@ function initLightbox() {
   }
 
   document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'IMG' && e.target.closest('#article-body')) {
-      const parentLink = e.target.closest('a');
+    const clickedEl = e.target;
+    const articleBody = clickedEl.closest('#article-body');
+    if (!articleBody) return;
 
-      if (parentLink && parentLink.classList.contains('external-web-link')) {
-        return;
-      }
+    const parentLink = clickedEl.closest('a');
 
-      if (parentLink) {
-        e.preventDefault();
-      }
+    // Externe Links normale Navigation erlauben
+    if (parentLink && parentLink.classList.contains('external-web-link')) {
+      return;
+    }
 
-      let fullSizeUrl = e.target.src;
-      if (parentLink && parentLink.classList.contains('lightbox-link')) {
-        fullSizeUrl = parentLink.getAttribute('data-lightbox-src') || parentLink.href || e.target.src;
-      }
-
+    // Lightbox für Bilder & Piktogramm-Links öffnen
+    if (parentLink && parentLink.classList.contains('lightbox-link')) {
+      e.preventDefault();
+      let fullSizeUrl = parentLink.getAttribute('data-lightbox-src') || clickedEl.src;
       fullSizeUrl = optimizeBloggerImage(fullSizeUrl, 's0');
-      openLightbox(fullSizeUrl, e.target.alt);
+      openLightbox(fullSizeUrl, clickedEl.alt || parentLink.textContent || 'Vergrößertes Bild');
+      return;
+    }
+
+    // Falls ein einzelnes Bild ohne Link angeklickt wurde
+    if (clickedEl.tagName === 'IMG') {
+      e.preventDefault();
+      const fullSizeUrl = optimizeBloggerImage(clickedEl.src, 's0');
+      openLightbox(fullSizeUrl, clickedEl.alt);
     }
   });
 
