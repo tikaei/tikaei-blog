@@ -21,7 +21,7 @@ jobs:
     steps:
       # 1. Repository-Code auschecken
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # 2. Ruby installieren & HTMLProofer (Link- & HTML-Check)
       - name: Set up Ruby
