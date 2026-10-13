@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tikaei-pwa-v5';
-const DYNAMIC_CACHE = 'tikaei-dynamic-v5';
+const CACHE_NAME = 'tikaei-pwa-v6';
+const DYNAMIC_CACHE = 'tikaei-dynamic-v6';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -50,6 +50,9 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+
+  // Nicht-HTTP(S) Anfragen ignorieren (z. B. chrome-extension:// von Erweiterungen)
+  if (!url.protocol.startsWith('http')) return;
 
   // Google Analytics & Tag Manager ignorieren und direkt vom Browser verarbeiten lassen
   if (url.hostname.includes('google-analytics.com') || url.hostname.includes('googletagmanager.com')) {
