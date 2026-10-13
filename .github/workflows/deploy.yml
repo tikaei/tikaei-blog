@@ -51,4 +51,4 @@ jobs:
 
       - name: Auf GitHub Pages bereitstellen
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
