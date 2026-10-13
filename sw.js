@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tikaei-pwa-v3';
-const DYNAMIC_CACHE = 'tikaei-dynamic-v3';
+const CACHE_NAME = 'tikaei-pwa-v4';
+const DYNAMIC_CACHE = 'tikaei-dynamic-v4';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -46,6 +46,9 @@ self.addEventListener('activate', (event) => {
 
 /* 3. Fetch-Events intelligent verwalten */
 self.addEventListener('fetch', (event) => {
+  // Nur GET-Anfragen verarbeiten (POST, PUT etc. nicht cachen)
+  if (event.request.method !== 'GET') return;
+
   const url = new URL(event.request.url);
 
   // Google Analytics & Tag Manager ignorieren und direkt vom Browser verarbeiten lassen
@@ -75,7 +78,8 @@ self.addEventListener('fetch', (event) => {
       caches.match(event.request).then((cachedResponse) => {
         const fetchPromise = fetch(event.request)
           .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
+            // Auch "opaque" Antworten (Status 0 bei Cross-Origin-Bildern) im Cache speichern
+            if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
               const responseClone = networkResponse.clone();
               caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, responseClone));
             }
@@ -93,7 +97,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
           const responseClone = networkResponse.clone();
           caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, responseClone));
         }
