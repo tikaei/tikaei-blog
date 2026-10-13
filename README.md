@@ -1,2 +1,2 @@
 # Blogger Website
-Blogger grabbling website in js architecture
+Personal homepage in js architecture grabbling and combining different Blogger blogs
