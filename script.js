@@ -152,7 +152,7 @@ function initHub() {
           data.feed.entry.forEach(entry => {
             const rawId = entry.id ? entry.id.$t : '';
             const postIdMatch = rawId.match(/post-(\d+)/);
-            const postId = postIdMatch ? postIdMatch[1] : '';
+            const postId = postIdMatch ? postIdMatch : '';
             let postUrl = '';
             if (entry.link) {
               const alt = entry.link.find(l => l.rel === 'alternate');
@@ -376,6 +376,7 @@ function initBlogReader(feedUrl, defaultThumb) {
           img.style.cursor = 'pointer';
         } else {
           parentLink.classList.add('lightbox-link');
+          parentLink.setAttribute('rel', 'nofollow'); // Verhindert aggressives Prefetching beim Mouseover
           img.style.cursor = 'zoom-in';
         }
       } else {
