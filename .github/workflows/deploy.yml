@@ -42,7 +42,7 @@ jobs:
           npx clean-css-cli style.css -o style.css
 
       - name: GitHub Pages konfigurieren
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build Artifact hochladen
         uses: actions/upload-pages-artifact@v3
