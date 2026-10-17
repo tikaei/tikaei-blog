@@ -354,13 +354,21 @@ function initBlogReader(feedUrl, defaultThumb) {
     const tempArticleBody = document.createElement('div');
     tempArticleBody.innerHTML = post.content;
 
-    // Bilder und Links verarbeiten
-    tempArticleBody.querySelectorAll('img').forEach(img => {
+    // Bilder und Links verarbeiten inkl. Performance-Feinschliff
+    tempArticleBody.querySelectorAll('img').forEach((img, imgIndex) => {
       if (img.src) {
         img.src = optimizeBloggerImage(img.src, 's1600');
         img.style.maxWidth = '100%';
         img.style.height = 'auto';
         img.style.borderRadius = '8px';
+
+        // Erste Abbildung sofort (eager) laden, alle weiteren lazy und asynchron decodieren
+        if (imgIndex === 0) {
+          img.setAttribute('loading', 'eager');
+        } else {
+          img.setAttribute('loading', 'lazy');
+        }
+        img.setAttribute('decoding', 'async');
       }
 
       const parentLink = img.closest('a');
