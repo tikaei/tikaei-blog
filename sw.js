@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tikaei-pwa-v6';
-const DYNAMIC_CACHE = 'tikaei-dynamic-v6';
+const CACHE_NAME = 'tikaei-pwa-v7';
+const DYNAMIC_CACHE = 'tikaei-dynamic-v7';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // A) Navigationsseiten, Skripte & Stylesheets -> Network First (aktuelle Updates vorziehen)
+  // A) Navigationsseiten, Skripte & Stylesheets -> Network First mit Offline-Fallback
   if (event.request.mode === 'navigate' || url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     event.respondWith(
       fetch(event.request)
@@ -70,7 +70,15 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match(event.request))
+        .catch(async () => {
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) return cachedResponse;
+
+          // Bei Navigation ohne Netz & ohne Cache-Treffer: Offline-Ersatzseite anzeigen
+          if (event.request.mode === 'navigate') {
+            return (await caches.match('./404.html')) || (await caches.match('./index.html'));
+          }
+        })
     );
     return;
   }
