@@ -1,5 +1,5 @@
-const CACHE_NAME = 'tikaei-pwa-v7';
-const DYNAMIC_CACHE = 'tikaei-dynamic-v7';
+const CACHE_NAME = 'tikaei-pwa-v8';
+const DYNAMIC_CACHE = 'tikaei-dynamic-v8';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -16,7 +16,13 @@ const ASSETS_TO_CACHE = [
   './images/favicon.png',
   './images/logo.png',
   './images/banner-hub-desktop.webp',
-  './images/banner-hub-mobile.webp'
+  './images/banner-hub-mobile.webp',
+  './images/banner-foto-desktop.webp',
+  './images/banner-foto-mobile.webp',
+  './images/banner-musik-desktop.webp',
+  './images/banner-musik-mobile.webp',
+  './images/banner-moto-desktop.webp',
+  './images/banner-moto-mobile.webp'
 ];
 
 /* 1. Installation: App-Shell & statische Assets im Cache ablegen */
