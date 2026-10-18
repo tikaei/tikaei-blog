@@ -151,7 +151,7 @@ function initHub() {
           data.feed.entry.forEach(entry => {
             const rawId = entry.id ? entry.id.$t : '';
             const postIdMatch = rawId.match(/post-(\d+)/);
-            const postId = postIdMatch ? postIdMatch : '';
+            const postId = postIdMatch ? postIdMatch[1] : '';
             let postUrl = '';
             if (entry.link) {
               const alt = entry.link.find(l => l.rel === 'alternate');
@@ -510,7 +510,7 @@ function initBlogReader(feedUrl, defaultThumb) {
       loadedPosts = data.feed.entry.map(entry => {
         const rawId = entry.id ? entry.id.$t : '';
         const postIdMatch = rawId.match(/post-(\d+)/);
-        const postId = postIdMatch ? postIdMatch : '';
+        const postId = postIdMatch ? postIdMatch[1] : '';
         let postUrl = '';
         if (entry.link) {
           const alt = entry.link.find(l => l.rel === 'alternate');
