@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, follow">
 
-  <!--  Content Security Policy (Sicherheit) -->
+  <!-- Content Security Policy (Sicherheit) -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-mDENwN4jch6ewpQTnbIAKBUpbim1H5AFOFLnzcm7RiY=' https://www.googletagmanager.com https://*.blogspot.com; img-src 'self' https://www.googletagmanager.com https://*.googleusercontent.com https://*.google-analytics.com data:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';">
 
   <!-- SEO & Standard Meta -->
@@ -26,13 +26,8 @@
   <!-- Local Stylesheet (System-Fonts) -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Theme-Init (Verhindert White-Flash beim Laden) -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-  </script>
+  <!-- Theme-Init (Verhindert White-Flash beim Laden - Einzeilig für exakten CSP-Hash) -->
+  <script>(function(){const t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t)})();</script>
 
   <!-- Google Analytics -->
   <script src="gtm-init.js" defer></script>
@@ -73,7 +68,7 @@
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
-        <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
+        <button id="theme-toggle-btn" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
       </nav>
@@ -90,7 +85,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>&copy; [ti:kæı] &bull; <a href="index.html">Zurück zur Startseite</a></p>
+      <p>&copy; [ti:kæı] &bull; <a href="index.html">Zurück zur Startseite</a> &bull; <a href="disclaimer.html">Datenschutz & Impressum</a></p>
     </footer>
   </div>
 
