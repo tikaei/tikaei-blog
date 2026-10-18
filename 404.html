@@ -35,13 +35,7 @@
   </script>
 
   <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNER6HTD1X"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GNER6HTD1X');
-  </script>
+  <script src="gtm-init.js" defer></script>
 </head>
 <body class="theme-hub">
 
@@ -79,7 +73,7 @@
         <a href="photography.html">Photo</a>
         <a href="music.html">Music</a>
         <a href="moto.html">Moto</a>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
+        <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Farbschema umschalten">
           <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
         </button>
       </nav>
