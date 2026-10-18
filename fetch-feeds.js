@@ -68,7 +68,7 @@ async function fetchAllFeeds() {
       entries.forEach(entry => {
         const rawId = entry.id ? entry.id.$t : '';
         const postIdMatch = rawId.match(/post-(\d+)/);
-        const postId = postIdMatch ? postIdMatch : '';
+        const postId = postIdMatch ? postIdMatch[1] : '';
 
         let postUrl = '';
         if (entry.link) {
